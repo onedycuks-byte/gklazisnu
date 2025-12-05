@@ -1,25 +1,29 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { StatCard } from "@/components/StatCard";
 import { RegionCard } from "@/components/RegionCard";
-import { AddDonationDialog } from "@/components/AddDonationDialog";
 import { DonationTable } from "@/components/DonationTable";
 import { RegionDetail } from "@/components/RegionDetail";
-import { useDonations } from "@/hooks/useDonations";
-import { regions } from "@/data/regions";
-import { Coins, MapPin, TrendingUp, Users } from "lucide-react";
+import { useRegions } from "@/hooks/useRegions";
+import { useSupabaseDonations } from "@/hooks/useSupabaseDonations";
+import { useAuth } from "@/contexts/AuthContext";
+import { Coins, MapPin, TrendingUp, Users, Shield, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null);
-  const {
-    addDonation,
-    deleteDonation,
-    getRegionSummaries,
-    getTotalDonations,
+  const { regions, isLoading: regionsLoading } = useRegions();
+  const { 
+    donations, 
+    isLoading: donationsLoading,
     getDonationsByRegion,
+    getTotalDonations,
     getRecentDonations,
-  } = useDonations();
+  } = useSupabaseDonations();
+  const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -29,24 +33,58 @@ const Index = () => {
     }).format(amount);
   };
 
-  const regionSummaries = getRegionSummaries();
+  if (regionsLoading || donationsLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const regionSummaries = regions.map((region) => {
+    const regionDonations = donations.filter((d) => d.region_id === region.id);
+    const totalDonations = regionDonations.reduce((sum, d) => sum + d.amount, 0);
+    return {
+      ...region,
+      totalDonations,
+      donationCount: regionDonations.length,
+    };
+  });
+
   const totalDonations = getTotalDonations();
-  const totalTransactions = regionSummaries.reduce((sum, r) => sum + r.donationCount, 0);
-  const recentDonations = getRecentDonations(10);
+  const totalTransactions = donations.length;
+  const recentDonations = getRecentDonations(10).map((d) => ({
+    id: d.id,
+    regionId: d.region_id,
+    amount: d.amount,
+    date: d.date,
+    notes: d.notes || undefined,
+  }));
 
   if (selectedRegionId) {
-    const region = regions.find((r) => r.id === selectedRegionId)!;
-    const donations = getDonationsByRegion(selectedRegionId);
+    const region = regions.find((r) => r.id === selectedRegionId);
+    if (!region) {
+      setSelectedRegionId(null);
+      return null;
+    }
+    
+    const regionDonations = getDonationsByRegion(selectedRegionId).map((d) => ({
+      id: d.id,
+      regionId: d.region_id,
+      amount: d.amount,
+      date: d.date,
+      notes: d.notes || undefined,
+    }));
+
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <main className="container py-8">
           <RegionDetail
             region={region}
-            donations={donations}
+            donations={regionDonations}
             onBack={() => setSelectedRegionId(null)}
-            onAddDonation={addDonation}
-            onDeleteDonation={deleteDonation}
+            regions={regions}
           />
         </main>
       </div>
@@ -58,6 +96,21 @@ const Index = () => {
       <Header />
       
       <main className="container py-8 space-y-8">
+        {/* Admin Button */}
+        <div className="flex justify-end">
+          {user && isAdmin ? (
+            <Button onClick={() => navigate("/admin")} className="gap-2">
+              <Shield className="h-4 w-4" />
+              Dashboard Admin
+            </Button>
+          ) : (
+            <Button variant="outline" onClick={() => navigate("/auth")} className="gap-2">
+              <Shield className="h-4 w-4" />
+              Login Admin
+            </Button>
+          )}
+        </div>
+
         {/* Stats Overview */}
         <section className="animate-fade-in">
           <h2 className="text-xl font-semibold text-foreground mb-4">Ringkasan</h2>
@@ -70,7 +123,7 @@ const Index = () => {
             />
             <StatCard
               title="Jumlah Wilayah"
-              value="5"
+              value={regions.length.toString()}
               subtitle="wilayah aktif"
               icon={MapPin}
               variant="primary"
@@ -83,7 +136,7 @@ const Index = () => {
             />
             <StatCard
               title="Koordinator"
-              value="5"
+              value={regions.length.toString()}
               subtitle="orang aktif"
               icon={Users}
             />
@@ -98,14 +151,11 @@ const Index = () => {
           </TabsList>
 
           <TabsContent value="regions" className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-semibold text-foreground">Daftar Wilayah</h2>
-                <p className="text-sm text-muted-foreground">
-                  Klik wilayah untuk melihat detail dan menambah donasi
-                </p>
-              </div>
-              <AddDonationDialog onAdd={addDonation} />
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">Daftar Wilayah</h2>
+              <p className="text-sm text-muted-foreground">
+                Klik wilayah untuk melihat detail donasi
+              </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {regionSummaries.map((region, index) => (
@@ -120,18 +170,15 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="history" className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-semibold text-foreground">Riwayat Donasi Terbaru</h2>
-                <p className="text-sm text-muted-foreground">
-                  10 transaksi terakhir dari semua wilayah
-                </p>
-              </div>
-              <AddDonationDialog onAdd={addDonation} />
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">Riwayat Donasi Terbaru</h2>
+              <p className="text-sm text-muted-foreground">
+                10 transaksi terakhir dari semua wilayah
+              </p>
             </div>
             <DonationTable
               donations={recentDonations}
-              onDelete={deleteDonation}
+              regions={regions}
             />
           </TabsContent>
         </Tabs>

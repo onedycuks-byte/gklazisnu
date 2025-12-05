@@ -1,6 +1,14 @@
-import { RegionSummary } from "@/types/donation";
 import { MapPin, User, Phone, Coins } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+interface RegionSummary {
+  id: string;
+  name: string;
+  coordinator: string;
+  phone: string;
+  totalDonations: number;
+  donationCount: number;
+}
 
 interface RegionCardProps {
   region: RegionSummary;

@@ -1,25 +1,36 @@
-import { Region, Donation } from "@/types/donation";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, User, Phone, MapPin } from "lucide-react";
+import { ArrowLeft, User, Phone } from "lucide-react";
 import { DonationTable } from "./DonationTable";
-import { AddDonationDialog } from "./AddDonationDialog";
 import { StatCard } from "./StatCard";
 import { Coins, Calendar } from "lucide-react";
+
+interface Region {
+  id: string;
+  name: string;
+  coordinator: string;
+  phone: string;
+}
+
+interface Donation {
+  id: string;
+  regionId: string;
+  amount: number;
+  date: string;
+  notes?: string;
+}
 
 interface RegionDetailProps {
   region: Region;
   donations: Donation[];
   onBack: () => void;
-  onAddDonation: (donation: { regionId: string; amount: number; date: string; notes?: string }) => void;
-  onDeleteDonation: (id: string) => void;
+  regions: Region[];
 }
 
 export function RegionDetail({
   region,
   donations,
   onBack,
-  onAddDonation,
-  onDeleteDonation,
+  regions,
 }: RegionDetailProps) {
   const totalAmount = donations.reduce((sum, d) => sum + d.amount, 0);
 
@@ -82,18 +93,15 @@ export function RegionDetail({
       </div>
 
       <div className="rounded-xl bg-card p-6 shadow-card">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">Riwayat Donasi</h3>
-            <p className="text-sm text-muted-foreground">
-              Daftar penyetoran infaq kaleng koin
-            </p>
-          </div>
-          <AddDonationDialog onAdd={onAddDonation} defaultRegionId={region.id} />
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-foreground">Riwayat Donasi</h3>
+          <p className="text-sm text-muted-foreground">
+            Daftar penyetoran infaq kaleng koin
+          </p>
         </div>
         <DonationTable
           donations={donations}
-          onDelete={onDeleteDonation}
+          regions={regions}
           showRegion={false}
         />
       </div>
