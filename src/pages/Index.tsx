@@ -1,27 +1,15 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Header } from "@/components/Header";
-import { StatCard } from "@/components/StatCard";
-import { RegionCard } from "@/components/RegionCard";
-import { DonationTable } from "@/components/DonationTable";
-import { RegionDetail } from "@/components/RegionDetail";
+import { BottomNav } from "@/components/BottomNav";
+import { HeroSection } from "@/components/HeroSection";
 import { useRegions } from "@/hooks/useRegions";
 import { useSupabaseDonations } from "@/hooks/useSupabaseDonations";
 import { useAuth } from "@/contexts/AuthContext";
-import { Coins, MapPin, TrendingUp, Users, Shield, Loader2 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileText, Newspaper, Phone, Shield, Loader2, MapPin, ChevronRight, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
-  const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null);
   const { regions, isLoading: regionsLoading } = useRegions();
-  const { 
-    donations, 
-    isLoading: donationsLoading,
-    getDonationsByRegion,
-    getTotalDonations,
-    getRecentDonations,
-  } = useSupabaseDonations();
+  const { donations, isLoading: donationsLoading, getTotalDonations, getRecentDonations } = useSupabaseDonations();
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
 
@@ -41,157 +29,133 @@ const Index = () => {
     );
   }
 
-  const regionSummaries = regions.map((region) => {
-    const regionDonations = donations.filter((d) => d.region_id === region.id);
-    const totalDonations = regionDonations.reduce((sum, d) => sum + d.amount, 0);
-    return {
-      ...region,
-      totalDonations,
-      donationCount: regionDonations.length,
-    };
-  });
-
   const totalDonations = getTotalDonations();
   const totalTransactions = donations.length;
-  const recentDonations = getRecentDonations(10).map((d) => ({
-    id: d.id,
-    regionId: d.region_id,
-    amount: d.amount,
-    date: d.date,
-    notes: d.notes || undefined,
-  }));
+  const recentDonations = getRecentDonations(3);
 
-  if (selectedRegionId) {
-    const region = regions.find((r) => r.id === selectedRegionId);
-    if (!region) {
-      setSelectedRegionId(null);
-      return null;
-    }
-    
-    const regionDonations = getDonationsByRegion(selectedRegionId).map((d) => ({
-      id: d.id,
-      regionId: d.region_id,
-      amount: d.amount,
-      date: d.date,
-      notes: d.notes || undefined,
-    }));
-
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="container py-8">
-          <RegionDetail
-            region={region}
-            donations={regionDonations}
-            onBack={() => setSelectedRegionId(null)}
-            regions={regions}
-          />
-        </main>
-      </div>
-    );
-  }
+  // Top 3 regions by donations
+  const regionSummaries = regions
+    .map((region) => {
+      const regionDonations = donations.filter((d) => d.region_id === region.id);
+      const total = regionDonations.reduce((sum, d) => sum + d.amount, 0);
+      return { ...region, total, count: regionDonations.length };
+    })
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="container py-8 space-y-8">
-        {/* Admin Button */}
-        <div className="flex justify-end">
-          {user && isAdmin ? (
-            <Button onClick={() => navigate("/admin")} className="gap-2">
-              <Shield className="h-4 w-4" />
-              Dashboard Admin
-            </Button>
-          ) : (
-            <Button variant="outline" onClick={() => navigate("/auth")} className="gap-2">
-              <Shield className="h-4 w-4" />
-              Login Admin
-            </Button>
-          )}
+    <div className="min-h-screen bg-background pb-20">
+      {/* Admin Button */}
+      <div className="flex justify-end px-4 pt-3">
+        {user && isAdmin ? (
+          <Button size="sm" onClick={() => navigate("/admin")} className="gap-1.5 text-xs">
+            <Shield className="h-3.5 w-3.5" />
+            Admin
+          </Button>
+        ) : (
+          <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="gap-1.5 text-xs text-muted-foreground">
+            <Shield className="h-3.5 w-3.5" />
+            Login
+          </Button>
+        )}
+      </div>
+
+      {/* Hero */}
+      <HeroSection totalDonations={totalDonations} totalTransactions={totalTransactions} totalRegions={regions.length} />
+
+      {/* Quick Menu */}
+      <div className="px-4 mt-6">
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { icon: FileText, label: "Laporan", color: "gradient-primary", path: "/laporan" },
+            { icon: Newspaper, label: "Berita", color: "gradient-gold", path: "/berita" },
+            { icon: Phone, label: "Kontak", color: "gradient-primary", path: "/kontak" },
+          ].map((item, i) => (
+            <button
+              key={item.label}
+              onClick={() => navigate(item.path)}
+              className="flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-card hover:shadow-elevated transition-all animate-scale-in"
+              style={{ animationDelay: `${i * 80}ms` }}
+            >
+              <div className={`flex h-12 w-12 items-center justify-center rounded-full ${item.color} text-primary-foreground`}>
+                <item.icon className="h-5 w-5" />
+              </div>
+              <span className="text-xs font-semibold text-foreground">{item.label}</span>
+            </button>
+          ))}
         </div>
+      </div>
 
-        {/* Stats Overview */}
-        <section className="animate-fade-in">
-          <h2 className="text-xl font-semibold text-foreground mb-4">Ringkasan</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard
-              title="Total Terkumpul"
-              value={formatCurrency(totalDonations)}
-              icon={Coins}
-              variant="gold"
-            />
-            <StatCard
-              title="Jumlah Wilayah"
-              value={regions.length.toString()}
-              subtitle="wilayah aktif"
-              icon={MapPin}
-              variant="primary"
-            />
-            <StatCard
-              title="Total Transaksi"
-              value={totalTransactions.toString()}
-              subtitle="kali penyetoran"
-              icon={TrendingUp}
-            />
-            <StatCard
-              title="Koordinator"
-              value={regions.length.toString()}
-              subtitle="orang aktif"
-              icon={Users}
-            />
-          </div>
-        </section>
-
-        {/* Tabs */}
-        <Tabs defaultValue="regions" className="space-y-6">
-          <TabsList className="bg-muted/50">
-            <TabsTrigger value="regions">Wilayah</TabsTrigger>
-            <TabsTrigger value="history">Riwayat Terbaru</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="regions" className="space-y-4">
-            <div>
-              <h2 className="text-xl font-semibold text-foreground">Daftar Wilayah</h2>
-              <p className="text-sm text-muted-foreground">
-                Klik wilayah untuk melihat detail donasi
-              </p>
+      {/* Top Wilayah */}
+      <div className="px-4 mt-6">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-bold text-foreground">Top Wilayah</h2>
+          <button onClick={() => navigate("/laporan")} className="text-xs text-primary font-semibold flex items-center gap-0.5">
+            Lihat Semua <ChevronRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="space-y-2">
+          {regionSummaries.map((region, index) => (
+            <div
+              key={region.id}
+              onClick={() => navigate("/laporan")}
+              className="flex items-center gap-3 bg-card rounded-xl p-4 shadow-card cursor-pointer hover:shadow-elevated transition-all animate-slide-up"
+              style={{ animationDelay: `${index * 80}ms` }}
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-full gradient-primary text-primary-foreground font-bold text-sm">
+                {index + 1}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm text-foreground truncate">{region.name}</p>
+                <p className="text-xs text-muted-foreground">{region.count} transaksi</p>
+              </div>
+              <p className="font-bold text-sm text-primary">{formatCurrency(region.total)}</p>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {regionSummaries.map((region, index) => (
-                <RegionCard
-                  key={region.id}
-                  region={region}
-                  index={index}
-                  onSelect={setSelectedRegionId}
-                />
-              ))}
-            </div>
-          </TabsContent>
+          ))}
+        </div>
+      </div>
 
-          <TabsContent value="history" className="space-y-4">
-            <div>
-              <h2 className="text-xl font-semibold text-foreground">Riwayat Donasi Terbaru</h2>
-              <p className="text-sm text-muted-foreground">
-                10 transaksi terakhir dari semua wilayah
-              </p>
-            </div>
-            <DonationTable
-              donations={recentDonations}
-              regions={regions}
-            />
-          </TabsContent>
-        </Tabs>
-      </main>
+      {/* Recent Transactions */}
+      <div className="px-4 mt-6">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-bold text-foreground">Transaksi Terbaru</h2>
+          <button onClick={() => navigate("/laporan")} className="text-xs text-primary font-semibold flex items-center gap-0.5">
+            Lihat Semua <ChevronRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="space-y-2">
+          {recentDonations.map((d, index) => {
+            const region = regions.find((r) => r.id === d.region_id);
+            return (
+              <div
+                key={d.id}
+                className="flex items-center gap-3 bg-card rounded-xl p-4 shadow-card animate-slide-up"
+                style={{ animationDelay: `${index * 60}ms` }}
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent">
+                  <Coins className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm text-foreground truncate">{region?.name || "Wilayah"}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(d.date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                  </p>
+                </div>
+                <p className="font-bold text-sm text-primary">{formatCurrency(d.amount)}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Footer */}
-      <footer className="border-t bg-card mt-12">
-        <div className="container py-6">
-          <p className="text-center text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} LAZISNU Gendongkulon. Semua hak dilindungi.
-          </p>
-        </div>
-      </footer>
+      <div className="px-4 mt-8 mb-4">
+        <p className="text-center text-[11px] text-muted-foreground">
+          &copy; {new Date().getFullYear()} LAZISNU Gendongkulon
+        </p>
+      </div>
+
+      <BottomNav />
     </div>
   );
 };
