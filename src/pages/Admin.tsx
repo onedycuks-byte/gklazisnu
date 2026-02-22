@@ -250,7 +250,7 @@ export default function Admin() {
             </div>
             <div>
               <h1 className="text-lg font-bold text-foreground">Admin Dashboard</h1>
-              <p className="text-xs text-muted-foreground">LAZIZNU Gendongkulon</p>
+              <p className="text-xs text-muted-foreground">LAZISNU Gendongkulon</p>
             </div>
           </div>
           <div className="flex items-center gap-2">

@@ -74,7 +74,7 @@ export default function Auth() {
           </div>
           <CardTitle className="text-2xl">Admin Panel</CardTitle>
           <CardDescription>
-            LAZIZNU Gendongkulon - Pengelolaan Dana Infaq
+            LAZISNU Gendongkulon - Pengelolaan Dana Infaq
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -84,7 +84,7 @@ export default function Auth() {
               <Input
                 id="login-email"
                 type="email"
-                placeholder="admin@laziznu.com"
+                placeholder="admin@lazisnu.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
