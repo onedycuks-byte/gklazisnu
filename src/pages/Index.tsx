@@ -3,6 +3,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { HeroSection } from "@/components/HeroSection";
 import { useRegions } from "@/hooks/useRegions";
 import { useSupabaseDonations } from "@/hooks/useSupabaseDonations";
+import { useExpenses } from "@/hooks/useExpenses";
 import { useAuth } from "@/contexts/AuthContext";
 import { FileText, Newspaper, Phone, Shield, Loader2, MapPin, ChevronRight, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 const Index = () => {
   const { regions, isLoading: regionsLoading } = useRegions();
   const { donations, isLoading: donationsLoading, getTotalDonations, getRecentDonations } = useSupabaseDonations();
+  const { expenses, isLoading: expensesLoading, getTotalExpenses } = useExpenses();
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
 
@@ -21,7 +23,7 @@ const Index = () => {
     }).format(amount);
   };
 
-  if (regionsLoading || donationsLoading) {
+  if (regionsLoading || donationsLoading || expensesLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -29,11 +31,11 @@ const Index = () => {
     );
   }
 
-  const totalDonations = getTotalDonations();
-  const totalTransactions = donations.length;
+  const totalPemasukan = getTotalDonations();
+  const totalPengeluaran = getTotalExpenses();
+  const totalTransactions = donations.length + expenses.length;
   const recentDonations = getRecentDonations(3);
 
-  // Top 3 regions by donations
   const regionSummaries = regions
     .map((region) => {
       const regionDonations = donations.filter((d) => d.region_id === region.id);
@@ -48,9 +50,9 @@ const Index = () => {
       {/* Admin Button */}
       <div className="flex justify-end px-4 pt-3">
         {user && isAdmin ? (
-          <Button size="sm" onClick={() => navigate("/admin")} className="gap-1.5 text-xs">
+          <Button size="sm" onClick={() => navigate("/admin")} variant="destructive" className="gap-1.5 text-xs">
             <Shield className="h-3.5 w-3.5" />
-            Admin
+            Admin Panel
           </Button>
         ) : (
           <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="gap-1.5 text-xs text-muted-foreground">
@@ -61,7 +63,12 @@ const Index = () => {
       </div>
 
       {/* Hero */}
-      <HeroSection totalDonations={totalDonations} totalTransactions={totalTransactions} totalRegions={regions.length} />
+      <HeroSection
+        totalPemasukan={totalPemasukan}
+        totalPengeluaran={totalPengeluaran}
+        totalTransactions={totalTransactions}
+        totalRegions={regions.length}
+      />
 
       {/* Quick Menu */}
       <div className="px-4 mt-6">
