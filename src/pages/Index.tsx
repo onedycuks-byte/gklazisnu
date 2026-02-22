@@ -188,7 +188,7 @@ const Index = () => {
       <footer className="border-t bg-card mt-12">
         <div className="container py-6">
           <p className="text-center text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} LAZIZNU Gendongkulon. Semua hak dilindungi.
+            &copy; {new Date().getFullYear()} LAZISNU Gendongkulon. Semua hak dilindungi.
           </p>
         </div>
       </footer>

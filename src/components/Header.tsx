@@ -9,7 +9,7 @@ export function Header() {
             <Coins className="h-7 w-7" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">LAZIZNU Gendongkulon</h1>
+            <h1 className="text-2xl font-bold tracking-tight">LAZISNU Gendongkulon</h1>
             <p className="text-primary-foreground/80 text-sm">
               Pengelolaan Dana Infaq Kaleng Koin
             </p>
