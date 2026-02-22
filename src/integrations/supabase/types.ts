@@ -73,6 +73,42 @@ export type Database = {
         }
         Relationships: []
       }
+      programs: {
+        Row: {
+          collected_amount: number
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          qris_image_url: string | null
+          target_amount: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          collected_amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          qris_image_url?: string | null
+          target_amount?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          collected_amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          qris_image_url?: string | null
+          target_amount?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       regions: {
         Row: {
           coordinator: string

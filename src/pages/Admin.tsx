@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRegions, Region } from "@/hooks/useRegions";
 import { useSupabaseDonations, Donation } from "@/hooks/useSupabaseDonations";
 import { useExpenses, Expense } from "@/hooks/useExpenses";
+import { usePrograms, Program } from "@/hooks/usePrograms";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,10 +24,11 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { 
   Loader2, LogOut, MapPin, Pencil, Trash2, Plus, 
-  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet
+  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target
 } from "lucide-react";
 
 export default function Admin() {
@@ -34,6 +36,7 @@ export default function Admin() {
   const { regions, isLoading: regionsLoading, updateRegion, addRegion, deleteRegion } = useRegions();
   const { donations, isLoading: donationsLoading, addDonation, updateDonation, deleteDonation, getTotalDonations } = useSupabaseDonations();
   const { expenses, isLoading: expensesLoading, addExpense, deleteExpense, getTotalExpenses } = useExpenses();
+  const { programs, isLoading: programsLoading, addProgram, updateProgram, deleteProgram } = usePrograms();
   const navigate = useNavigate();
 
   const [editingRegion, setEditingRegion] = useState<Region | null>(null);
@@ -50,6 +53,13 @@ export default function Admin() {
     amount: "", date: new Date().toISOString().split("T")[0], description: "",
   });
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
+
+  // Program state
+  const [newProgram, setNewProgram] = useState({
+    title: "", description: "", target_amount: "", qris_image_url: "",
+  });
+  const [isAddProgramOpen, setIsAddProgramOpen] = useState(false);
+  const [editingProgram, setEditingProgram] = useState<Program | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
@@ -136,9 +146,49 @@ export default function Admin() {
     else toast({ title: "Berhasil", description: "Pengeluaran berhasil dihapus" });
   };
 
+  // Program handlers
+  const handleAddProgram = async () => {
+    if (!newProgram.title || !newProgram.target_amount) {
+      toast({ title: "Error", description: "Lengkapi judul dan target donasi", variant: "destructive" }); return;
+    }
+    const target = parseInt(newProgram.target_amount.replace(/[^\d]/g, ""));
+    const { error } = await addProgram({
+      title: newProgram.title,
+      description: newProgram.description || undefined,
+      target_amount: target,
+      qris_image_url: newProgram.qris_image_url || undefined,
+    });
+    if (error) toast({ title: "Gagal", description: "Gagal menambah program", variant: "destructive" });
+    else {
+      toast({ title: "Berhasil", description: "Program berhasil ditambah" });
+      setNewProgram({ title: "", description: "", target_amount: "", qris_image_url: "" });
+      setIsAddProgramOpen(false);
+    }
+  };
+
+  const handleUpdateProgram = async () => {
+    if (!editingProgram) return;
+    const { error } = await updateProgram(editingProgram.id, {
+      title: editingProgram.title,
+      description: editingProgram.description,
+      target_amount: editingProgram.target_amount,
+      collected_amount: editingProgram.collected_amount,
+      qris_image_url: editingProgram.qris_image_url,
+      is_active: editingProgram.is_active,
+    });
+    if (error) toast({ title: "Gagal", description: "Gagal mengupdate program", variant: "destructive" });
+    else { toast({ title: "Berhasil", description: "Program berhasil diupdate" }); setEditingProgram(null); }
+  };
+
+  const handleDeleteProgram = async (id: string) => {
+    const { error } = await deleteProgram(id);
+    if (error) toast({ title: "Gagal", description: "Gagal menghapus program", variant: "destructive" });
+    else toast({ title: "Berhasil", description: "Program berhasil dihapus" });
+  };
+
   const getRegionName = (regionId: string) => regions.find((r) => r.id === regionId)?.name || regionId;
 
-  if (authLoading || regionsLoading || donationsLoading || expensesLoading) {
+  if (authLoading || regionsLoading || donationsLoading || expensesLoading || programsLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -237,8 +287,11 @@ export default function Admin() {
           </Card>
         </div>
 
-        <Tabs defaultValue="pemasukan" className="space-y-6">
+        <Tabs defaultValue="program" className="space-y-6">
           <TabsList>
+            <TabsTrigger value="program" className="gap-2">
+              <Target className="h-4 w-4" /> Program
+            </TabsTrigger>
             <TabsTrigger value="pemasukan" className="gap-2">
               <TrendingUp className="h-4 w-4" /> Pemasukan
             </TabsTrigger>
@@ -249,6 +302,136 @@ export default function Admin() {
               <MapPin className="h-4 w-4" /> Wilayah
             </TabsTrigger>
           </TabsList>
+
+          {/* Program Tab */}
+          <TabsContent value="program" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold">Kelola Program Donasi</h2>
+                <p className="text-sm text-muted-foreground">Program penggalangan dana dengan QRIS</p>
+              </div>
+              <Dialog open={isAddProgramOpen} onOpenChange={setIsAddProgramOpen}>
+                <DialogTrigger asChild>
+                  <Button><Plus className="mr-2 h-4 w-4" /> Tambah Program</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Tambah Program Donasi</DialogTitle>
+                    <DialogDescription>Buat program penggalangan dana baru</DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label>Judul Program</Label>
+                      <Input value={newProgram.title} onChange={(e) => setNewProgram({ ...newProgram, title: e.target.value })} placeholder="Pembangunan Masjid" />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Deskripsi</Label>
+                      <Textarea value={newProgram.description} onChange={(e) => setNewProgram({ ...newProgram, description: e.target.value })} placeholder="Deskripsi program donasi" />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Target Donasi (Rp)</Label>
+                      <Input value={newProgram.target_amount} onChange={(e) => setNewProgram({ ...newProgram, target_amount: formatAmount(e.target.value) })} placeholder="10.000.000" />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>URL Gambar QRIS</Label>
+                      <Input value={newProgram.qris_image_url} onChange={(e) => setNewProgram({ ...newProgram, qris_image_url: e.target.value })} placeholder="https://..." />
+                      <p className="text-xs text-muted-foreground">Masukkan URL gambar QRIS untuk pembayaran</p>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsAddProgramOpen(false)}>Batal</Button>
+                    <Button onClick={handleAddProgram}>Simpan</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <Card>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Program</TableHead>
+                    <TableHead className="text-right">Terkumpul</TableHead>
+                    <TableHead className="text-right">Target</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="w-[100px]">Aksi</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {programs.map((program) => (
+                    <TableRow key={program.id}>
+                      <TableCell className="font-medium max-w-[200px] truncate">{program.title}</TableCell>
+                      <TableCell className="text-right font-semibold text-primary">{formatCurrency(program.collected_amount)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(program.target_amount)}</TableCell>
+                      <TableCell>
+                        <span className={`text-xs px-2 py-1 rounded-full ${program.is_active ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
+                          {program.is_active ? "Aktif" : "Nonaktif"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="ghost" size="icon" onClick={() => setEditingProgram(program)}>
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader><DialogTitle>Edit Program</DialogTitle></DialogHeader>
+                              {editingProgram && (
+                                <div className="grid gap-4 py-4">
+                                  <div className="grid gap-2">
+                                    <Label>Judul</Label>
+                                    <Input value={editingProgram.title} onChange={(e) => setEditingProgram({ ...editingProgram, title: e.target.value })} />
+                                  </div>
+                                  <div className="grid gap-2">
+                                    <Label>Deskripsi</Label>
+                                    <Textarea value={editingProgram.description || ""} onChange={(e) => setEditingProgram({ ...editingProgram, description: e.target.value })} />
+                                  </div>
+                                  <div className="grid gap-2">
+                                    <Label>Target (Rp)</Label>
+                                    <Input value={formatAmount(editingProgram.target_amount.toString())} onChange={(e) => { const num = parseInt(e.target.value.replace(/[^\d]/g, "")) || 0; setEditingProgram({ ...editingProgram, target_amount: num }); }} />
+                                  </div>
+                                  <div className="grid gap-2">
+                                    <Label>Terkumpul (Rp)</Label>
+                                    <Input value={formatAmount(editingProgram.collected_amount.toString())} onChange={(e) => { const num = parseInt(e.target.value.replace(/[^\d]/g, "")) || 0; setEditingProgram({ ...editingProgram, collected_amount: num }); }} />
+                                  </div>
+                                  <div className="grid gap-2">
+                                    <Label>URL Gambar QRIS</Label>
+                                    <Input value={editingProgram.qris_image_url || ""} onChange={(e) => setEditingProgram({ ...editingProgram, qris_image_url: e.target.value })} />
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <Label>Aktif</Label>
+                                    <Switch checked={editingProgram.is_active} onCheckedChange={(v) => setEditingProgram({ ...editingProgram, is_active: v })} />
+                                  </div>
+                                </div>
+                              )}
+                              <DialogFooter><Button onClick={handleUpdateProgram}>Simpan</Button></DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Hapus Program?</AlertDialogTitle>
+                                <AlertDialogDescription>Program donasi akan dihapus permanen.</AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Batal</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteProgram(program.id)} className="bg-destructive">Hapus</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+          </TabsContent>
 
           {/* Pemasukan Tab */}
           <TabsContent value="pemasukan" className="space-y-4">
