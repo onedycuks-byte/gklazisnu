@@ -5,6 +5,7 @@ import { useRegions, Region } from "@/hooks/useRegions";
 import { useSupabaseDonations, Donation } from "@/hooks/useSupabaseDonations";
 import { useExpenses, Expense } from "@/hooks/useExpenses";
 import { usePrograms, Program } from "@/hooks/usePrograms";
+import { useNews, NewsItem } from "@/hooks/useNews";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,7 +29,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { 
   Loader2, LogOut, MapPin, Pencil, Trash2, Plus, 
-  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image
+  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper
 } from "lucide-react";
 
 export default function Admin() {
@@ -37,6 +38,7 @@ export default function Admin() {
   const { donations, isLoading: donationsLoading, addDonation, updateDonation, deleteDonation, getTotalDonations } = useSupabaseDonations();
   const { expenses, isLoading: expensesLoading, addExpense, deleteExpense, getTotalExpenses } = useExpenses();
   const { programs, isLoading: programsLoading, addProgram, updateProgram, deleteProgram, uploadProgramImage } = usePrograms();
+  const { news, isLoading: newsLoading, addNews, updateNews, deleteNews, uploadNewsImage } = useNews();
   const navigate = useNavigate();
 
   const [editingRegion, setEditingRegion] = useState<Region | null>(null);
@@ -65,6 +67,13 @@ export default function Admin() {
   const [editProgramImageFile, setEditProgramImageFile] = useState<File | null>(null);
   const [editQrisImageFile, setEditQrisImageFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+
+  // News state
+  const [newNews, setNewNews] = useState({ title: "", excerpt: "", content: "", category: "Umum" });
+  const [isAddNewsOpen, setIsAddNewsOpen] = useState(false);
+  const [editingNews, setEditingNews] = useState<NewsItem | null>(null);
+  const [newsImageFile, setNewsImageFile] = useState<File | null>(null);
+  const [editNewsImageFile, setEditNewsImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
@@ -229,9 +238,63 @@ export default function Admin() {
     else toast({ title: "Berhasil", description: "Program berhasil dihapus" });
   };
 
+  // News handlers
+  const handleAddNews = async () => {
+    if (!newNews.title) {
+      toast({ title: "Error", description: "Judul berita harus diisi", variant: "destructive" }); return;
+    }
+    setUploading(true);
+    let image_url: string | undefined;
+    if (newsImageFile) {
+      const res = await uploadNewsImage(newsImageFile);
+      if (res.error) { toast({ title: "Gagal upload gambar", variant: "destructive" }); setUploading(false); return; }
+      image_url = res.url!;
+    }
+    const { error } = await addNews({
+      title: newNews.title, excerpt: newNews.excerpt || undefined,
+      content: newNews.content || undefined, category: newNews.category,
+      ...(image_url ? { image_url } : {}),
+    });
+    setUploading(false);
+    if (error) toast({ title: "Gagal", description: "Gagal menambah berita", variant: "destructive" });
+    else {
+      toast({ title: "Berhasil", description: "Berita berhasil ditambah" });
+      setNewNews({ title: "", excerpt: "", content: "", category: "Umum" });
+      setNewsImageFile(null); setIsAddNewsOpen(false);
+    }
+  };
+
+  const handleUpdateNews = async () => {
+    if (!editingNews) return;
+    setUploading(true);
+    let image_url = editingNews.image_url;
+    if (editNewsImageFile) {
+      const res = await uploadNewsImage(editNewsImageFile);
+      if (res.error) { toast({ title: "Gagal upload gambar", variant: "destructive" }); setUploading(false); return; }
+      image_url = res.url!;
+    }
+    const { error } = await updateNews(editingNews.id, {
+      title: editingNews.title, excerpt: editingNews.excerpt,
+      content: editingNews.content, category: editingNews.category,
+      image_url, is_published: editingNews.is_published,
+    });
+    setUploading(false);
+    if (error) toast({ title: "Gagal", description: "Gagal mengupdate berita", variant: "destructive" });
+    else {
+      toast({ title: "Berhasil", description: "Berita berhasil diupdate" });
+      setEditingNews(null); setEditNewsImageFile(null);
+    }
+  };
+
+  const handleDeleteNews = async (id: string) => {
+    const { error } = await deleteNews(id);
+    if (error) toast({ title: "Gagal", description: "Gagal menghapus berita", variant: "destructive" });
+    else toast({ title: "Berhasil", description: "Berita berhasil dihapus" });
+  };
+
   const getRegionName = (regionId: string) => regions.find((r) => r.id === regionId)?.name || regionId;
 
-  if (authLoading || regionsLoading || donationsLoading || expensesLoading || programsLoading) {
+  if (authLoading || regionsLoading || donationsLoading || expensesLoading || programsLoading || newsLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -343,6 +406,9 @@ export default function Admin() {
             </TabsTrigger>
             <TabsTrigger value="regions" className="gap-2">
               <MapPin className="h-4 w-4" /> Wilayah
+            </TabsTrigger>
+            <TabsTrigger value="berita" className="gap-2">
+              <Newspaper className="h-4 w-4" /> Berita
             </TabsTrigger>
           </TabsList>
 
@@ -794,6 +860,172 @@ export default function Admin() {
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Batal</AlertDialogCancel>
                                 <AlertDialogAction onClick={() => handleDeleteRegion(region.id)} className="bg-destructive">Hapus</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+          </TabsContent>
+
+          {/* Berita Tab */}
+          <TabsContent value="berita" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold">Kelola Berita</h2>
+                <p className="text-sm text-muted-foreground">Berita & pengumuman dengan gambar</p>
+              </div>
+              <Dialog open={isAddNewsOpen} onOpenChange={setIsAddNewsOpen}>
+                <DialogTrigger asChild>
+                  <Button><Plus className="mr-2 h-4 w-4" /> Tambah Berita</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Tambah Berita</DialogTitle>
+                    <DialogDescription>Buat berita atau pengumuman baru</DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
+                    <div className="grid gap-2">
+                      <Label>Judul</Label>
+                      <Input value={newNews.title} onChange={(e) => setNewNews({ ...newNews, title: e.target.value })} placeholder="Judul berita" />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Kategori</Label>
+                      <Select value={newNews.category} onValueChange={(v) => setNewNews({ ...newNews, category: v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Umum">Umum</SelectItem>
+                          <SelectItem value="Penyaluran">Penyaluran</SelectItem>
+                          <SelectItem value="Pengumpulan">Pengumpulan</SelectItem>
+                          <SelectItem value="Kegiatan">Kegiatan</SelectItem>
+                          <SelectItem value="Sosialisasi">Sosialisasi</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Ringkasan</Label>
+                      <Textarea value={newNews.excerpt} onChange={(e) => setNewNews({ ...newNews, excerpt: e.target.value })} placeholder="Ringkasan singkat berita" rows={2} />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Konten Lengkap</Label>
+                      <Textarea value={newNews.content} onChange={(e) => setNewNews({ ...newNews, content: e.target.value })} placeholder="Isi berita lengkap" rows={5} />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Gambar Berita</Label>
+                      <Input type="file" accept="image/*" onChange={(e) => setNewsImageFile(e.target.files?.[0] || null)} />
+                      {newsImageFile && <p className="text-xs text-muted-foreground">📎 {newsImageFile.name}</p>}
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button onClick={handleAddNews} disabled={uploading}>
+                      {uploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Mengupload...</> : "Simpan"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <Card>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Gambar</TableHead>
+                    <TableHead>Judul</TableHead>
+                    <TableHead>Kategori</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Tanggal</TableHead>
+                    <TableHead className="text-right">Aksi</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {news.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>
+                        {item.image_url ? (
+                          <img src={item.image_url} alt="" className="h-12 w-16 object-cover rounded" />
+                        ) : (
+                          <div className="h-12 w-16 bg-muted rounded flex items-center justify-center">
+                            <Image className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell className="font-medium max-w-[200px] truncate">{item.title}</TableCell>
+                      <TableCell><span className="px-2 py-0.5 text-xs rounded-full bg-accent text-accent-foreground">{item.category}</span></TableCell>
+                      <TableCell>{item.is_published ? "✅ Publik" : "📝 Draft"}</TableCell>
+                      <TableCell>{formatDate(item.published_at)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="ghost" size="icon" onClick={() => { setEditingNews(item); setEditNewsImageFile(null); }}>
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Edit Berita</DialogTitle>
+                              </DialogHeader>
+                              {editingNews?.id === item.id && (
+                                <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
+                                  <div className="grid gap-2">
+                                    <Label>Judul</Label>
+                                    <Input value={editingNews.title} onChange={(e) => setEditingNews({ ...editingNews, title: e.target.value })} />
+                                  </div>
+                                  <div className="grid gap-2">
+                                    <Label>Kategori</Label>
+                                    <Select value={editingNews.category} onValueChange={(v) => setEditingNews({ ...editingNews, category: v })}>
+                                      <SelectTrigger><SelectValue /></SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="Umum">Umum</SelectItem>
+                                        <SelectItem value="Penyaluran">Penyaluran</SelectItem>
+                                        <SelectItem value="Pengumpulan">Pengumpulan</SelectItem>
+                                        <SelectItem value="Kegiatan">Kegiatan</SelectItem>
+                                        <SelectItem value="Sosialisasi">Sosialisasi</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div className="grid gap-2">
+                                    <Label>Ringkasan</Label>
+                                    <Textarea value={editingNews.excerpt || ""} onChange={(e) => setEditingNews({ ...editingNews, excerpt: e.target.value })} rows={2} />
+                                  </div>
+                                  <div className="grid gap-2">
+                                    <Label>Konten Lengkap</Label>
+                                    <Textarea value={editingNews.content || ""} onChange={(e) => setEditingNews({ ...editingNews, content: e.target.value })} rows={5} />
+                                  </div>
+                                  <div className="grid gap-2">
+                                    <Label>Gambar</Label>
+                                    {editingNews.image_url && <img src={editingNews.image_url} alt="" className="h-24 object-cover rounded" />}
+                                    <Input type="file" accept="image/*" onChange={(e) => setEditNewsImageFile(e.target.files?.[0] || null)} />
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Switch checked={editingNews.is_published} onCheckedChange={(v) => setEditingNews({ ...editingNews, is_published: v })} />
+                                    <Label>Dipublikasikan</Label>
+                                  </div>
+                                </div>
+                              )}
+                              <DialogFooter>
+                                <Button onClick={handleUpdateNews} disabled={uploading}>
+                                  {uploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Mengupload...</> : "Simpan"}
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Hapus Berita?</AlertDialogTitle>
+                                <AlertDialogDescription>Berita ini akan dihapus permanen.</AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Batal</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteNews(item.id)} className="bg-destructive">Hapus</AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
