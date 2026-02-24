@@ -101,22 +101,27 @@ const Index = () => {
                 <div
                   key={program.id}
                   onClick={() => navigate(`/program/${program.id}`)}
-                  className="bg-card rounded-xl p-4 shadow-card cursor-pointer hover:shadow-elevated transition-all animate-slide-up"
+                  className="bg-card rounded-xl overflow-hidden shadow-card cursor-pointer hover:shadow-elevated transition-all animate-slide-up"
                   style={{ animationDelay: `${index * 80}ms` }}
                 >
-                  <h3 className="font-bold text-sm text-foreground mb-2">{program.title}</h3>
-                  {program.description && (
-                    <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{program.description}</p>
+                  {program.image_url && (
+                    <img src={program.image_url} alt={program.title} className="w-full h-36 object-cover" />
                   )}
-                  <Progress value={progress} className="h-2 mb-2" />
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Terkumpul</p>
-                      <p className="text-sm font-bold text-primary">{formatCurrency(program.collected_amount)}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-muted-foreground">Target</p>
-                      <p className="text-sm font-semibold text-foreground">{formatCurrency(program.target_amount)}</p>
+                  <div className="p-4">
+                    <h3 className="font-bold text-sm text-foreground mb-2">{program.title}</h3>
+                    {program.description && (
+                      <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{program.description}</p>
+                    )}
+                    <Progress value={progress} className="h-2 mb-2" />
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Terkumpul</p>
+                        <p className="text-sm font-bold text-primary">{formatCurrency(program.collected_amount)}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">Target</p>
+                        <p className="text-sm font-semibold text-foreground">{formatCurrency(program.target_amount)}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
