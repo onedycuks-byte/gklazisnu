@@ -28,7 +28,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { 
   Loader2, LogOut, MapPin, Pencil, Trash2, Plus, 
-  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target
+  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image
 } from "lucide-react";
 
 export default function Admin() {
@@ -36,7 +36,7 @@ export default function Admin() {
   const { regions, isLoading: regionsLoading, updateRegion, addRegion, deleteRegion } = useRegions();
   const { donations, isLoading: donationsLoading, addDonation, updateDonation, deleteDonation, getTotalDonations } = useSupabaseDonations();
   const { expenses, isLoading: expensesLoading, addExpense, deleteExpense, getTotalExpenses } = useExpenses();
-  const { programs, isLoading: programsLoading, addProgram, updateProgram, deleteProgram } = usePrograms();
+  const { programs, isLoading: programsLoading, addProgram, updateProgram, deleteProgram, uploadProgramImage } = usePrograms();
   const navigate = useNavigate();
 
   const [editingRegion, setEditingRegion] = useState<Region | null>(null);
@@ -60,6 +60,11 @@ export default function Admin() {
   });
   const [isAddProgramOpen, setIsAddProgramOpen] = useState(false);
   const [editingProgram, setEditingProgram] = useState<Program | null>(null);
+  const [programImageFile, setProgramImageFile] = useState<File | null>(null);
+  const [qrisImageFile, setQrisImageFile] = useState<File | null>(null);
+  const [editProgramImageFile, setEditProgramImageFile] = useState<File | null>(null);
+  const [editQrisImageFile, setEditQrisImageFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
@@ -151,33 +156,71 @@ export default function Admin() {
     if (!newProgram.title || !newProgram.target_amount) {
       toast({ title: "Error", description: "Lengkapi judul dan target donasi", variant: "destructive" }); return;
     }
+    setUploading(true);
     const target = parseInt(newProgram.target_amount.replace(/[^\d]/g, ""));
+    let image_url: string | undefined;
+    let qris_image_url: string | undefined = newProgram.qris_image_url || undefined;
+
+    if (programImageFile) {
+      const res = await uploadProgramImage(programImageFile, "images");
+      if (res.error) { toast({ title: "Gagal upload gambar", variant: "destructive" }); setUploading(false); return; }
+      image_url = res.url!;
+    }
+    if (qrisImageFile) {
+      const res = await uploadProgramImage(qrisImageFile, "qris");
+      if (res.error) { toast({ title: "Gagal upload QRIS", variant: "destructive" }); setUploading(false); return; }
+      qris_image_url = res.url!;
+    }
+
     const { error } = await addProgram({
       title: newProgram.title,
       description: newProgram.description || undefined,
       target_amount: target,
-      qris_image_url: newProgram.qris_image_url || undefined,
-    });
+      qris_image_url,
+      ...(image_url ? { image_url } : {}),
+    } as any);
+    setUploading(false);
     if (error) toast({ title: "Gagal", description: "Gagal menambah program", variant: "destructive" });
     else {
       toast({ title: "Berhasil", description: "Program berhasil ditambah" });
       setNewProgram({ title: "", description: "", target_amount: "", qris_image_url: "" });
+      setProgramImageFile(null); setQrisImageFile(null);
       setIsAddProgramOpen(false);
     }
   };
 
   const handleUpdateProgram = async () => {
     if (!editingProgram) return;
+    setUploading(true);
+    let image_url = editingProgram.image_url;
+    let qris_image_url = editingProgram.qris_image_url;
+
+    if (editProgramImageFile) {
+      const res = await uploadProgramImage(editProgramImageFile, "images");
+      if (res.error) { toast({ title: "Gagal upload gambar", variant: "destructive" }); setUploading(false); return; }
+      image_url = res.url!;
+    }
+    if (editQrisImageFile) {
+      const res = await uploadProgramImage(editQrisImageFile, "qris");
+      if (res.error) { toast({ title: "Gagal upload QRIS", variant: "destructive" }); setUploading(false); return; }
+      qris_image_url = res.url!;
+    }
+
     const { error } = await updateProgram(editingProgram.id, {
       title: editingProgram.title,
       description: editingProgram.description,
       target_amount: editingProgram.target_amount,
       collected_amount: editingProgram.collected_amount,
-      qris_image_url: editingProgram.qris_image_url,
+      qris_image_url,
+      image_url,
       is_active: editingProgram.is_active,
     });
+    setUploading(false);
     if (error) toast({ title: "Gagal", description: "Gagal mengupdate program", variant: "destructive" });
-    else { toast({ title: "Berhasil", description: "Program berhasil diupdate" }); setEditingProgram(null); }
+    else {
+      toast({ title: "Berhasil", description: "Program berhasil diupdate" });
+      setEditingProgram(null); setEditProgramImageFile(null); setEditQrisImageFile(null);
+    }
   };
 
   const handleDeleteProgram = async (id: string) => {
@@ -319,7 +362,7 @@ export default function Admin() {
                     <DialogTitle>Tambah Program Donasi</DialogTitle>
                     <DialogDescription>Buat program penggalangan dana baru</DialogDescription>
                   </DialogHeader>
-                  <div className="grid gap-4 py-4">
+                  <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
                     <div className="grid gap-2">
                       <Label>Judul Program</Label>
                       <Input value={newProgram.title} onChange={(e) => setNewProgram({ ...newProgram, title: e.target.value })} placeholder="Pembangunan Masjid" />
@@ -333,14 +376,24 @@ export default function Admin() {
                       <Input value={newProgram.target_amount} onChange={(e) => setNewProgram({ ...newProgram, target_amount: formatAmount(e.target.value) })} placeholder="10.000.000" />
                     </div>
                     <div className="grid gap-2">
-                      <Label>URL Gambar QRIS</Label>
+                      <Label className="flex items-center gap-2"><Image className="h-4 w-4" /> Gambar Program</Label>
+                      <Input type="file" accept="image/*" onChange={(e) => setProgramImageFile(e.target.files?.[0] || null)} />
+                      {programImageFile && <p className="text-xs text-muted-foreground">{programImageFile.name}</p>}
+                    </div>
+                    <div className="grid gap-2">
+                      <Label className="flex items-center gap-2"><Upload className="h-4 w-4" /> Gambar QRIS</Label>
+                      <Input type="file" accept="image/*" onChange={(e) => setQrisImageFile(e.target.files?.[0] || null)} />
+                      {qrisImageFile && <p className="text-xs text-muted-foreground">{qrisImageFile.name}</p>}
+                      <p className="text-xs text-muted-foreground">Atau masukkan URL:</p>
                       <Input value={newProgram.qris_image_url} onChange={(e) => setNewProgram({ ...newProgram, qris_image_url: e.target.value })} placeholder="https://..." />
-                      <p className="text-xs text-muted-foreground">Masukkan URL gambar QRIS untuk pembayaran</p>
                     </div>
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setIsAddProgramOpen(false)}>Batal</Button>
-                    <Button onClick={handleAddProgram}>Simpan</Button>
+                    <Button onClick={handleAddProgram} disabled={uploading}>
+                      {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Simpan
+                    </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
@@ -379,7 +432,7 @@ export default function Admin() {
                             <DialogContent>
                               <DialogHeader><DialogTitle>Edit Program</DialogTitle></DialogHeader>
                               {editingProgram && (
-                                <div className="grid gap-4 py-4">
+                                <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
                                   <div className="grid gap-2">
                                     <Label>Judul</Label>
                                     <Input value={editingProgram.title} onChange={(e) => setEditingProgram({ ...editingProgram, title: e.target.value })} />
@@ -397,8 +450,15 @@ export default function Admin() {
                                     <Input value={formatAmount(editingProgram.collected_amount.toString())} onChange={(e) => { const num = parseInt(e.target.value.replace(/[^\d]/g, "")) || 0; setEditingProgram({ ...editingProgram, collected_amount: num }); }} />
                                   </div>
                                   <div className="grid gap-2">
-                                    <Label>URL Gambar QRIS</Label>
-                                    <Input value={editingProgram.qris_image_url || ""} onChange={(e) => setEditingProgram({ ...editingProgram, qris_image_url: e.target.value })} />
+                                    <Label className="flex items-center gap-2"><Image className="h-4 w-4" /> Gambar Program</Label>
+                                    {editingProgram.image_url && <img src={editingProgram.image_url} alt="Preview" className="h-20 w-auto rounded object-cover" />}
+                                    <Input type="file" accept="image/*" onChange={(e) => setEditProgramImageFile(e.target.files?.[0] || null)} />
+                                  </div>
+                                  <div className="grid gap-2">
+                                    <Label className="flex items-center gap-2"><Upload className="h-4 w-4" /> Gambar QRIS</Label>
+                                    {editingProgram.qris_image_url && <img src={editingProgram.qris_image_url} alt="QRIS" className="h-20 w-auto rounded" />}
+                                    <Input type="file" accept="image/*" onChange={(e) => setEditQrisImageFile(e.target.files?.[0] || null)} />
+                                    <Input value={editingProgram.qris_image_url || ""} onChange={(e) => setEditingProgram({ ...editingProgram, qris_image_url: e.target.value })} placeholder="Atau URL QRIS" />
                                   </div>
                                   <div className="flex items-center gap-3">
                                     <Label>Aktif</Label>
@@ -406,7 +466,12 @@ export default function Admin() {
                                   </div>
                                 </div>
                               )}
-                              <DialogFooter><Button onClick={handleUpdateProgram}>Simpan</Button></DialogFooter>
+                              <DialogFooter>
+                                <Button onClick={handleUpdateProgram} disabled={uploading}>
+                                  {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                  Simpan
+                                </Button>
+                              </DialogFooter>
                             </DialogContent>
                           </Dialog>
                           <AlertDialog>

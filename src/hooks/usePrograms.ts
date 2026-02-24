@@ -8,6 +8,7 @@ export interface Program {
   target_amount: number;
   collected_amount: number;
   qris_image_url: string | null;
+  image_url: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -51,7 +52,16 @@ export function usePrograms() {
     return { error };
   };
 
+  const uploadProgramImage = async (file: File, folder: "images" | "qris" = "images") => {
+    const ext = file.name.split(".").pop();
+    const path = `${folder}/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from("program-images").upload(path, file);
+    if (error) return { url: null, error };
+    const { data } = supabase.storage.from("program-images").getPublicUrl(path);
+    return { url: data.publicUrl, error: null };
+  };
+
   const activePrograms = programs.filter((p) => p.is_active);
 
-  return { programs, activePrograms, isLoading, addProgram, updateProgram, deleteProgram };
+  return { programs, activePrograms, isLoading, addProgram, updateProgram, deleteProgram, uploadProgramImage };
 }

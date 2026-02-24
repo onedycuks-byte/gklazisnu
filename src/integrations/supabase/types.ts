@@ -79,6 +79,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          image_url: string | null
           is_active: boolean
           qris_image_url: string | null
           target_amount: number
@@ -90,6 +91,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
           qris_image_url?: string | null
           target_amount?: number
@@ -101,6 +103,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
           qris_image_url?: string | null
           target_amount?: number

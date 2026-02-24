@@ -51,14 +51,26 @@ export default function ProgramDetail() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <div className="gradient-primary px-4 pt-4 pb-6">
-        <button onClick={() => navigate("/")} className="flex items-center gap-1 text-primary-foreground/80 mb-4">
-          <ArrowLeft className="h-4 w-4" />
-          <span className="text-sm">Kembali</span>
-        </button>
-        <h1 className="text-lg font-bold text-primary-foreground">{program.title}</h1>
-      </div>
+      {/* Header with image */}
+      {program.image_url ? (
+        <div className="relative">
+          <img src={program.image_url} alt={program.title} className="w-full h-48 object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <button onClick={() => navigate("/")} className="absolute top-4 left-4 flex items-center gap-1 text-white/80">
+            <ArrowLeft className="h-4 w-4" />
+            <span className="text-sm">Kembali</span>
+          </button>
+          <h1 className="absolute bottom-4 left-4 text-lg font-bold text-white">{program.title}</h1>
+        </div>
+      ) : (
+        <div className="gradient-primary px-4 pt-4 pb-6">
+          <button onClick={() => navigate("/")} className="flex items-center gap-1 text-primary-foreground/80 mb-4">
+            <ArrowLeft className="h-4 w-4" />
+            <span className="text-sm">Kembali</span>
+          </button>
+          <h1 className="text-lg font-bold text-primary-foreground">{program.title}</h1>
+        </div>
+      )}
 
       <div className="px-4 -mt-3">
         {/* Progress Card */}
