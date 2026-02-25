@@ -1,13 +1,11 @@
-import { Coins } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 export function Header() {
   return (
     <header className="gradient-primary text-primary-foreground">
       <div className="container py-6">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-foreground/20 backdrop-blur-sm">
-            <Coins className="h-7 w-7" />
-          </div>
+          <img src={logo} alt="NU Care LAZISNU Logo" className="h-14 w-14 rounded-full object-contain bg-white p-1" />
           <div>
             <h1 className="text-2xl font-bold tracking-tight">LAZISNU Gendongkulon</h1>
             <p className="text-primary-foreground/80 text-sm">
