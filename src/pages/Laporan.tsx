@@ -6,7 +6,7 @@ import { DonationTable } from "@/components/DonationTable";
 import { useRegions } from "@/hooks/useRegions";
 import { useSupabaseDonations } from "@/hooks/useSupabaseDonations";
 import { useExpenses } from "@/hooks/useExpenses";
-import { Loader2, TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { Loader2, TrendingUp, TrendingDown, Wallet, Image } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Laporan = () => {
@@ -111,12 +111,22 @@ const Laporan = () => {
                     <TrendingDown className="h-5 w-5 text-destructive" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-foreground truncate">{expense.description || "Pengeluaran"}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-sm text-foreground truncate">{expense.description || "Pengeluaran"}</p>
+                      <span className="px-1.5 py-0.5 text-[10px] rounded-full bg-accent text-accent-foreground shrink-0">{expense.category || "Operasional"}</span>
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {new Date(expense.date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
                     </p>
                   </div>
-                  <p className="font-bold text-sm text-destructive">{formatCurrency(expense.amount)}</p>
+                  <div className="flex items-center gap-2">
+                    {expense.receipt_url && (
+                      <a href={expense.receipt_url} target="_blank" rel="noopener noreferrer" className="text-primary">
+                        <Image className="h-4 w-4" />
+                      </a>
+                    )}
+                    <p className="font-bold text-sm text-destructive">{formatCurrency(expense.amount)}</p>
+                  </div>
                 </div>
               ))
             )}

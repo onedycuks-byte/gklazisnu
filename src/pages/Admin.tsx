@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRegions, Region } from "@/hooks/useRegions";
-import { useSupabaseDonations, Donation } from "@/hooks/useSupabaseDonations";
-import { useExpenses, Expense } from "@/hooks/useExpenses";
+import { useSupabaseDonations, Donation, INCOME_CATEGORIES } from "@/hooks/useSupabaseDonations";
+import { useExpenses, Expense, EXPENSE_CATEGORIES } from "@/hooks/useExpenses";
 import { usePrograms, Program } from "@/hooks/usePrograms";
 import { useNews, NewsItem } from "@/hooks/useNews";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,7 @@ export default function Admin() {
   const { user, isAdmin, isLoading: authLoading, signOut } = useAuth();
   const { regions, isLoading: regionsLoading, updateRegion, addRegion, deleteRegion } = useRegions();
   const { donations, isLoading: donationsLoading, addDonation, updateDonation, deleteDonation, getTotalDonations } = useSupabaseDonations();
-  const { expenses, isLoading: expensesLoading, addExpense, deleteExpense, getTotalExpenses } = useExpenses();
+  const { expenses, isLoading: expensesLoading, addExpense, deleteExpense, uploadReceipt, getTotalExpenses } = useExpenses();
   const { programs, isLoading: programsLoading, addProgram, updateProgram, deleteProgram, uploadProgramImage } = usePrograms();
   const { news, isLoading: newsLoading, addNews, updateNews, deleteNews, uploadNewsImage } = useNews();
   const navigate = useNavigate();
@@ -47,14 +47,15 @@ export default function Admin() {
   
   const [editingDonation, setEditingDonation] = useState<Donation | null>(null);
   const [newDonation, setNewDonation] = useState({
-    region_id: "", amount: "", date: new Date().toISOString().split("T")[0], notes: "",
+    region_id: "", amount: "", date: new Date().toISOString().split("T")[0], notes: "", category: "Infaq Kaleng Koin",
   });
   const [isAddDonationOpen, setIsAddDonationOpen] = useState(false);
 
   const [newExpense, setNewExpense] = useState({
-    amount: "", date: new Date().toISOString().split("T")[0], description: "",
+    amount: "", date: new Date().toISOString().split("T")[0], description: "", category: "Operasional",
   });
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
 
   // Program state
   const [newProgram, setNewProgram] = useState({
@@ -119,13 +120,16 @@ export default function Admin() {
 
   // Donation handlers
   const handleAddDonation = async () => {
-    if (!newDonation.region_id || !newDonation.amount || !newDonation.date) {
+    if (!newDonation.amount || !newDonation.date || !newDonation.category) {
       toast({ title: "Error", description: "Lengkapi semua field", variant: "destructive" }); return;
     }
+    if (newDonation.category === "Infaq Kaleng Koin" && !newDonation.region_id) {
+      toast({ title: "Error", description: "Pilih wilayah untuk Infaq Kaleng Koin", variant: "destructive" }); return;
+    }
     const amount = parseInt(newDonation.amount.replace(/[^\d]/g, ""));
-    const { error } = await addDonation({ region_id: newDonation.region_id, amount, date: newDonation.date, notes: newDonation.notes || undefined });
+    const { error } = await addDonation({ region_id: newDonation.category === "Infaq Kaleng Koin" ? newDonation.region_id : null, amount, date: newDonation.date, notes: newDonation.notes || undefined, category: newDonation.category });
     if (error) toast({ title: "Gagal", description: "Gagal menambah pemasukan", variant: "destructive" });
-    else { toast({ title: "Berhasil", description: "Pemasukan berhasil ditambah" }); setNewDonation({ region_id: "", amount: "", date: new Date().toISOString().split("T")[0], notes: "" }); setIsAddDonationOpen(false); }
+    else { toast({ title: "Berhasil", description: "Pemasukan berhasil ditambah" }); setNewDonation({ region_id: "", amount: "", date: new Date().toISOString().split("T")[0], notes: "", category: "Infaq Kaleng Koin" }); setIsAddDonationOpen(false); }
   };
 
   const handleUpdateDonation = async () => {
@@ -148,10 +152,18 @@ export default function Admin() {
     if (!newExpense.amount || !newExpense.date) {
       toast({ title: "Error", description: "Lengkapi nominal dan tanggal", variant: "destructive" }); return;
     }
+    setUploading(true);
     const amount = parseInt(newExpense.amount.replace(/[^\d]/g, ""));
-    const { error } = await addExpense({ amount, date: newExpense.date, description: newExpense.description || undefined });
+    let receipt_url: string | undefined;
+    if (receiptFile) {
+      const res = await uploadReceipt(receiptFile);
+      if (res.error) { toast({ title: "Gagal upload bukti", variant: "destructive" }); setUploading(false); return; }
+      receipt_url = res.url!;
+    }
+    const { error } = await addExpense({ amount, date: newExpense.date, description: newExpense.description || undefined, category: newExpense.category, receipt_url });
+    setUploading(false);
     if (error) toast({ title: "Gagal", description: "Gagal menambah pengeluaran", variant: "destructive" });
-    else { toast({ title: "Berhasil", description: "Pengeluaran berhasil ditambah" }); setNewExpense({ amount: "", date: new Date().toISOString().split("T")[0], description: "" }); setIsAddExpenseOpen(false); }
+    else { toast({ title: "Berhasil", description: "Pengeluaran berhasil ditambah" }); setNewExpense({ amount: "", date: new Date().toISOString().split("T")[0], description: "", category: "Operasional" }); setReceiptFile(null); setIsAddExpenseOpen(false); }
   };
 
   const handleDeleteExpense = async (id: string) => {
@@ -582,14 +594,25 @@ export default function Admin() {
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                      <Label>Wilayah</Label>
-                      <Select value={newDonation.region_id} onValueChange={(v) => setNewDonation({ ...newDonation, region_id: v })}>
-                        <SelectTrigger><SelectValue placeholder="Pilih wilayah" /></SelectTrigger>
+                      <Label>Kategori</Label>
+                      <Select value={newDonation.category} onValueChange={(v) => setNewDonation({ ...newDonation, category: v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          {regions.map((r) => (<SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>))}
+                          {INCOME_CATEGORIES.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
                         </SelectContent>
                       </Select>
                     </div>
+                    {newDonation.category === "Infaq Kaleng Koin" && (
+                      <div className="grid gap-2">
+                        <Label>Wilayah</Label>
+                        <Select value={newDonation.region_id} onValueChange={(v) => setNewDonation({ ...newDonation, region_id: v })}>
+                          <SelectTrigger><SelectValue placeholder="Pilih wilayah" /></SelectTrigger>
+                          <SelectContent>
+                            {regions.map((r) => (<SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                     <div className="grid gap-2">
                       <Label>Nominal (Rp)</Label>
                       <Input value={newDonation.amount} onChange={(e) => setNewDonation({ ...newDonation, amount: formatAmount(e.target.value) })} placeholder="150.000" />
@@ -616,6 +639,7 @@ export default function Admin() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Tanggal</TableHead>
+                    <TableHead>Kategori</TableHead>
                     <TableHead>Wilayah</TableHead>
                     <TableHead className="text-right">Nominal</TableHead>
                     <TableHead className="w-[100px]">Aksi</TableHead>
@@ -625,7 +649,8 @@ export default function Admin() {
                   {donations.map((donation) => (
                     <TableRow key={donation.id}>
                       <TableCell>{formatDate(donation.date)}</TableCell>
-                      <TableCell>{getRegionName(donation.region_id)}</TableCell>
+                      <TableCell><span className="px-2 py-0.5 text-xs rounded-full bg-accent text-accent-foreground">{donation.category || "Infaq Kaleng Koin"}</span></TableCell>
+                      <TableCell>{donation.region_id ? getRegionName(donation.region_id) : "-"}</TableCell>
                       <TableCell className="text-right font-semibold text-primary">{formatCurrency(donation.amount)}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
@@ -705,6 +730,15 @@ export default function Admin() {
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
+                      <Label>Kategori</Label>
+                      <Select value={newExpense.category} onValueChange={(v) => setNewExpense({ ...newExpense, category: v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {EXPENSE_CATEGORIES.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
                       <Label>Nominal (Rp)</Label>
                       <Input value={newExpense.amount} onChange={(e) => setNewExpense({ ...newExpense, amount: formatAmount(e.target.value) })} placeholder="50.000" />
                     </div>
@@ -716,10 +750,18 @@ export default function Admin() {
                       <Label>Keterangan</Label>
                       <Textarea value={newExpense.description} onChange={(e) => setNewExpense({ ...newExpense, description: e.target.value })} placeholder="Keterangan pengeluaran" />
                     </div>
+                    <div className="grid gap-2">
+                      <Label className="flex items-center gap-2"><Upload className="h-4 w-4" /> Bukti / Nota</Label>
+                      <Input type="file" accept="image/*" onChange={(e) => setReceiptFile(e.target.files?.[0] || null)} />
+                      {receiptFile && <p className="text-xs text-muted-foreground">📎 {receiptFile.name}</p>}
+                    </div>
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setIsAddExpenseOpen(false)}>Batal</Button>
-                    <Button onClick={handleAddExpense}>Simpan</Button>
+                    <Button onClick={handleAddExpense} disabled={uploading}>
+                      {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Simpan
+                    </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
@@ -730,8 +772,10 @@ export default function Admin() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Tanggal</TableHead>
+                    <TableHead>Kategori</TableHead>
                     <TableHead>Keterangan</TableHead>
                     <TableHead className="text-right">Nominal</TableHead>
+                    <TableHead>Bukti</TableHead>
                     <TableHead className="w-[80px]">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -739,8 +783,16 @@ export default function Admin() {
                   {expenses.map((expense) => (
                     <TableRow key={expense.id}>
                       <TableCell>{formatDate(expense.date)}</TableCell>
+                      <TableCell><span className="px-2 py-0.5 text-xs rounded-full bg-accent text-accent-foreground">{expense.category || "Operasional"}</span></TableCell>
                       <TableCell className="max-w-[200px] truncate">{expense.description || "-"}</TableCell>
                       <TableCell className="text-right font-semibold text-destructive">{formatCurrency(expense.amount)}</TableCell>
+                      <TableCell>
+                        {expense.receipt_url ? (
+                          <a href={expense.receipt_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-xs flex items-center gap-1">
+                            <Image className="h-3 w-3" /> Lihat
+                          </a>
+                        ) : <span className="text-xs text-muted-foreground">-</span>}
+                      </TableCell>
                       <TableCell>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>

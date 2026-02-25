@@ -17,27 +17,30 @@ export type Database = {
       donations: {
         Row: {
           amount: number
+          category: string
           created_at: string
           date: string
           id: string
           notes: string | null
-          region_id: string
+          region_id: string | null
         }
         Insert: {
           amount: number
+          category?: string
           created_at?: string
           date?: string
           id?: string
           notes?: string | null
-          region_id: string
+          region_id?: string | null
         }
         Update: {
           amount?: number
+          category?: string
           created_at?: string
           date?: string
           id?: string
           notes?: string | null
-          region_id?: string
+          region_id?: string | null
         }
         Relationships: [
           {
@@ -52,24 +55,30 @@ export type Database = {
       expenses: {
         Row: {
           amount: number
+          category: string
           created_at: string
           date: string
           description: string | null
           id: string
+          receipt_url: string | null
         }
         Insert: {
           amount: number
+          category?: string
           created_at?: string
           date?: string
           description?: string | null
           id?: string
+          receipt_url?: string | null
         }
         Update: {
           amount?: number
+          category?: string
           created_at?: string
           date?: string
           description?: string | null
           id?: string
+          receipt_url?: string | null
         }
         Relationships: []
       }
