@@ -1,11 +1,22 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+export const EXPENSE_CATEGORIES = [
+  "Santunan Kematian",
+  "Santunan Yatim-Piatu",
+  "Operasional",
+  "Lain",
+] as const;
+
+export type ExpenseCategory = typeof EXPENSE_CATEGORIES[number];
+
 export interface Expense {
   id: string;
   amount: number;
   date: string;
   description: string | null;
+  category: string;
+  receipt_url: string | null;
   created_at: string;
 }
 
@@ -13,6 +24,8 @@ export interface ExpenseInput {
   amount: number;
   date: string;
   description?: string;
+  category: string;
+  receipt_url?: string;
 }
 
 export function useExpenses() {
@@ -55,6 +68,8 @@ export function useExpenses() {
         amount: expense.amount,
         date: expense.date,
         description: expense.description || null,
+        category: expense.category,
+        receipt_url: expense.receipt_url || null,
       });
     return { error };
   };
@@ -67,6 +82,22 @@ export function useExpenses() {
     return { error };
   };
 
+  const uploadReceipt = async (file: File) => {
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+    const { error } = await supabase.storage
+      .from("expense-receipts")
+      .upload(fileName, file);
+
+    if (error) return { error, url: null };
+
+    const { data: urlData } = supabase.storage
+      .from("expense-receipts")
+      .getPublicUrl(fileName);
+
+    return { error: null, url: urlData.publicUrl };
+  };
+
   const getTotalExpenses = () => {
     return expenses.reduce((sum, e) => sum + e.amount, 0);
   };
@@ -76,6 +107,7 @@ export function useExpenses() {
     isLoading,
     addExpense,
     deleteExpense,
+    uploadReceipt,
     getTotalExpenses,
     refetch: fetchExpenses,
   };

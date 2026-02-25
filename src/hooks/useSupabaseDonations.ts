@@ -1,20 +1,32 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+export const INCOME_CATEGORIES = [
+  "Infaq Kaleng Koin",
+  "Donasi Umum",
+  "Zakat",
+  "Sedekah",
+  "Lain-lain",
+] as const;
+
+export type IncomeCategory = typeof INCOME_CATEGORIES[number];
+
 export interface Donation {
   id: string;
-  region_id: string;
+  region_id: string | null;
   amount: number;
   date: string;
   notes: string | null;
+  category: string;
   created_at: string;
 }
 
 export interface DonationInput {
-  region_id: string;
+  region_id?: string | null;
   amount: number;
   date: string;
   notes?: string;
+  category: string;
 }
 
 export function useSupabaseDonations() {
@@ -54,10 +66,11 @@ export function useSupabaseDonations() {
     const { error } = await supabase
       .from("donations")
       .insert({
-        region_id: donation.region_id,
+        region_id: donation.region_id || null,
         amount: donation.amount,
         date: donation.date,
         notes: donation.notes || null,
+        category: donation.category,
       });
     
     return { error };
