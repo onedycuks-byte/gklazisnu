@@ -17,8 +17,9 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       manifest: false, // using public/manifest.json
       workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        globPatterns: ["**/*.{js,css,html,ico,svg,woff2}"],
         navigateFallbackDenylist: [/^\/~oauth/],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
     }),
   ].filter(Boolean),
