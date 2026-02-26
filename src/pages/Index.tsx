@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { FileText, Newspaper, Phone, Shield, Loader2, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 const Index = () => {
   const { regions, isLoading: regionsLoading } = useRegions();
@@ -139,6 +140,7 @@ const Index = () => {
       </div>
 
       <BottomNav />
+      <PWAInstallPrompt />
     </div>
   );
 };
