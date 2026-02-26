@@ -54,7 +54,7 @@ export default function ProgramDetail() {
       {/* Header with image */}
       {program.image_url ? (
         <div className="relative">
-          <img src={program.image_url} alt={program.title} className="w-full h-48 object-cover" />
+          <img src={program.image_url} alt={program.title} className="w-full h-56 object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <button onClick={() => navigate("/")} className="absolute top-4 left-4 flex items-center gap-1 text-white/80">
             <ArrowLeft className="h-4 w-4" />

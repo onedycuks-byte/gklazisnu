@@ -106,7 +106,7 @@ const Index = () => {
                   style={{ animationDelay: `${index * 80}ms` }}
                 >
                   {program.image_url && (
-                    <img src={program.image_url} alt={program.title} className="w-full h-36 object-cover" />
+                    <img src={program.image_url} alt={program.title} className="w-full h-48 object-cover" />
                   )}
                   <div className="p-4">
                     <h3 className="font-bold text-sm text-foreground mb-2">{program.title}</h3>
