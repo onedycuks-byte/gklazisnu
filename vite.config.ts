@@ -18,8 +18,8 @@ export default defineConfig(({ mode }) => ({
       manifest: false, // using public/manifest.json
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,svg,woff2}"],
+        globIgnores: ["**/*.png"],
         navigateFallbackDenylist: [/^\/~oauth/],
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
     }),
   ].filter(Boolean),

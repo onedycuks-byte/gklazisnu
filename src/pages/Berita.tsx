@@ -36,7 +36,7 @@ const Berita = () => {
               style={{ animationDelay: `${index * 80}ms` }}
             >
               {item.image_url && (
-                <img src={item.image_url} alt={item.title} className="w-full h-40 object-cover" />
+                <img src={item.image_url} alt={item.title} className="w-full h-52 object-cover" />
               )}
               <div className="p-4">
                 <span className="inline-block px-2 py-0.5 text-[10px] font-semibold rounded-full bg-accent text-accent-foreground mb-2">
