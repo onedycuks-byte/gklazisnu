@@ -1,18 +1,18 @@
 import { BottomNav } from "@/components/BottomNav";
-import { Phone, Mail, MapPin, MessageCircle, Globe, Clock, Users } from "lucide-react";
+import { Phone, Mail, MapPin, MessageCircle, Globe, Clock, Users, Target } from "lucide-react";
 
 const contacts = [
   {
     icon: Phone,
     label: "Telepon",
-    value: "+62 812-3456-7890",
-    action: "tel:+6281234567890",
+    value: "0897-6315-251",
+    action: "tel:+628976315251",
   },
   {
     icon: MessageCircle,
     label: "WhatsApp",
-    value: "+62 812-3456-7890",
-    action: "https://wa.me/6281234567890",
+    value: "0897-6315-251",
+    action: "https://wa.me/628976315251",
   },
   {
     icon: Mail,
@@ -60,6 +60,34 @@ const Kontak = () => {
                   <p className="text-sm font-medium text-foreground truncate">{contact.value}</p>
                 </div>
               </a>
+            ))}
+          </div>
+        </div>
+
+      {/* Ketua */}
+        <div className="bg-card rounded-xl p-5 shadow-card animate-fade-in">
+          <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Users className="h-4 w-4 text-primary" />
+            Pengurus
+          </h2>
+          <div className="p-3 rounded-lg bg-accent/50">
+            <p className="text-sm font-semibold text-foreground">Ahmad Nur Siam</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Ketua LAZISNU Ranting Gendongkulon</p>
+          </div>
+        </div>
+
+        {/* Layanan */}
+        <div className="bg-card rounded-xl p-5 shadow-card animate-fade-in">
+          <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Target className="h-4 w-4 text-primary" />
+            Layanan Kami
+          </h2>
+          <div className="space-y-2">
+            {["Donasi Zakat", "Infaq & Sedekah", "Program Sosial & Kemanusiaan"].map((item) => (
+              <div key={item} className="flex items-center gap-2 p-2.5 rounded-lg bg-accent/50">
+                <div className="h-2 w-2 rounded-full bg-primary" />
+                <p className="text-sm text-foreground">{item}</p>
+              </div>
             ))}
           </div>
         </div>
