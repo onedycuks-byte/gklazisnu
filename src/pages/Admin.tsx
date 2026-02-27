@@ -6,6 +6,7 @@ import { useSupabaseDonations, Donation, INCOME_CATEGORIES } from "@/hooks/useSu
 import { useExpenses, Expense, EXPENSE_CATEGORIES } from "@/hooks/useExpenses";
 import { usePrograms, Program } from "@/hooks/usePrograms";
 import { useNews, NewsItem } from "@/hooks/useNews";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,7 +30,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { 
   Loader2, LogOut, MapPin, Pencil, Trash2, Plus, 
-  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper
+  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save
 } from "lucide-react";
 
 export default function Admin() {
@@ -39,7 +40,18 @@ export default function Admin() {
   const { expenses, isLoading: expensesLoading, addExpense, deleteExpense, uploadReceipt, getTotalExpenses } = useExpenses();
   const { programs, isLoading: programsLoading, addProgram, updateProgram, deleteProgram, uploadProgramImage } = usePrograms();
   const { news, isLoading: newsLoading, addNews, updateNews, deleteNews, uploadNewsImage } = useNews();
+  const { getSettingsMap, updateSetting, isLoading: settingsLoading } = useSiteSettings();
   const navigate = useNavigate();
+
+  const [contactForm, setContactForm] = useState<Record<string, string>>({});
+  const [savingContact, setSavingContact] = useState(false);
+
+  // Load settings into form when available
+  useEffect(() => {
+    if (!settingsLoading) {
+      setContactForm(getSettingsMap());
+    }
+  }, [settingsLoading]);
 
   const [editingRegion, setEditingRegion] = useState<Region | null>(null);
   const [newRegion, setNewRegion] = useState({ name: "", coordinator: "", phone: "" });
@@ -306,7 +318,7 @@ export default function Admin() {
 
   const getRegionName = (regionId: string) => regions.find((r) => r.id === regionId)?.name || regionId;
 
-  if (authLoading || regionsLoading || donationsLoading || expensesLoading || programsLoading || newsLoading) {
+  if (authLoading || regionsLoading || donationsLoading || expensesLoading || programsLoading || newsLoading || settingsLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -421,6 +433,9 @@ export default function Admin() {
             </TabsTrigger>
             <TabsTrigger value="berita" className="gap-2">
               <Newspaper className="h-4 w-4" /> Berita
+            </TabsTrigger>
+            <TabsTrigger value="kontak" className="gap-2">
+              <Phone className="h-4 w-4" /> Kontak
             </TabsTrigger>
           </TabsList>
 
@@ -1087,6 +1102,92 @@ export default function Admin() {
                   ))}
                 </TableBody>
               </Table>
+            </Card>
+          </TabsContent>
+
+          {/* Kontak Tab */}
+          <TabsContent value="kontak" className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold">Kelola Info Kontak</h2>
+              <p className="text-sm text-muted-foreground">Edit informasi kontak yang tampil di halaman Kontak</p>
+            </div>
+            <Card>
+              <CardContent className="p-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Nama Organisasi</Label>
+                    <Input value={contactForm.org_name || ""} onChange={(e) => setContactForm(p => ({ ...p, org_name: e.target.value }))} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Nama Ketua</Label>
+                    <Input value={contactForm.org_leader || ""} onChange={(e) => setContactForm(p => ({ ...p, org_leader: e.target.value }))} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Jabatan Ketua</Label>
+                    <Input value={contactForm.org_title || ""} onChange={(e) => setContactForm(p => ({ ...p, org_title: e.target.value }))} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>No. Telepon</Label>
+                    <Input value={contactForm.phone || ""} onChange={(e) => setContactForm(p => ({ ...p, phone: e.target.value }))} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>WhatsApp</Label>
+                    <Input value={contactForm.whatsapp || ""} onChange={(e) => setContactForm(p => ({ ...p, whatsapp: e.target.value }))} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Input value={contactForm.email || ""} onChange={(e) => setContactForm(p => ({ ...p, email: e.target.value }))} />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Alamat</Label>
+                    <Textarea value={contactForm.address || ""} onChange={(e) => setContactForm(p => ({ ...p, address: e.target.value }))} rows={2} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Jam Senin-Jumat</Label>
+                    <Input value={contactForm.hours_weekday || ""} onChange={(e) => setContactForm(p => ({ ...p, hours_weekday: e.target.value }))} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Jam Sabtu</Label>
+                    <Input value={contactForm.hours_saturday || ""} onChange={(e) => setContactForm(p => ({ ...p, hours_saturday: e.target.value }))} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Jam Minggu</Label>
+                    <Input value={contactForm.hours_sunday || ""} onChange={(e) => setContactForm(p => ({ ...p, hours_sunday: e.target.value }))} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Website</Label>
+                    <Input value={contactForm.website || ""} onChange={(e) => setContactForm(p => ({ ...p, website: e.target.value }))} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Facebook</Label>
+                    <Input value={contactForm.facebook || ""} onChange={(e) => setContactForm(p => ({ ...p, facebook: e.target.value }))} />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Layanan (pisah dengan koma)</Label>
+                    <Input value={contactForm.services || ""} onChange={(e) => setContactForm(p => ({ ...p, services: e.target.value }))} placeholder="Donasi Zakat,Infaq & Sedekah,Program Sosial" />
+                  </div>
+                </div>
+                <Button
+                  className="gap-2"
+                  disabled={savingContact}
+                  onClick={async () => {
+                    setSavingContact(true);
+                    try {
+                      const keys = Object.keys(contactForm);
+                      for (const key of keys) {
+                        await updateSetting.mutateAsync({ key, value: contactForm[key] });
+                      }
+                      toast({ title: "Berhasil", description: "Informasi kontak berhasil diupdate" });
+                    } catch {
+                      toast({ title: "Gagal", description: "Gagal menyimpan", variant: "destructive" });
+                    }
+                    setSavingContact(false);
+                  }}
+                >
+                  {savingContact ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  Simpan Perubahan
+                </Button>
+              </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
