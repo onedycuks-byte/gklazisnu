@@ -7,6 +7,7 @@ import { useExpenses, Expense, EXPENSE_CATEGORIES } from "@/hooks/useExpenses";
 import { usePrograms, Program } from "@/hooks/usePrograms";
 import { useNews, NewsItem } from "@/hooks/useNews";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { AdminAiChat } from "@/components/AdminAiChat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,7 +31,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { 
   Loader2, LogOut, MapPin, Pencil, Trash2, Plus, 
-  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save
+  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles
 } from "lucide-react";
 
 export default function Admin() {
@@ -436,6 +437,9 @@ export default function Admin() {
             </TabsTrigger>
             <TabsTrigger value="kontak" className="gap-2">
               <Phone className="h-4 w-4" /> Kontak
+            </TabsTrigger>
+            <TabsTrigger value="ai" className="gap-2">
+              <Sparkles className="h-4 w-4" /> AI
             </TabsTrigger>
           </TabsList>
 
@@ -1189,6 +1193,11 @@ export default function Admin() {
                 </Button>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* AI Tab */}
+          <TabsContent value="ai">
+            <AdminAiChat />
           </TabsContent>
         </Tabs>
       </main>
