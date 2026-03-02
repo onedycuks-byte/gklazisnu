@@ -6,7 +6,7 @@ import { useSupabaseDonations } from "@/hooks/useSupabaseDonations";
 import { useExpenses } from "@/hooks/useExpenses";
 import { usePrograms } from "@/hooks/usePrograms";
 import { useAuth } from "@/contexts/AuthContext";
-import { FileText, Newspaper, Phone, Shield, Loader2, Target } from "lucide-react";
+import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
@@ -61,11 +61,12 @@ const Index = () => {
 
       {/* Quick Menu */}
       <div className="px-4 mt-6">
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-4 gap-3">
           {[
             { icon: FileText, label: "Laporan", color: "gradient-primary", path: "/laporan" },
             { icon: Newspaper, label: "Berita", color: "gradient-gold", path: "/berita" },
             { icon: Phone, label: "Kontak", color: "gradient-primary", path: "/kontak" },
+            { icon: Sparkles, label: "Tanya AI", color: "gradient-gold", path: "/ai-chat" },
           ].map((item, i) => (
             <button
               key={item.label}
