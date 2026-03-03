@@ -6,7 +6,7 @@ import { useSupabaseDonations } from "@/hooks/useSupabaseDonations";
 import { useExpenses } from "@/hooks/useExpenses";
 import { usePrograms } from "@/hooks/usePrograms";
 import { useAuth } from "@/contexts/AuthContext";
-import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles } from "lucide-react";
+import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
@@ -65,7 +65,7 @@ const Index = () => {
           {[
             { icon: FileText, label: "Laporan", color: "gradient-primary", path: "/laporan" },
             { icon: Newspaper, label: "Berita", color: "gradient-gold", path: "/berita" },
-            { icon: Phone, label: "Kontak", color: "gradient-primary", path: "/kontak" },
+            { icon: MessageCircle, label: "Diskusi", color: "gradient-primary", path: "/diskusi" },
             { icon: Sparkles, label: "Tanya AI", color: "gradient-gold", path: "/ai-chat" },
           ].map((item, i) => (
             <button

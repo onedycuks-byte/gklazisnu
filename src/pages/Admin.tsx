@@ -8,6 +8,7 @@ import { usePrograms, Program } from "@/hooks/usePrograms";
 import { useNews, NewsItem } from "@/hooks/useNews";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { AdminAiChat } from "@/components/AdminAiChat";
+import { useDiscussions } from "@/hooks/useDiscussions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,7 +32,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { 
   Loader2, LogOut, MapPin, Pencil, Trash2, Plus, 
-  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles
+  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X
 } from "lucide-react";
 
 export default function Admin() {
@@ -42,6 +43,7 @@ export default function Admin() {
   const { programs, isLoading: programsLoading, addProgram, updateProgram, deleteProgram, uploadProgramImage } = usePrograms();
   const { news, isLoading: newsLoading, addNews, updateNews, deleteNews, uploadNewsImage } = useNews();
   const { getSettingsMap, updateSetting, isLoading: settingsLoading } = useSiteSettings();
+  const { discussions, isLoading: discussionsLoading, approveDiscussion, deleteDiscussion } = useDiscussions(true);
   const navigate = useNavigate();
 
   const [contactForm, setContactForm] = useState<Record<string, string>>({});
@@ -319,7 +321,7 @@ export default function Admin() {
 
   const getRegionName = (regionId: string) => regions.find((r) => r.id === regionId)?.name || regionId;
 
-  if (authLoading || regionsLoading || donationsLoading || expensesLoading || programsLoading || newsLoading || settingsLoading) {
+  if (authLoading || regionsLoading || donationsLoading || expensesLoading || programsLoading || newsLoading || settingsLoading || discussionsLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -437,6 +439,9 @@ export default function Admin() {
             </TabsTrigger>
             <TabsTrigger value="kontak" className="gap-2">
               <Phone className="h-4 w-4" /> Kontak
+            </TabsTrigger>
+            <TabsTrigger value="diskusi" className="gap-2">
+              <MessageCircle className="h-4 w-4" /> Diskusi
             </TabsTrigger>
             <TabsTrigger value="ai" className="gap-2">
               <Sparkles className="h-4 w-4" /> AI
@@ -1191,6 +1196,91 @@ export default function Admin() {
                   {savingContact ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                   Simpan Perubahan
                 </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Diskusi Tab */}
+          <TabsContent value="diskusi" className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold">Kelola Diskusi</h2>
+              <p className="text-sm text-muted-foreground">Setujui atau hapus pesan dari pengunjung</p>
+            </div>
+            <Card>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nama</TableHead>
+                      <TableHead>Pesan</TableHead>
+                      <TableHead>Tanggal</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Aksi</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {discussions.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                          Belum ada diskusi
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      discussions.map((d) => (
+                        <TableRow key={d.id}>
+                          <TableCell className="font-medium">{d.author_name}</TableCell>
+                          <TableCell className="max-w-xs truncate">{d.message}</TableCell>
+                          <TableCell className="text-xs">{formatDate(d.created_at)}</TableCell>
+                          <TableCell>
+                            <span className={`text-xs px-2 py-1 rounded-full ${d.is_approved ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
+                              {d.is_approved ? "Disetujui" : "Menunggu"}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex gap-1 justify-end">
+                              {!d.is_approved ? (
+                                <Button size="sm" variant="outline" className="gap-1" onClick={async () => {
+                                  const { error } = await approveDiscussion(d.id, true);
+                                  if (error) toast({ title: "Gagal", variant: "destructive" });
+                                  else toast({ title: "Disetujui" });
+                                }}>
+                                  <Check className="h-3.5 w-3.5" /> Setujui
+                                </Button>
+                              ) : (
+                                <Button size="sm" variant="outline" className="gap-1" onClick={async () => {
+                                  const { error } = await approveDiscussion(d.id, false);
+                                  if (error) toast({ title: "Gagal", variant: "destructive" });
+                                  else toast({ title: "Ditolak" });
+                                }}>
+                                  <X className="h-3.5 w-3.5" /> Tolak
+                                </Button>
+                              )}
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button size="sm" variant="destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Hapus Diskusi?</AlertDialogTitle>
+                                    <AlertDialogDescription>Pesan ini akan dihapus permanen.</AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                                    <AlertDialogAction onClick={async () => {
+                                      const { error } = await deleteDiscussion(d.id);
+                                      if (error) toast({ title: "Gagal", variant: "destructive" });
+                                      else toast({ title: "Berhasil dihapus" });
+                                    }}>Hapus</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
           </TabsContent>

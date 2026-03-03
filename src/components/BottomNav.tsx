@@ -1,4 +1,4 @@
-import { Home, FileText, Newspaper, Phone } from "lucide-react";
+import { Home, FileText, Newspaper, MessageCircle } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -6,7 +6,7 @@ const navItems = [
   { label: "Beranda", icon: Home, path: "/" },
   { label: "Laporan", icon: FileText, path: "/laporan" },
   { label: "Berita", icon: Newspaper, path: "/berita" },
-  { label: "Kontak", icon: Phone, path: "/kontak" },
+  { label: "Diskusi", icon: MessageCircle, path: "/diskusi" },
 ];
 
 export function BottomNav() {

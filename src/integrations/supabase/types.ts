@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      discussions: {
+        Row: {
+          author_name: string
+          created_at: string
+          id: string
+          is_approved: boolean
+          message: string
+        }
+        Insert: {
+          author_name: string
+          created_at?: string
+          id?: string
+          is_approved?: boolean
+          message: string
+        }
+        Update: {
+          author_name?: string
+          created_at?: string
+          id?: string
+          is_approved?: boolean
+          message?: string
+        }
+        Relationships: []
+      }
       donations: {
         Row: {
           amount: number
