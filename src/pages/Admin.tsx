@@ -32,7 +32,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { 
   Loader2, LogOut, MapPin, Pencil, Trash2, Plus, 
-  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell
+  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send
 } from "lucide-react";
 
 export default function Admin() {
@@ -43,7 +43,9 @@ export default function Admin() {
   const { programs, isLoading: programsLoading, addProgram, updateProgram, deleteProgram, uploadProgramImage } = usePrograms();
   const { news, isLoading: newsLoading, addNews, updateNews, deleteNews, uploadNewsImage } = useNews();
   const { getSettingsMap, updateSetting, isLoading: settingsLoading } = useSiteSettings();
-  const { discussions, isLoading: discussionsLoading, approveDiscussion, deleteDiscussion } = useDiscussions(true);
+  const { discussions, isLoading: discussionsLoading, replyDiscussion, deleteDiscussion } = useDiscussions(true);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
   const navigate = useNavigate();
 
   const [contactForm, setContactForm] = useState<Record<string, string>>({});
@@ -1230,7 +1232,7 @@ export default function Admin() {
           <TabsContent value="diskusi" className="space-y-4">
             <div>
               <h2 className="text-xl font-semibold">Kelola Diskusi</h2>
-              <p className="text-sm text-muted-foreground">Setujui atau hapus pesan dari pengunjung</p>
+              <p className="text-sm text-muted-foreground">Hapus atau beri tanggapan pada pesan pengunjung</p>
             </div>
             <Card>
               <CardContent className="p-0">
@@ -1240,7 +1242,7 @@ export default function Admin() {
                       <TableHead>Nama</TableHead>
                       <TableHead>Pesan</TableHead>
                       <TableHead>Tanggal</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead>Tanggapan</TableHead>
                       <TableHead className="text-right">Aksi</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -1257,30 +1259,44 @@ export default function Admin() {
                           <TableCell className="font-medium">{d.author_name}</TableCell>
                           <TableCell className="max-w-xs truncate">{d.message}</TableCell>
                           <TableCell className="text-xs">{formatDate(d.created_at)}</TableCell>
-                          <TableCell>
-                            <span className={`text-xs px-2 py-1 rounded-full ${d.is_approved ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-                              {d.is_approved ? "Disetujui" : "Menunggu"}
-                            </span>
+                          <TableCell className="max-w-xs">
+                            {replyingTo === d.id ? (
+                              <div className="flex flex-col gap-1.5">
+                                <Textarea
+                                  value={replyText}
+                                  onChange={(e) => setReplyText(e.target.value)}
+                                  placeholder="Tulis tanggapan..."
+                                  rows={2}
+                                  className="text-xs"
+                                />
+                                <div className="flex gap-1">
+                                  <Button size="sm" className="gap-1 text-xs h-7" onClick={async () => {
+                                    if (!replyText.trim()) return;
+                                    const { error } = await replyDiscussion(d.id, replyText.trim());
+                                    if (error) toast({ title: "Gagal", variant: "destructive" });
+                                    else { toast({ title: "Tanggapan terkirim" }); setReplyingTo(null); setReplyText(""); }
+                                  }}>
+                                    <Send className="h-3 w-3" /> Kirim
+                                  </Button>
+                                  <Button size="sm" variant="ghost" className="text-xs h-7" onClick={() => { setReplyingTo(null); setReplyText(""); }}>
+                                    Batal
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : d.admin_reply ? (
+                              <span className="text-xs text-muted-foreground truncate block">{d.admin_reply}</span>
+                            ) : (
+                              <span className="text-xs text-muted-foreground/50">—</span>
+                            )}
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex gap-1 justify-end">
-                              {!d.is_approved ? (
-                                <Button size="sm" variant="outline" className="gap-1" onClick={async () => {
-                                  const { error } = await approveDiscussion(d.id, true);
-                                  if (error) toast({ title: "Gagal", variant: "destructive" });
-                                  else toast({ title: "Disetujui" });
-                                }}>
-                                  <Check className="h-3.5 w-3.5" /> Setujui
-                                </Button>
-                              ) : (
-                                <Button size="sm" variant="outline" className="gap-1" onClick={async () => {
-                                  const { error } = await approveDiscussion(d.id, false);
-                                  if (error) toast({ title: "Gagal", variant: "destructive" });
-                                  else toast({ title: "Ditolak" });
-                                }}>
-                                  <X className="h-3.5 w-3.5" /> Tolak
-                                </Button>
-                              )}
+                              <Button size="sm" variant="outline" className="gap-1" onClick={() => {
+                                setReplyingTo(d.id);
+                                setReplyText(d.admin_reply || "");
+                              }}>
+                                <MessageCircle className="h-3.5 w-3.5" /> Balas
+                              </Button>
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                   <Button size="sm" variant="destructive"><Trash2 className="h-3.5 w-3.5" /></Button>

@@ -16,25 +16,31 @@ export type Database = {
     Tables: {
       discussions: {
         Row: {
+          admin_reply: string | null
           author_name: string
           created_at: string
           id: string
           is_approved: boolean
           message: string
+          replied_at: string | null
         }
         Insert: {
+          admin_reply?: string | null
           author_name: string
           created_at?: string
           id?: string
           is_approved?: boolean
           message: string
+          replied_at?: string | null
         }
         Update: {
+          admin_reply?: string | null
           author_name?: string
           created_at?: string
           id?: string
           is_approved?: boolean
           message?: string
+          replied_at?: string | null
         }
         Relationships: []
       }
