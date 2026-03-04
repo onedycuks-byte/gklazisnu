@@ -44,13 +44,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* Announcement Banner */}
+      {/* Announcement Banner - Fixed at top */}
       {announcementActive && announcementText && !announcementDismissed && (
-        <div className="bg-primary text-primary-foreground px-4 py-2.5 flex items-center gap-2 animate-slide-up">
-          <Bell className="h-4 w-4 shrink-0" />
-          <p className="text-xs font-medium flex-1">{announcementText}</p>
-          <button onClick={() => setAnnouncementDismissed(true)} className="shrink-0 opacity-70 hover:opacity-100">
-            <X className="h-3.5 w-3.5" />
+        <div className="sticky top-0 z-50 bg-primary text-primary-foreground px-4 py-3 flex items-center gap-2 shadow-md animate-slide-up">
+          <Bell className="h-4 w-4 shrink-0 animate-bounce" />
+          <p className="text-xs font-medium flex-1 leading-relaxed">{announcementText}</p>
+          <button onClick={() => setAnnouncementDismissed(true)} className="shrink-0 opacity-70 hover:opacity-100 p-1">
+            <X className="h-4 w-4" />
           </button>
         </div>
       )}
