@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Discussion {
@@ -6,6 +6,8 @@ export interface Discussion {
   author_name: string;
   message: string;
   is_approved: boolean;
+  admin_reply: string | null;
+  replied_at: string | null;
   created_at: string;
 }
 
@@ -30,10 +32,10 @@ export function useDiscussions(showAll = false) {
     return { error };
   };
 
-  const approveDiscussion = async (id: string, approved: boolean) => {
+  const replyDiscussion = async (id: string, reply: string) => {
     const { error } = await supabase
       .from("discussions")
-      .update({ is_approved: approved })
+      .update({ admin_reply: reply, replied_at: new Date().toISOString() })
       .eq("id", id);
     if (!error) queryClient.invalidateQueries({ queryKey: ["discussions"] });
     return { error };
@@ -45,5 +47,5 @@ export function useDiscussions(showAll = false) {
     return { error };
   };
 
-  return { discussions, isLoading, addDiscussion, approveDiscussion, deleteDiscussion };
+  return { discussions, isLoading, addDiscussion, replyDiscussion, deleteDiscussion };
 }

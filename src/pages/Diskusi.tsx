@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, MessageCircle, Send, ArrowLeft } from "lucide-react";
+import { Loader2, MessageCircle, Send, ArrowLeft, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Diskusi = () => {
@@ -14,8 +14,6 @@ const Diskusi = () => {
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  const approvedDiscussions = discussions.filter((d) => d.is_approved);
 
   const handleSubmit = async () => {
     if (!name.trim() || !message.trim()) {
@@ -32,7 +30,7 @@ const Diskusi = () => {
     if (error) {
       toast({ title: "Gagal", description: "Gagal mengirim pesan", variant: "destructive" });
     } else {
-      toast({ title: "Terkirim!", description: "Pesan Anda akan ditampilkan setelah disetujui admin" });
+      toast({ title: "Terkirim!", description: "Pesan Anda berhasil dikirim" });
       setName("");
       setMessage("");
     }
@@ -74,29 +72,26 @@ const Diskusi = () => {
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             Kirim Pesan
           </Button>
-          <p className="text-[11px] text-muted-foreground text-center">
-            Pesan akan ditampilkan setelah disetujui admin
-          </p>
         </div>
       </div>
 
       {/* Discussion List */}
       <div className="px-4 mt-6">
         <h2 className="text-sm font-semibold text-foreground mb-3">
-          Diskusi ({approvedDiscussions.length})
+          Diskusi ({discussions.length})
         </h2>
         {isLoading ? (
           <div className="flex justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
-        ) : approvedDiscussions.length === 0 ? (
+        ) : discussions.length === 0 ? (
           <div className="bg-card rounded-xl p-6 shadow-card text-center">
             <MessageCircle className="h-10 w-10 text-muted-foreground/40 mx-auto mb-2" />
             <p className="text-sm text-muted-foreground">Belum ada diskusi</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {approvedDiscussions.map((d, i) => (
+            {discussions.map((d, i) => (
               <div
                 key={d.id}
                 className="bg-card rounded-xl p-4 shadow-card animate-slide-up"
@@ -107,6 +102,20 @@ const Diskusi = () => {
                   <span className="text-[10px] text-muted-foreground">{formatDate(d.created_at)}</span>
                 </div>
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap">{d.message}</p>
+                
+                {/* Admin Reply */}
+                {d.admin_reply && (
+                  <div className="mt-3 bg-primary/5 border border-primary/20 rounded-lg p-3">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <Shield className="h-3.5 w-3.5 text-primary" />
+                      <span className="text-xs font-semibold text-primary">Tanggapan Admin</span>
+                      {d.replied_at && (
+                        <span className="text-[10px] text-muted-foreground ml-auto">{formatDate(d.replied_at)}</span>
+                      )}
+                    </div>
+                    <p className="text-sm text-foreground whitespace-pre-wrap">{d.admin_reply}</p>
+                  </div>
+                )}
               </div>
             ))}
           </div>
