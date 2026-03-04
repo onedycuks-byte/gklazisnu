@@ -6,10 +6,12 @@ import { useSupabaseDonations } from "@/hooks/useSupabaseDonations";
 import { useExpenses } from "@/hooks/useExpenses";
 import { usePrograms } from "@/hooks/usePrograms";
 import { useAuth } from "@/contexts/AuthContext";
-import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { useState } from "react";
 
 const Index = () => {
   const { regions, isLoading: regionsLoading } = useRegions();
@@ -17,12 +19,14 @@ const Index = () => {
   const { expenses, isLoading: expensesLoading, getTotalExpenses } = useExpenses();
   const { activePrograms, isLoading: programsLoading } = usePrograms();
   const { user, isAdmin } = useAuth();
+  const { getSettingsMap, isLoading: settingsLoading } = useSiteSettings();
   const navigate = useNavigate();
+  const [announcementDismissed, setAnnouncementDismissed] = useState(false);
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
 
-  if (regionsLoading || donationsLoading || expensesLoading || programsLoading) {
+  if (regionsLoading || donationsLoading || expensesLoading || programsLoading || settingsLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -34,8 +38,23 @@ const Index = () => {
   const totalPengeluaran = getTotalExpenses();
   const totalTransactions = donations.length + expenses.length;
 
+  const s = getSettingsMap();
+  const announcementActive = s.announcement_active === "true";
+  const announcementText = s.announcement_text || "";
+
   return (
     <div className="min-h-screen bg-background pb-20">
+      {/* Announcement Banner */}
+      {announcementActive && announcementText && !announcementDismissed && (
+        <div className="bg-primary text-primary-foreground px-4 py-2.5 flex items-center gap-2 animate-slide-up">
+          <Bell className="h-4 w-4 shrink-0" />
+          <p className="text-xs font-medium flex-1">{announcementText}</p>
+          <button onClick={() => setAnnouncementDismissed(true)} className="shrink-0 opacity-70 hover:opacity-100">
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* Admin Button */}
       <div className="flex justify-end px-4 pt-3">
         {user && isAdmin ? (
@@ -131,6 +150,57 @@ const Index = () => {
             })}
           </div>
         )}
+      </div>
+
+      {/* Contact Quick Access */}
+      <div className="px-4 mt-6">
+        <h2 className="text-base font-bold text-foreground mb-3">Hubungi Kami</h2>
+        <div className="flex gap-3">
+          {s.whatsapp && (
+            <a
+              href={`https://wa.me/62${s.whatsapp.replace(/\D/g, "").replace(/^0/, "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-card hover:shadow-elevated transition-all"
+            >
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-green-500/10 text-green-600">
+                <MessageCircle className="h-5 w-5" />
+              </div>
+              <span className="text-[11px] font-semibold text-foreground">WhatsApp</span>
+            </a>
+          )}
+          {s.phone && (
+            <a
+              href={`tel:+62${s.phone.replace(/\D/g, "").replace(/^0/, "")}`}
+              className="flex-1 flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-card hover:shadow-elevated transition-all"
+            >
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-500/10 text-blue-600">
+                <Phone className="h-5 w-5" />
+              </div>
+              <span className="text-[11px] font-semibold text-foreground">Telepon</span>
+            </a>
+          )}
+          {s.email && (
+            <a
+              href={`mailto:${s.email}`}
+              className="flex-1 flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-card hover:shadow-elevated transition-all"
+            >
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-orange-500/10 text-orange-600">
+                <Mail className="h-5 w-5" />
+              </div>
+              <span className="text-[11px] font-semibold text-foreground">Email</span>
+            </a>
+          )}
+          <button
+            onClick={() => navigate("/kontak")}
+            className="flex-1 flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-card hover:shadow-elevated transition-all"
+          >
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <MapPin className="h-5 w-5" />
+            </div>
+            <span className="text-[11px] font-semibold text-foreground">Lokasi</span>
+          </button>
+        </div>
       </div>
 
       {/* Footer */}

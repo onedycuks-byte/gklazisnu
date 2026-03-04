@@ -32,7 +32,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { 
   Loader2, LogOut, MapPin, Pencil, Trash2, Plus, 
-  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X
+  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell
 } from "lucide-react";
 
 export default function Admin() {
@@ -1174,6 +1174,32 @@ export default function Admin() {
                   <div className="space-y-2 md:col-span-2">
                     <Label>Layanan (pisah dengan koma)</Label>
                     <Input value={contactForm.services || ""} onChange={(e) => setContactForm(p => ({ ...p, services: e.target.value }))} placeholder="Donasi Zakat,Infaq & Sedekah,Program Sosial" />
+                  </div>
+                </div>
+
+                {/* Announcement Section */}
+                <div className="border-t pt-4 mt-4">
+                  <h3 className="font-semibold text-base mb-3 flex items-center gap-2">
+                    <Bell className="h-4 w-4" />
+                    Notifikasi / Pengumuman
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Switch
+                        checked={contactForm.announcement_active === "true"}
+                        onCheckedChange={(checked) => setContactForm(p => ({ ...p, announcement_active: checked ? "true" : "false" }))}
+                      />
+                      <Label>Tampilkan pengumuman di halaman utama</Label>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Teks Pengumuman</Label>
+                      <Textarea
+                        value={contactForm.announcement_text || ""}
+                        onChange={(e) => setContactForm(p => ({ ...p, announcement_text: e.target.value }))}
+                        placeholder="Contoh: Pendaftaran relawan baru telah dibuka!"
+                        rows={2}
+                      />
+                    </div>
                   </div>
                 </div>
                 <Button
