@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { useEffect } from "react";
+import { trackEvent } from "@/hooks/useAnalytics";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
@@ -17,12 +19,24 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const AppInstallTracker = () => {
+  useEffect(() => {
+    const handler = () => {
+      trackEvent("pwa_install", window.location.pathname);
+    };
+    window.addEventListener("appinstalled", handler);
+    return () => window.removeEventListener("appinstalled", handler);
+  }, []);
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <AppInstallTracker />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
