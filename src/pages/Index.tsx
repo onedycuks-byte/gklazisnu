@@ -7,7 +7,7 @@ import { useExpenses } from "@/hooks/useExpenses";
 import { usePrograms } from "@/hooks/usePrograms";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin } from "lucide-react";
+import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
@@ -30,8 +30,11 @@ const Index = () => {
 
   if (regionsLoading || donationsLoading || expensesLoading || programsLoading || settingsLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
+        <div className="relative">
+          <div className="h-12 w-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+        </div>
+        <p className="text-sm text-muted-foreground font-medium">Memuat data...</p>
       </div>
     );
   }
@@ -44,14 +47,23 @@ const Index = () => {
   const announcementActive = s.announcement_active === "true";
   const announcementText = s.announcement_text || "";
 
+  const quickMenuItems = [
+    { icon: FileText, label: "Laporan", gradient: "from-primary to-emerald-600", path: "/laporan" },
+    { icon: Newspaper, label: "Berita", gradient: "from-amber-500 to-orange-500", path: "/berita" },
+    { icon: MessageCircle, label: "Diskusi", gradient: "from-blue-500 to-indigo-500", path: "/diskusi" },
+    { icon: Sparkles, label: "Tanya AI", gradient: "from-violet-500 to-purple-600", path: "/ai-chat" },
+  ];
+
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* Announcement Banner - Fixed at top */}
+      {/* Announcement Banner */}
       {announcementActive && announcementText && !announcementDismissed && (
-        <div className="sticky top-0 z-50 bg-primary text-primary-foreground px-4 py-3 flex items-center gap-2 shadow-md animate-slide-up">
-          <Bell className="h-4 w-4 shrink-0 animate-bounce" />
+        <div className="sticky top-0 z-50 bg-gradient-to-r from-primary to-emerald-600 text-primary-foreground px-4 py-3 flex items-center gap-3 shadow-lg">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 shrink-0">
+            <Bell className="h-3 w-3" />
+          </div>
           <p className="text-xs font-medium flex-1 leading-relaxed">{announcementText}</p>
-          <button onClick={() => setAnnouncementDismissed(true)} className="shrink-0 opacity-70 hover:opacity-100 p-1">
+          <button onClick={() => setAnnouncementDismissed(true)} className="shrink-0 hover:bg-white/10 rounded-full p-1 transition-colors">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -60,12 +72,12 @@ const Index = () => {
       {/* Admin Button */}
       <div className="flex justify-end px-4 pt-3">
         {user && isAdmin ? (
-          <Button size="sm" onClick={() => navigate("/admin")} variant="destructive" className="gap-1.5 text-xs">
+          <Button size="sm" onClick={() => navigate("/admin")} className="gap-1.5 text-xs bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 shadow-md border-0">
             <Shield className="h-3.5 w-3.5" />
             Admin Panel
           </Button>
         ) : (
-          <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="gap-1.5 text-xs text-muted-foreground">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="gap-1.5 text-xs text-muted-foreground hover:text-foreground">
             <Shield className="h-3.5 w-3.5" />
             Login
           </Button>
@@ -82,37 +94,43 @@ const Index = () => {
 
       {/* Quick Menu */}
       <div className="px-4 mt-6">
-        <div className="grid grid-cols-4 gap-3">
-          {[
-            { icon: FileText, label: "Laporan", color: "gradient-primary", path: "/laporan" },
-            { icon: Newspaper, label: "Berita", color: "gradient-gold", path: "/berita" },
-            { icon: MessageCircle, label: "Diskusi", color: "gradient-primary", path: "/diskusi" },
-            { icon: Sparkles, label: "Tanya AI", color: "gradient-gold", path: "/ai-chat" },
-          ].map((item, i) => (
+        <div className="grid grid-cols-4 gap-2.5">
+          {quickMenuItems.map((item, i) => (
             <button
               key={item.label}
               onClick={() => navigate(item.path)}
-              className="flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-card hover:shadow-elevated transition-all animate-scale-in"
+              className="group flex flex-col items-center gap-2.5 p-3.5 bg-card rounded-2xl shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-0.5 animate-scale-in"
               style={{ animationDelay: `${i * 80}ms` }}
             >
-              <div className={`flex h-12 w-12 items-center justify-center rounded-full ${item.color} text-primary-foreground`}>
+              <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${item.gradient} text-white shadow-sm group-hover:scale-110 transition-transform duration-300`}>
                 <item.icon className="h-5 w-5" />
               </div>
-              <span className="text-xs font-semibold text-foreground">{item.label}</span>
+              <span className="text-[11px] font-semibold text-foreground">{item.label}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Program Penggalangan Dana */}
-      <div className="px-4 mt-6">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-base font-bold text-foreground">Program Donasi</h2>
+      {/* Program Donasi */}
+      <div className="px-4 mt-7">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-base font-bold text-foreground">Program Donasi</h2>
+            <p className="text-[11px] text-muted-foreground mt-0.5">Salurkan infaq terbaik Anda</p>
+          </div>
+          {activePrograms.length > 0 && (
+            <span className="text-xs font-semibold text-primary flex items-center gap-0.5">
+              {activePrograms.length} aktif
+            </span>
+          )}
         </div>
         {activePrograms.length === 0 ? (
-          <div className="bg-card rounded-xl p-6 shadow-card text-center">
-            <Target className="h-10 w-10 text-muted-foreground/40 mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">Belum ada program donasi aktif</p>
+          <div className="bg-card rounded-2xl p-8 shadow-card text-center border border-border/50">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted mx-auto mb-3">
+              <Target className="h-7 w-7 text-muted-foreground/50" />
+            </div>
+            <p className="text-sm font-medium text-muted-foreground">Belum ada program donasi aktif</p>
+            <p className="text-xs text-muted-foreground/70 mt-1">Program donasi akan muncul di sini</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -124,25 +142,36 @@ const Index = () => {
                 <div
                   key={program.id}
                   onClick={() => navigate(`/program/${program.id}`)}
-                  className="bg-card rounded-xl overflow-hidden shadow-card cursor-pointer hover:shadow-elevated transition-all animate-slide-up"
+                  className="bg-card rounded-2xl overflow-hidden shadow-card cursor-pointer hover:shadow-elevated transition-all duration-300 hover:-translate-y-0.5 animate-slide-up border border-border/30"
                   style={{ animationDelay: `${index * 80}ms` }}
                 >
                   {program.image_url && (
-                    <img src={program.image_url} alt={program.title} className="w-full h-48 object-cover" />
+                    <div className="relative">
+                      <img src={program.image_url} alt={program.title} className="w-full h-44 object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                      <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
+                        {Math.round(progress)}%
+                      </div>
+                    </div>
                   )}
                   <div className="p-4">
-                    <h3 className="font-bold text-sm text-foreground mb-2">{program.title}</h3>
+                    <h3 className="font-bold text-sm text-foreground mb-1.5 leading-snug">{program.title}</h3>
                     {program.description && (
-                      <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{program.description}</p>
+                      <p className="text-xs text-muted-foreground mb-3 line-clamp-2 leading-relaxed">{program.description}</p>
                     )}
-                    <Progress value={progress} className="h-2 mb-2" />
-                    <div className="flex items-center justify-between">
+                    <div className="relative h-2 rounded-full bg-muted overflow-hidden mb-3">
+                      <div
+                        className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary to-emerald-400 transition-all duration-500"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    <div className="flex items-end justify-between">
                       <div>
-                        <p className="text-xs text-muted-foreground">Terkumpul</p>
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Terkumpul</p>
                         <p className="text-sm font-bold text-primary">{formatCurrency(program.collected_amount)}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs text-muted-foreground">Target</p>
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Target</p>
                         <p className="text-sm font-semibold text-foreground">{formatCurrency(program.target_amount)}</p>
                       </div>
                     </div>
@@ -155,61 +184,76 @@ const Index = () => {
       </div>
 
       {/* Contact Quick Access */}
-      <div className="px-4 mt-6">
-        <h2 className="text-base font-bold text-foreground mb-3">Hubungi Kami</h2>
-        <div className="flex gap-3">
+      <div className="px-4 mt-7">
+        <h2 className="text-base font-bold text-foreground mb-1">Hubungi Kami</h2>
+        <p className="text-[11px] text-muted-foreground mb-3">Silakan hubungi kami kapan saja</p>
+        <div className="grid grid-cols-2 gap-2.5">
           {s.whatsapp && (
             <a
               href={`https://wa.me/62${s.whatsapp.replace(/\D/g, "").replace(/^0/, "")}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-card hover:shadow-elevated transition-all"
+              className="flex items-center gap-3 p-3.5 bg-card rounded-2xl shadow-card hover:shadow-elevated transition-all duration-300 border border-border/30"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-green-500/10 text-green-600">
-                <MessageCircle className="h-5 w-5" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-green-400 to-green-600 text-white shadow-sm">
+                <MessageCircle className="h-4.5 w-4.5" />
               </div>
-              <span className="text-[11px] font-semibold text-foreground">WhatsApp</span>
+              <div>
+                <span className="text-xs font-semibold text-foreground block">WhatsApp</span>
+                <span className="text-[10px] text-muted-foreground">Chat langsung</span>
+              </div>
             </a>
           )}
           {s.phone && (
             <a
               href={`tel:+62${s.phone.replace(/\D/g, "").replace(/^0/, "")}`}
-              className="flex-1 flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-card hover:shadow-elevated transition-all"
+              className="flex items-center gap-3 p-3.5 bg-card rounded-2xl shadow-card hover:shadow-elevated transition-all duration-300 border border-border/30"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-500/10 text-blue-600">
-                <Phone className="h-5 w-5" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-sm">
+                <Phone className="h-4.5 w-4.5" />
               </div>
-              <span className="text-[11px] font-semibold text-foreground">Telepon</span>
+              <div>
+                <span className="text-xs font-semibold text-foreground block">Telepon</span>
+                <span className="text-[10px] text-muted-foreground">Hubungi kami</span>
+              </div>
             </a>
           )}
           {s.email && (
             <a
               href={`mailto:${s.email}`}
-              className="flex-1 flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-card hover:shadow-elevated transition-all"
+              className="flex items-center gap-3 p-3.5 bg-card rounded-2xl shadow-card hover:shadow-elevated transition-all duration-300 border border-border/30"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-orange-500/10 text-orange-600">
-                <Mail className="h-5 w-5" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-sm">
+                <Mail className="h-4.5 w-4.5" />
               </div>
-              <span className="text-[11px] font-semibold text-foreground">Email</span>
+              <div>
+                <span className="text-xs font-semibold text-foreground block">Email</span>
+                <span className="text-[10px] text-muted-foreground">Kirim email</span>
+              </div>
             </a>
           )}
           <button
             onClick={() => navigate("/kontak")}
-            className="flex-1 flex flex-col items-center gap-2 p-4 bg-card rounded-xl shadow-card hover:shadow-elevated transition-all"
+            className="flex items-center gap-3 p-3.5 bg-card rounded-2xl shadow-card hover:shadow-elevated transition-all duration-300 border border-border/30"
           >
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <MapPin className="h-5 w-5" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-emerald-600 text-white shadow-sm">
+              <MapPin className="h-4.5 w-4.5" />
             </div>
-            <span className="text-[11px] font-semibold text-foreground">Lokasi</span>
+            <div>
+              <span className="text-xs font-semibold text-foreground block">Lokasi</span>
+              <span className="text-[10px] text-muted-foreground">Lihat peta</span>
+            </div>
           </button>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="px-4 mt-8 mb-4">
-        <p className="text-center text-[11px] text-muted-foreground">
-          &copy; {new Date().getFullYear()} LAZISNU Gendongkulon
-        </p>
+      <div className="px-4 mt-10 mb-4">
+        <div className="border-t border-border/50 pt-4">
+          <p className="text-center text-[11px] text-muted-foreground/70">
+            &copy; {new Date().getFullYear()} LAZISNU Gendongkulon • Amanah & Transparan
+          </p>
+        </div>
       </div>
 
       <BottomNav />
