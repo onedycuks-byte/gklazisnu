@@ -9,6 +9,7 @@ import { useNews, NewsItem } from "@/hooks/useNews";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { AdminAiChat } from "@/components/AdminAiChat";
 import { useDiscussions } from "@/hooks/useDiscussions";
+import { useAnalyticsStats } from "@/hooks/useAnalytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +33,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { 
   Loader2, LogOut, MapPin, Pencil, Trash2, Plus, 
-  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send
+  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send, Users, Eye, Download, BarChart3
 } from "lucide-react";
 
 export default function Admin() {
@@ -46,6 +47,7 @@ export default function Admin() {
   const { discussions, isLoading: discussionsLoading, replyDiscussion, deleteDiscussion } = useDiscussions(true);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
+  const { data: analyticsStats, isLoading: analyticsLoading } = useAnalyticsStats();
   const navigate = useNavigate();
 
   const [contactForm, setContactForm] = useState<Record<string, string>>({});
@@ -422,8 +424,11 @@ export default function Admin() {
           </Card>
         </div>
 
-        <Tabs defaultValue="program" className="space-y-6">
-          <TabsList>
+        <Tabs defaultValue="statistik" className="space-y-6">
+          <TabsList className="flex-wrap">
+            <TabsTrigger value="statistik" className="gap-2">
+              <BarChart3 className="h-4 w-4" /> Statistik
+            </TabsTrigger>
             <TabsTrigger value="program" className="gap-2">
               <Target className="h-4 w-4" /> Program
             </TabsTrigger>
@@ -449,6 +454,158 @@ export default function Admin() {
               <Sparkles className="h-4 w-4" /> AI
             </TabsTrigger>
           </TabsList>
+
+          {/* Statistik Tab */}
+          <TabsContent value="statistik" className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold">Statistik Pengunjung</h2>
+              <p className="text-sm text-muted-foreground">Data real-time pengunjung & instalasi aplikasi (refresh otomatis 30 detik)</p>
+            </div>
+
+            {analyticsLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : analyticsStats ? (
+              <>
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardContent className="p-4 text-center">
+                      <div className="flex justify-center mb-2">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Eye className="h-5 w-5 text-primary" />
+                        </div>
+                      </div>
+                      <p className="text-2xl font-bold text-foreground">{analyticsStats.todayViews}</p>
+                      <p className="text-xs text-muted-foreground">Kunjungan Hari Ini</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4 text-center">
+                      <div className="flex justify-center mb-2">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Users className="h-5 w-5 text-primary" />
+                        </div>
+                      </div>
+                      <p className="text-2xl font-bold text-foreground">{analyticsStats.uniqueTodayCount}</p>
+                      <p className="text-xs text-muted-foreground">Pengunjung Unik Hari Ini</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4 text-center">
+                      <div className="flex justify-center mb-2">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Download className="h-5 w-5 text-primary" />
+                        </div>
+                      </div>
+                      <p className="text-2xl font-bold text-foreground">{analyticsStats.totalInstalls}</p>
+                      <p className="text-xs text-muted-foreground">Total Instalasi PWA</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4 text-center">
+                      <div className="flex justify-center mb-2">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <BarChart3 className="h-5 w-5 text-primary" />
+                        </div>
+                      </div>
+                      <p className="text-2xl font-bold text-foreground">{analyticsStats.totalViews}</p>
+                      <p className="text-xs text-muted-foreground">Total Kunjungan</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Detail Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">Ringkasan Kunjungan</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center py-2 border-b">
+                          <span className="text-sm text-muted-foreground">Hari Ini</span>
+                          <span className="font-semibold">{analyticsStats.todayViews} views</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b">
+                          <span className="text-sm text-muted-foreground">7 Hari Terakhir</span>
+                          <span className="font-semibold">{analyticsStats.weekViews} views</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b">
+                          <span className="text-sm text-muted-foreground">Bulan Ini</span>
+                          <span className="font-semibold">{analyticsStats.monthViews} views</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b">
+                          <span className="text-sm text-muted-foreground">Total Semua</span>
+                          <span className="font-semibold">{analyticsStats.totalViews} views</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2">
+                          <span className="text-sm text-muted-foreground">Total Pengunjung Unik</span>
+                          <span className="font-semibold">{analyticsStats.uniqueAllCount}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">Kunjungan 7 Hari Terakhir</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {analyticsStats.dailyChart.map((day) => {
+                          const maxViews = Math.max(...analyticsStats.dailyChart.map(d => d.views), 1);
+                          const barWidth = (day.views / maxViews) * 100;
+                          return (
+                            <div key={day.date} className="flex items-center gap-3">
+                              <span className="text-xs text-muted-foreground w-16 shrink-0">{day.date}</span>
+                              <div className="flex-1 bg-muted rounded-full h-5 overflow-hidden">
+                                <div
+                                  className="h-full rounded-full gradient-primary transition-all duration-500"
+                                  style={{ width: `${barWidth}%` }}
+                                />
+                              </div>
+                              <span className="text-xs font-semibold w-8 text-right">{day.views}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Install Stats */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Download className="h-4 w-4" /> Statistik Instalasi Aplikasi
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <div className="text-center p-3 bg-muted rounded-lg">
+                        <p className="text-xl font-bold text-foreground">{analyticsStats.todayInstalls}</p>
+                        <p className="text-xs text-muted-foreground">Install Hari Ini</p>
+                      </div>
+                      <div className="text-center p-3 bg-muted rounded-lg">
+                        <p className="text-xl font-bold text-foreground">{analyticsStats.totalInstalls}</p>
+                        <p className="text-xs text-muted-foreground">Total Install</p>
+                      </div>
+                      <div className="text-center p-3 bg-muted rounded-lg">
+                        <p className="text-xl font-bold text-foreground">
+                          {analyticsStats.totalViews > 0
+                            ? ((analyticsStats.totalInstalls / analyticsStats.uniqueAllCount) * 100).toFixed(1)
+                            : 0}%
+                        </p>
+                        <p className="text-xs text-muted-foreground">Rasio Install</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            ) : null}
+          </TabsContent>
 
           {/* Program Tab */}
           <TabsContent value="program" className="space-y-4">
