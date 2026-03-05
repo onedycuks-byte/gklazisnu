@@ -12,8 +12,10 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { useState } from "react";
+import { useTrackPageView } from "@/hooks/useAnalytics";
 
 const Index = () => {
+  useTrackPageView("/");
   const { regions, isLoading: regionsLoading } = useRegions();
   const { donations, isLoading: donationsLoading, getTotalDonations } = useSupabaseDonations();
   const { expenses, isLoading: expensesLoading, getTotalExpenses } = useExpenses();
