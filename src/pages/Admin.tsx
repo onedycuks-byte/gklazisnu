@@ -10,6 +10,8 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { AdminAiChat } from "@/components/AdminAiChat";
 import { useDiscussions } from "@/hooks/useDiscussions";
 import { useAnalyticsStats } from "@/hooks/useAnalytics";
+import { useOrphanRegistrations } from "@/hooks/useOrphanRegistrations";
+import { OrphanCard } from "@/components/OrphanCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,7 +35,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { 
   Loader2, LogOut, MapPin, Pencil, Trash2, Plus, 
-  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send, Users, Eye, Download, BarChart3
+  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send, Users, Eye, Download, BarChart3, Heart
 } from "lucide-react";
 
 export default function Admin() {
@@ -48,6 +50,8 @@ export default function Admin() {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const { data: analyticsStats, isLoading: analyticsLoading } = useAnalyticsStats();
+  const { registrations: orphanRegistrations, isLoading: orphansLoading, updateStatus: updateOrphanStatus, deleteRegistration: deleteOrphan } = useOrphanRegistrations(true);
+  const [orphanNotes, setOrphanNotes] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
   const [contactForm, setContactForm] = useState<Record<string, string>>({});
@@ -449,6 +453,9 @@ export default function Admin() {
             </TabsTrigger>
             <TabsTrigger value="diskusi" className="gap-2">
               <MessageCircle className="h-4 w-4" /> Diskusi
+            </TabsTrigger>
+            <TabsTrigger value="santunan" className="gap-2">
+              <Heart className="h-4 w-4" /> Santunan
             </TabsTrigger>
             <TabsTrigger value="ai" className="gap-2">
               <Sparkles className="h-4 w-4" /> AI
@@ -1482,6 +1489,138 @@ export default function Admin() {
                 </Table>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Santunan Tab */}
+          <TabsContent value="santunan" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold">Pendaftaran Santunan Yatim Piatu</h2>
+                <p className="text-sm text-muted-foreground">Kelola & setujui pendaftaran anak yatim</p>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
+                  {orphanRegistrations.filter(r => r.status === "pending").length} Menunggu
+                </span>
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
+                  {orphanRegistrations.filter(r => r.status === "approved").length} Disetujui
+                </span>
+              </div>
+            </div>
+
+            {orphansLoading ? (
+              <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+            ) : orphanRegistrations.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Heart className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="text-muted-foreground">Belum ada pendaftaran santunan</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2">
+                {orphanRegistrations.map(reg => (
+                  <Card key={reg.id} className={reg.status === "pending" ? "border-amber-300 border-2" : ""}>
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-base">{reg.child_name}</CardTitle>
+                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                          reg.status === "approved" ? "bg-green-100 text-green-700" :
+                          reg.status === "rejected" ? "bg-red-100 text-red-700" :
+                          "bg-amber-100 text-amber-700"
+                        }`}>
+                          {reg.status === "approved" ? "Disetujui" : reg.status === "rejected" ? "Ditolak" : "Menunggu"}
+                        </span>
+                      </div>
+                      <CardDescription className="font-mono text-xs">{reg.unique_code}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div><span className="text-muted-foreground">Wali:</span> <span className="font-medium">{reg.guardian_name}</span></div>
+                        <div><span className="text-muted-foreground">Telp:</span> <span className="font-medium">{reg.guardian_phone}</span></div>
+                        <div><span className="text-muted-foreground">Lahir:</span> <span className="font-medium">{formatDate(reg.birth_date)}</span></div>
+                        <div><span className="text-muted-foreground">Daftar:</span> <span className="font-medium">{formatDate(reg.created_at)}</span></div>
+                        <div className="col-span-2"><span className="text-muted-foreground">Alamat:</span> <span className="font-medium">{reg.address}</span></div>
+                      </div>
+
+                      {reg.status === "pending" && (
+                        <div className="space-y-2 pt-2 border-t">
+                          <Textarea
+                            placeholder="Catatan admin (opsional)"
+                            value={orphanNotes[reg.id] || ""}
+                            onChange={e => setOrphanNotes(n => ({ ...n, [reg.id]: e.target.value }))}
+                            rows={2}
+                            className="text-xs"
+                          />
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              className="flex-1 gap-1 bg-green-600 hover:bg-green-700"
+                              onClick={async () => {
+                                await updateOrphanStatus({ id: reg.id, status: "approved", admin_notes: orphanNotes[reg.id] });
+                                toast({ title: "Berhasil", description: `Pendaftaran ${reg.child_name} disetujui` });
+                              }}
+                            >
+                              <Check className="h-3.5 w-3.5" /> Setujui
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="flex-1 gap-1"
+                              onClick={async () => {
+                                await updateOrphanStatus({ id: reg.id, status: "rejected", admin_notes: orphanNotes[reg.id] });
+                                toast({ title: "Ditolak", description: `Pendaftaran ${reg.child_name} ditolak` });
+                              }}
+                            >
+                              <X className="h-3.5 w-3.5" /> Tolak
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+
+                      {reg.admin_notes && (
+                        <p className="text-xs text-muted-foreground bg-muted p-2 rounded-lg">
+                          <span className="font-semibold">Catatan:</span> {reg.admin_notes}
+                        </p>
+                      )}
+
+                      <div className="flex gap-2 pt-1">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline" className="gap-1 text-xs flex-1">
+                              <Eye className="h-3.5 w-3.5" /> Lihat Kartu
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-md">
+                            <DialogHeader>
+                              <DialogTitle>Kartu Santunan</DialogTitle>
+                            </DialogHeader>
+                            <OrphanCard registration={reg} showDownload />
+                          </DialogContent>
+                        </Dialog>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="sm" variant="outline" className="gap-1 text-xs text-destructive hover:text-destructive">
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Hapus Pendaftaran?</AlertDialogTitle>
+                              <AlertDialogDescription>Data {reg.child_name} akan dihapus permanen.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => deleteOrphan(reg.id)}>Hapus</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           {/* AI Tab */}
