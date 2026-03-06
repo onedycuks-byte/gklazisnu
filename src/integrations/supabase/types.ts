@@ -151,6 +151,48 @@ export type Database = {
         }
         Relationships: []
       }
+      orphan_registrations: {
+        Row: {
+          address: string
+          admin_notes: string | null
+          approved_at: string | null
+          birth_date: string
+          child_name: string
+          created_at: string
+          guardian_name: string
+          guardian_phone: string
+          id: string
+          status: string
+          unique_code: string
+        }
+        Insert: {
+          address: string
+          admin_notes?: string | null
+          approved_at?: string | null
+          birth_date: string
+          child_name: string
+          created_at?: string
+          guardian_name: string
+          guardian_phone: string
+          id?: string
+          status?: string
+          unique_code: string
+        }
+        Update: {
+          address?: string
+          admin_notes?: string | null
+          approved_at?: string | null
+          birth_date?: string
+          child_name?: string
+          created_at?: string
+          guardian_name?: string
+          guardian_phone?: string
+          id?: string
+          status?: string
+          unique_code?: string
+        }
+        Relationships: []
+      }
       programs: {
         Row: {
           collected_amount: number
