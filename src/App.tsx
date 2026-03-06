@@ -15,6 +15,7 @@ import Kontak from "./pages/Kontak";
 import ProgramDetail from "./pages/ProgramDetail";
 import AiChat from "./pages/AiChat";
 import Diskusi from "./pages/Diskusi";
+import Santunan from "./pages/Santunan";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/program/:id" element={<ProgramDetail />} />
             <Route path="/ai-chat" element={<AiChat />} />
             <Route path="/diskusi" element={<Diskusi />} />
+            <Route path="/santunan" element={<Santunan />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
