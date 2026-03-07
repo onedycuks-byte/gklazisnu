@@ -1600,7 +1600,7 @@ export default function Admin() {
                                   const amount = parseInt((walletAmounts[reg.id] || "0").replace(/[^\d]/g, ""));
                                   if (!amount) return;
                                   try {
-                                    await topUp({ registrationId: reg.id, amount, description: walletDescs[reg.id] || "Top up saldo" });
+                                    await topUp({ registrationId: reg.id, amount, description: walletDescs[reg.id] || "Top up saldo", childName: reg.child_name });
                                     toast({ title: "Berhasil", description: `Saldo ${reg.child_name} ditambah ${formatCurrency(amount)}` });
                                     setWalletAmounts(w => ({ ...w, [reg.id]: "" }));
                                     setWalletDescs(w => ({ ...w, [reg.id]: "" }));

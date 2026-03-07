@@ -132,13 +132,14 @@ export function useOrphanRegistrations(adminMode = false) {
   };
 
   const topUpMutation = useMutation({
-    mutationFn: async ({ registrationId, amount, description, adminNote }: {
+    mutationFn: async ({ registrationId, amount, description, adminNote, childName }: {
       registrationId: string;
       amount: number;
       description?: string;
       adminNote?: string;
+      childName?: string;
     }) => {
-      // Insert transaction
+      // Insert wallet transaction
       const { error: txError } = await supabase
         .from("wallet_transactions" as any)
         .insert({
@@ -163,6 +164,20 @@ export function useOrphanRegistrations(adminMode = false) {
         .update({ balance: currentBalance + amount } as any)
         .eq("id", registrationId);
       if (updateError) throw updateError;
+
+      // Sync: record as expense in LAZISNU financial system
+      const expenseDesc = childName
+        ? `Santunan Yatim-Piatu: ${childName}${description ? ` - ${description}` : ""}`
+        : description || "Penyaluran dana santunan yatim-piatu";
+      const { error: expError } = await supabase
+        .from("expenses")
+        .insert({
+          amount,
+          date: new Date().toISOString().split("T")[0],
+          description: expenseDesc,
+          category: "Santunan Yatim-Piatu",
+        });
+      if (expError) throw expError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orphan_registrations"] });
