@@ -50,8 +50,10 @@ export default function Admin() {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const { data: analyticsStats, isLoading: analyticsLoading } = useAnalyticsStats();
-  const { registrations: orphanRegistrations, isLoading: orphansLoading, updateStatus: updateOrphanStatus, deleteRegistration: deleteOrphan } = useOrphanRegistrations(true);
+  const { registrations: orphanRegistrations, isLoading: orphansLoading, updateStatus: updateOrphanStatus, deleteRegistration: deleteOrphan, topUp, isTopingUp, deduct, isDeducting } = useOrphanRegistrations(true);
   const [orphanNotes, setOrphanNotes] = useState<Record<string, string>>({});
+  const [walletAmounts, setWalletAmounts] = useState<Record<string, string>>({});
+  const [walletDescs, setWalletDescs] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
   const [contactForm, setContactForm] = useState<Record<string, string>>({});
@@ -1495,8 +1497,8 @@ export default function Admin() {
           <TabsContent value="santunan" className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Pendaftaran Santunan Yatim Piatu</h2>
-                <p className="text-sm text-muted-foreground">Kelola & setujui pendaftaran anak yatim</p>
+                <h2 className="text-xl font-semibold">Pendaftaran & Dompet Santunan</h2>
+                <p className="text-sm text-muted-foreground">Kelola pendaftaran & saldo dompet anak yatim</p>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
@@ -1506,6 +1508,32 @@ export default function Admin() {
                   {orphanRegistrations.filter(r => r.status === "approved").length} Disetujui
                 </span>
               </div>
+            </div>
+
+            {/* Total balance summary */}
+            <div className="grid grid-cols-2 gap-3">
+              <Card className="bg-gradient-to-br from-violet-500 to-purple-600 text-white border-0">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Wallet className="h-4 w-4 opacity-70" />
+                    <span className="text-xs font-medium opacity-80">Total Saldo Tersebar</span>
+                  </div>
+                  <p className="text-xl font-bold">
+                    {formatCurrency(orphanRegistrations.reduce((s, r) => s + (r.balance || 0), 0))}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-0">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Users className="h-4 w-4 opacity-70" />
+                    <span className="text-xs font-medium opacity-80">Penerima Aktif</span>
+                  </div>
+                  <p className="text-xl font-bold">
+                    {orphanRegistrations.filter(r => r.status === "approved").length} Anak
+                  </p>
+                </CardContent>
+              </Card>
             </div>
 
             {orphansLoading ? (
@@ -1535,6 +1563,81 @@ export default function Admin() {
                       <CardDescription className="font-mono text-xs">{reg.unique_code}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
+                      {/* Wallet Balance */}
+                      <div className="bg-gradient-to-r from-violet-500/10 to-purple-500/10 rounded-xl p-3 border border-violet-200 dark:border-violet-800">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-1.5">
+                            <Wallet className="h-4 w-4 text-violet-600" />
+                            <span className="text-xs font-semibold text-violet-700 dark:text-violet-300">Saldo Dompet</span>
+                          </div>
+                          <span className="text-sm font-bold text-violet-700 dark:text-violet-300">
+                            {formatCurrency(reg.balance || 0)}
+                          </span>
+                        </div>
+                        
+                        {reg.status === "approved" && (
+                          <div className="space-y-2">
+                            <div className="flex gap-2">
+                              <Input
+                                placeholder="Nominal"
+                                value={walletAmounts[reg.id] || ""}
+                                onChange={e => setWalletAmounts(w => ({ ...w, [reg.id]: formatAmount(e.target.value) }))}
+                                className="text-xs h-8 flex-1"
+                              />
+                              <Input
+                                placeholder="Keterangan"
+                                value={walletDescs[reg.id] || ""}
+                                onChange={e => setWalletDescs(w => ({ ...w, [reg.id]: e.target.value }))}
+                                className="text-xs h-8 flex-1"
+                              />
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                className="flex-1 gap-1 h-8 text-xs bg-emerald-600 hover:bg-emerald-700"
+                                disabled={isTopingUp || !walletAmounts[reg.id]}
+                                onClick={async () => {
+                                  const amount = parseInt((walletAmounts[reg.id] || "0").replace(/[^\d]/g, ""));
+                                  if (!amount) return;
+                                  try {
+                                    await topUp({ registrationId: reg.id, amount, description: walletDescs[reg.id] || "Top up saldo" });
+                                    toast({ title: "Berhasil", description: `Saldo ${reg.child_name} ditambah ${formatCurrency(amount)}` });
+                                    setWalletAmounts(w => ({ ...w, [reg.id]: "" }));
+                                    setWalletDescs(w => ({ ...w, [reg.id]: "" }));
+                                  } catch {
+                                    toast({ title: "Gagal", description: "Gagal menambah saldo", variant: "destructive" });
+                                  }
+                                }}
+                              >
+                                {isTopingUp ? <Loader2 className="h-3 w-3 animate-spin" /> : <TrendingUp className="h-3 w-3" />}
+                                Top Up
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 gap-1 h-8 text-xs text-red-600 hover:text-red-700 border-red-200"
+                                disabled={isDeducting || !walletAmounts[reg.id] || (reg.balance || 0) === 0}
+                                onClick={async () => {
+                                  const amount = parseInt((walletAmounts[reg.id] || "0").replace(/[^\d]/g, ""));
+                                  if (!amount) return;
+                                  try {
+                                    await deduct({ registrationId: reg.id, amount, description: walletDescs[reg.id] || "Pencairan dana" });
+                                    toast({ title: "Berhasil", description: `Saldo ${reg.child_name} dikurangi ${formatCurrency(amount)}` });
+                                    setWalletAmounts(w => ({ ...w, [reg.id]: "" }));
+                                    setWalletDescs(w => ({ ...w, [reg.id]: "" }));
+                                  } catch {
+                                    toast({ title: "Gagal", description: "Gagal mengurangi saldo", variant: "destructive" });
+                                  }
+                                }}
+                              >
+                                {isDeducting ? <Loader2 className="h-3 w-3 animate-spin" /> : <TrendingDown className="h-3 w-3" />}
+                                Cairkan
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div><span className="text-muted-foreground">Wali:</span> <span className="font-medium">{reg.guardian_name}</span></div>
                         <div><span className="text-muted-foreground">Telp:</span> <span className="font-medium">{reg.guardian_phone}</span></div>
