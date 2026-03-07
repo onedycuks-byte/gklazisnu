@@ -156,6 +156,7 @@ export type Database = {
           address: string
           admin_notes: string | null
           approved_at: string | null
+          balance: number
           birth_date: string
           child_name: string
           created_at: string
@@ -169,6 +170,7 @@ export type Database = {
           address: string
           admin_notes?: string | null
           approved_at?: string | null
+          balance?: number
           birth_date: string
           child_name: string
           created_at?: string
@@ -182,6 +184,7 @@ export type Database = {
           address?: string
           admin_notes?: string | null
           approved_at?: string | null
+          balance?: number
           birth_date?: string
           child_name?: string
           created_at?: string
@@ -324,6 +327,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      wallet_transactions: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          registration_id: string
+          type: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          registration_id: string
+          type?: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          registration_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "orphan_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
