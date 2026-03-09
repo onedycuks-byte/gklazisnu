@@ -49,6 +49,7 @@ interface Props {
 
 export function SantunanRegisterForm({ form, setForm, onSubmit, isRegistering }: Props) {
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [ktpPreview, setKtpPreview] = useState<string | null>(null);
 
   const handleKtpUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,20 +61,47 @@ export function SantunanRegisterForm({ form, setForm, onSubmit, isRegistering }:
     }
 
     setUploading(true);
+    setUploadProgress(0);
+
     const ext = file.name.split(".").pop();
     const path = `ktp-${Date.now()}.${ext}`;
 
-    const { error } = await supabase.storage.from("ktp-uploads").upload(path, file);
-    if (error) {
-      alert("Gagal upload KTP: " + error.message);
+    // Use XMLHttpRequest for progress tracking
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+    const uploadUrl = `${supabaseUrl}/storage/v1/object/ktp-uploads/${path}`;
+
+    await new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener("progress", (event) => {
+        if (event.lengthComputable) {
+          const pct = Math.round((event.loaded / event.total) * 100);
+          setUploadProgress(pct);
+        }
+      });
+      xhr.addEventListener("load", () => {
+        if (xhr.status >= 200 && xhr.status < 300) resolve();
+        else reject(new Error("Upload gagal"));
+      });
+      xhr.addEventListener("error", () => reject(new Error("Upload gagal")));
+      xhr.open("POST", uploadUrl);
+      xhr.setRequestHeader("Authorization", `Bearer ${supabaseKey}`);
+      xhr.setRequestHeader("apikey", supabaseKey);
+      xhr.setRequestHeader("x-upsert", "true");
+      xhr.send(file);
+    }).catch(err => {
+      alert("Gagal upload KTP: " + err.message);
       setUploading(false);
+      setUploadProgress(0);
       return;
-    }
+    });
 
     const { data: urlData } = supabase.storage.from("ktp-uploads").getPublicUrl(path);
     setForm(f => ({ ...f, ktp_url: urlData.publicUrl }));
     setKtpPreview(urlData.publicUrl);
     setUploading(false);
+    setUploadProgress(0);
   };
 
   const removeKtp = () => {
@@ -252,13 +280,27 @@ export function SantunanRegisterForm({ form, setForm, onSubmit, isRegistering }:
         ) : (
           <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border rounded-xl p-6 cursor-pointer hover:bg-muted/50 transition-colors">
             {uploading ? (
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <div className="flex flex-col items-center gap-3 w-full">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <div className="w-full max-w-[200px] space-y-1.5">
+                  <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-rose-500 to-pink-600 rounded-full transition-all duration-300 ease-out"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                  <p className="text-xs font-semibold text-foreground text-center">{uploadProgress}%</p>
+                </div>
+                <span className="text-xs text-muted-foreground">Mengupload...</span>
+              </div>
             ) : (
               <Upload className="h-6 w-6 text-muted-foreground" />
             )}
-            <span className="text-xs text-muted-foreground">
-              {uploading ? "Mengupload..." : "Klik untuk upload foto KTP (maks. 5MB)"}
-            </span>
+            {!uploading && (
+              <span className="text-xs text-muted-foreground">
+                Klik untuk upload foto KTP (maks. 5MB)
+              </span>
+            )}
             <input type="file" accept="image/*" className="hidden" onChange={handleKtpUpload} disabled={uploading} />
           </label>
         )}
