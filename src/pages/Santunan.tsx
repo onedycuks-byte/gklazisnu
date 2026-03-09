@@ -15,7 +15,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { SantunanLoginTab } from "@/components/santunan/SantunanLoginTab";
-import { SantunanRegisterForm } from "@/components/santunan/SantunanRegisterForm";
+import { SantunanRegisterForm, emptyForm } from "@/components/santunan/SantunanRegisterForm";
 
 export default function Santunan() {
   useTrackPageView("/santunan");
@@ -24,14 +24,12 @@ export default function Santunan() {
 
   const [tab, setTab] = useState<"login" | "daftar">("login");
   const [result, setResult] = useState<OrphanRegistration | null>(null);
-  const [form, setForm] = useState({
-    child_name: "", birth_date: "", guardian_name: "", guardian_phone: "", address: "",
-  });
+  const [form, setForm] = useState(emptyForm);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.child_name || !form.birth_date || !form.guardian_name || !form.guardian_phone || !form.address) {
-      toast({ title: "Error", description: "Lengkapi semua data", variant: "destructive" });
+    if (!form.child_name || !form.birth_date || !form.guardian_name || !form.guardian_phone || !form.address || !form.cause_of_orphan) {
+      toast({ title: "Error", description: "Lengkapi semua data wajib", variant: "destructive" });
       return;
     }
     try {
@@ -120,7 +118,7 @@ export default function Santunan() {
 
             <OrphanCard registration={result} showDownload />
 
-            <Button variant="outline" className="w-full" onClick={() => { setResult(null); setForm({ child_name: "", birth_date: "", guardian_name: "", guardian_phone: "", address: "" }); }}>
+            <Button variant="outline" className="w-full" onClick={() => { setResult(null); setForm(emptyForm); }}>
               Daftar Lagi
             </Button>
           </div>

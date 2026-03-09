@@ -158,11 +158,19 @@ export type Database = {
           approved_at: string | null
           balance: number
           birth_date: string
+          cause_of_orphan: string | null
           child_name: string
           created_at: string
+          education: string | null
+          father_name: string | null
+          gender: string | null
           guardian_name: string
           guardian_phone: string
+          guardian_relation: string | null
           id: string
+          ktp_url: string | null
+          mother_name: string | null
+          school_name: string | null
           status: string
           unique_code: string
         }
@@ -172,11 +180,19 @@ export type Database = {
           approved_at?: string | null
           balance?: number
           birth_date: string
+          cause_of_orphan?: string | null
           child_name: string
           created_at?: string
+          education?: string | null
+          father_name?: string | null
+          gender?: string | null
           guardian_name: string
           guardian_phone: string
+          guardian_relation?: string | null
           id?: string
+          ktp_url?: string | null
+          mother_name?: string | null
+          school_name?: string | null
           status?: string
           unique_code: string
         }
@@ -186,11 +202,19 @@ export type Database = {
           approved_at?: string | null
           balance?: number
           birth_date?: string
+          cause_of_orphan?: string | null
           child_name?: string
           created_at?: string
+          education?: string | null
+          father_name?: string | null
+          gender?: string | null
           guardian_name?: string
           guardian_phone?: string
+          guardian_relation?: string | null
           id?: string
+          ktp_url?: string | null
+          mother_name?: string | null
+          school_name?: string | null
           status?: string
           unique_code?: string
         }
