@@ -28,8 +28,8 @@ export default function Santunan() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.child_name || !form.birth_date || !form.guardian_name || !form.guardian_phone || !form.address) {
-      toast({ title: "Error", description: "Lengkapi semua data", variant: "destructive" });
+    if (!form.child_name || !form.birth_date || !form.guardian_name || !form.guardian_phone || !form.address || !form.cause_of_orphan) {
+      toast({ title: "Error", description: "Lengkapi semua data wajib", variant: "destructive" });
       return;
     }
     try {
