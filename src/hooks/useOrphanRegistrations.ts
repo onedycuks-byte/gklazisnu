@@ -7,9 +7,17 @@ export interface OrphanRegistration {
   unique_code: string;
   child_name: string;
   birth_date: string;
+  gender: string;
+  education: string;
+  school_name: string;
+  father_name: string;
+  mother_name: string;
+  cause_of_orphan: string;
   guardian_name: string;
   guardian_phone: string;
+  guardian_relation: string;
   address: string;
+  ktp_url: string | null;
   status: string;
   admin_notes: string | null;
   balance: number;
@@ -62,9 +70,17 @@ export function useOrphanRegistrations(adminMode = false) {
     mutationFn: async (input: {
       child_name: string;
       birth_date: string;
+      gender: string;
+      education: string;
+      school_name: string;
+      father_name: string;
+      mother_name: string;
+      cause_of_orphan: string;
       guardian_name: string;
       guardian_phone: string;
+      guardian_relation: string;
       address: string;
+      ktp_url?: string;
     }) => {
       const unique_code = generateUniqueCode();
       const { data, error } = await supabase
