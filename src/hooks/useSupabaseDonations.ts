@@ -103,11 +103,11 @@ export function useSupabaseDonations() {
   };
 
   const getTotalDonations = () => {
-    return donations.reduce((sum, d) => sum + d.amount, 0);
+    return donations.filter(d => d.status === 'confirmed').reduce((sum, d) => sum + d.amount, 0);
   };
 
   const getRecentDonations = (limit: number = 10) => {
-    return donations.slice(0, limit);
+    return donations.filter(d => d.status === 'confirmed').slice(0, limit);
   };
 
   return {
