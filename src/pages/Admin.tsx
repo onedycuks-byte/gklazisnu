@@ -457,38 +457,26 @@ export default function Admin() {
       <main className="px-4 py-4 space-y-4">
         {/* Summary Cards - only for roles that can see financials */}
         {(visibleTabs.has("pemasukan") || visibleTabs.has("pengeluaran")) && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-3 gap-2">
             <Card>
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Total Pemasukan</p>
-                  <p className="text-lg font-bold text-foreground">{formatCurrency(totalPemasukan)}</p>
-                </div>
+              <CardContent className="p-3 text-center">
+                <TrendingUp className="h-4 w-4 text-green-600 mx-auto mb-1" />
+                <p className="text-[10px] text-muted-foreground">Pemasukan</p>
+                <p className="text-xs font-bold text-foreground">{formatCurrency(totalPemasukan)}</p>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
-                  <TrendingDown className="h-5 w-5 text-red-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Total Pengeluaran</p>
-                  <p className="text-lg font-bold text-foreground">{formatCurrency(totalPengeluaran)}</p>
-                </div>
+              <CardContent className="p-3 text-center">
+                <TrendingDown className="h-4 w-4 text-red-600 mx-auto mb-1" />
+                <p className="text-[10px] text-muted-foreground">Pengeluaran</p>
+                <p className="text-xs font-bold text-foreground">{formatCurrency(totalPengeluaran)}</p>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <Wallet className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Saldo</p>
-                  <p className="text-lg font-bold text-foreground">{formatCurrency(saldo)}</p>
-                </div>
+              <CardContent className="p-3 text-center">
+                <Wallet className="h-4 w-4 text-blue-600 mx-auto mb-1" />
+                <p className="text-[10px] text-muted-foreground">Saldo</p>
+                <p className="text-xs font-bold text-foreground">{formatCurrency(saldo)}</p>
               </CardContent>
             </Card>
           </div>
