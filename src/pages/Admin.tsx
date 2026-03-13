@@ -610,7 +610,7 @@ export default function Admin() {
                 </div>
 
                 {/* Detail Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-3">
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-base">Ringkasan Kunjungan</CardTitle>
