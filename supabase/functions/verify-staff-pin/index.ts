@@ -6,10 +6,10 @@ const corsHeaders = {
 };
 
 const PIN_ROLE_MAP: Record<string, { role: string; email: string; name: string }> = {
-  "159357": { role: "bendahara", email: "bendahara@staff.internal", name: "Bendahara" },
+  "159357": { role: "admin", email: "admin@staff.internal", name: "Admin" },
+  "321654": { role: "bendahara", email: "bendahara@staff.internal", name: "Bendahara" },
   "456123": { role: "sekretaris", email: "sekretaris@staff.internal", name: "Sekretaris" },
   "654321": { role: "dokumentasi", email: "dokumentasi@staff.internal", name: "Dokumentasi" },
-  "123456": { role: "admin", email: "admin@staff.internal", name: "Admin" },
 };
 
 Deno.serve(async (req) => {
