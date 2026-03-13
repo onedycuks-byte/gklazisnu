@@ -1782,8 +1782,8 @@ export default function Admin() {
           {/* Koordinator Input Pemasukan Tab */}
           <TabsContent value="input-pemasukan" className="space-y-4">
             <div>
-              <h2 className="text-xl font-semibold">Input Pemasukan Wilayah</h2>
-              <p className="text-sm text-muted-foreground">Kirim data pemasukan dari pengambilan koin kaleng. Data akan dikonfirmasi oleh Admin/Bendahara.</p>
+              <h2 className="text-base font-semibold">Input Pemasukan</h2>
+              <p className="text-xs text-muted-foreground">Kirim data pemasukan koin kaleng untuk konfirmasi</p>
             </div>
 
             <Card>
