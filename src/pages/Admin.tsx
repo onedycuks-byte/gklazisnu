@@ -1863,7 +1863,7 @@ export default function Admin() {
                 {donations.filter(d => d.status === 'pending').map((d) => (
                   <Card key={d.id} className="border-yellow-200 bg-yellow-50/50">
                     <CardContent className="p-4">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                      <div className="flex flex-col justify-between gap-3">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Menunggu</span>
