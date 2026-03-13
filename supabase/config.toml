@@ -1,7 +1,1 @@
-project_id = "uqwiyazcbyhwxosijxrf"
-
-[functions.zakat-chat]
-verify_jwt = false
-
-[functions.admin-chat]
-verify_jwt = false
+project_id = "qijztmogwfebxkzmylyg"
