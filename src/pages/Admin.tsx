@@ -1594,7 +1594,7 @@ export default function Admin() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4">
                 {orphanRegistrations.map(reg => (
                   <Card key={reg.id} className={reg.status === "pending" ? "border-amber-300 border-2" : ""}>
                     <CardHeader className="pb-2">
