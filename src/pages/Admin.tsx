@@ -38,8 +38,23 @@ import {
   ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send, Users, Eye, Download, BarChart3, Heart
 } from "lucide-react";
 
+// Role-tab access mapping
+const ROLE_TABS: Record<string, string[]> = {
+  admin: ["statistik", "program", "pemasukan", "pengeluaran", "regions", "berita", "kontak", "diskusi", "santunan", "ai"],
+  bendahara: ["statistik", "pemasukan", "pengeluaran", "santunan"],
+  sekretaris: ["regions", "kontak", "diskusi", "santunan"],
+  dokumentasi: ["berita", "program", "ai"],
+};
+
+const ROLE_LABELS: Record<string, string> = {
+  admin: "Admin",
+  bendahara: "Bendahara",
+  sekretaris: "Sekretaris",
+  dokumentasi: "Dokumentasi",
+};
+
 export default function Admin() {
-  const { user, isAdmin, isLoading: authLoading, signOut } = useAuth();
+  const { user, isAdmin, roles, hasAnyRole, isLoading: authLoading, signOut } = useAuth();
   const { regions, isLoading: regionsLoading, updateRegion, addRegion, deleteRegion } = useRegions();
   const { donations, isLoading: donationsLoading, addDonation, updateDonation, deleteDonation, getTotalDonations } = useSupabaseDonations();
   const { expenses, isLoading: expensesLoading, addExpense, deleteExpense, uploadReceipt, getTotalExpenses } = useExpenses();
