@@ -430,139 +430,129 @@ export default function Admin() {
   const saldo = totalPemasukan - totalPengeluaran;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary">
-              <Shield className="h-5 w-5 text-primary-foreground" />
+    <div className="min-h-screen bg-background max-w-lg mx-auto">
+      {/* Header - compact sticky */}
+      <header className="sticky top-0 z-30 border-b bg-card/95 backdrop-blur-sm">
+        <div className="flex h-14 items-center justify-between px-4">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg gradient-primary">
+              <Shield className="h-4 w-4 text-primary-foreground" />
             </div>
-            <div>
-              <h1 className="text-lg font-bold text-foreground">Portal {roleLabel}</h1>
-              <p className="text-xs text-muted-foreground">LAZISNU Gendongkulon • {roles.filter(r => r !== "user").map(r => ROLE_LABELS[r] || r).join(", ")}</p>
+            <div className="min-w-0">
+              <h1 className="text-sm font-bold text-foreground truncate">Portal {roleLabel}</h1>
+              <p className="text-[10px] text-muted-foreground truncate">{roles.filter(r => r !== "user").map(r => ROLE_LABELS[r] || r).join(", ")}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => navigate("/")}>
-              <ArrowLeft className="mr-2 h-4 w-4" /> Lihat Publik
+          <div className="flex items-center gap-1 shrink-0">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/")}>
+              <ArrowLeft className="h-4 w-4" />
             </Button>
-            <Button variant="outline" onClick={handleSignOut}>
-              <LogOut className="mr-2 h-4 w-4" /> Logout
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="container py-8">
+      <main className="px-4 py-4 space-y-4">
         {/* Summary Cards - only for roles that can see financials */}
         {(visibleTabs.has("pemasukan") || visibleTabs.has("pengeluaran")) && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-3 gap-2">
             <Card>
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Total Pemasukan</p>
-                  <p className="text-lg font-bold text-foreground">{formatCurrency(totalPemasukan)}</p>
-                </div>
+              <CardContent className="p-3 text-center">
+                <TrendingUp className="h-4 w-4 text-green-600 mx-auto mb-1" />
+                <p className="text-[10px] text-muted-foreground">Pemasukan</p>
+                <p className="text-xs font-bold text-foreground">{formatCurrency(totalPemasukan)}</p>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
-                  <TrendingDown className="h-5 w-5 text-red-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Total Pengeluaran</p>
-                  <p className="text-lg font-bold text-foreground">{formatCurrency(totalPengeluaran)}</p>
-                </div>
+              <CardContent className="p-3 text-center">
+                <TrendingDown className="h-4 w-4 text-red-600 mx-auto mb-1" />
+                <p className="text-[10px] text-muted-foreground">Pengeluaran</p>
+                <p className="text-xs font-bold text-foreground">{formatCurrency(totalPengeluaran)}</p>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <Wallet className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Saldo</p>
-                  <p className="text-lg font-bold text-foreground">{formatCurrency(saldo)}</p>
-                </div>
+              <CardContent className="p-3 text-center">
+                <Wallet className="h-4 w-4 text-blue-600 mx-auto mb-1" />
+                <p className="text-[10px] text-muted-foreground">Saldo</p>
+                <p className="text-xs font-bold text-foreground">{formatCurrency(saldo)}</p>
               </CardContent>
             </Card>
           </div>
         )}
 
-        <Tabs defaultValue={Array.from(visibleTabs)[0] || "statistik"} className="space-y-6">
-          <TabsList className="flex-wrap">
-            {visibleTabs.has("statistik") && (
-              <TabsTrigger value="statistik" className="gap-2">
-                <BarChart3 className="h-4 w-4" /> Statistik
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("program") && (
-              <TabsTrigger value="program" className="gap-2">
-                <Target className="h-4 w-4" /> Program
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("pemasukan") && (
-              <TabsTrigger value="pemasukan" className="gap-2">
-                <TrendingUp className="h-4 w-4" /> Pemasukan
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("pengeluaran") && (
-              <TabsTrigger value="pengeluaran" className="gap-2">
-                <TrendingDown className="h-4 w-4" /> Pengeluaran
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("regions") && (
-              <TabsTrigger value="regions" className="gap-2">
-                <MapPin className="h-4 w-4" /> Wilayah
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("berita") && (
-              <TabsTrigger value="berita" className="gap-2">
-                <Newspaper className="h-4 w-4" /> Berita
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("kontak") && (
-              <TabsTrigger value="kontak" className="gap-2">
-                <Phone className="h-4 w-4" /> Kontak
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("diskusi") && (
-              <TabsTrigger value="diskusi" className="gap-2">
-                <MessageCircle className="h-4 w-4" /> Diskusi
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("santunan") && (
-              <TabsTrigger value="santunan" className="gap-2">
-                <Heart className="h-4 w-4" /> Santunan
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("ai") && (
-              <TabsTrigger value="ai" className="gap-2">
-                <Sparkles className="h-4 w-4" /> AI
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("input-pemasukan") && (
-              <TabsTrigger value="input-pemasukan" className="gap-2">
-                <Plus className="h-4 w-4" /> Input Pemasukan
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("konfirmasi") && (
-              <TabsTrigger value="konfirmasi" className="gap-2">
-                <Check className="h-4 w-4" /> Konfirmasi
-              </TabsTrigger>
-            )}
-          </TabsList>
+        <Tabs defaultValue={Array.from(visibleTabs)[0] || "statistik"} className="space-y-4">
+          <div className="overflow-x-auto -mx-4 px-4 scrollbar-hide">
+            <TabsList className="inline-flex w-max gap-1">
+              {visibleTabs.has("statistik") && (
+                <TabsTrigger value="statistik" className="text-xs px-2.5 py-1.5 gap-1">
+                  <BarChart3 className="h-3.5 w-3.5" /> Statistik
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("program") && (
+                <TabsTrigger value="program" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Target className="h-3.5 w-3.5" /> Program
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("pemasukan") && (
+                <TabsTrigger value="pemasukan" className="text-xs px-2.5 py-1.5 gap-1">
+                  <TrendingUp className="h-3.5 w-3.5" /> Masuk
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("pengeluaran") && (
+                <TabsTrigger value="pengeluaran" className="text-xs px-2.5 py-1.5 gap-1">
+                  <TrendingDown className="h-3.5 w-3.5" /> Keluar
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("regions") && (
+                <TabsTrigger value="regions" className="text-xs px-2.5 py-1.5 gap-1">
+                  <MapPin className="h-3.5 w-3.5" /> Wilayah
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("berita") && (
+                <TabsTrigger value="berita" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Newspaper className="h-3.5 w-3.5" /> Berita
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("kontak") && (
+                <TabsTrigger value="kontak" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Phone className="h-3.5 w-3.5" /> Kontak
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("diskusi") && (
+                <TabsTrigger value="diskusi" className="text-xs px-2.5 py-1.5 gap-1">
+                  <MessageCircle className="h-3.5 w-3.5" /> Diskusi
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("santunan") && (
+                <TabsTrigger value="santunan" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Heart className="h-3.5 w-3.5" /> Santunan
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("ai") && (
+                <TabsTrigger value="ai" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Sparkles className="h-3.5 w-3.5" /> AI
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("input-pemasukan") && (
+                <TabsTrigger value="input-pemasukan" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Plus className="h-3.5 w-3.5" /> Input
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("konfirmasi") && (
+                <TabsTrigger value="konfirmasi" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Check className="h-3.5 w-3.5" /> Konfirmasi
+                </TabsTrigger>
+              )}
+            </TabsList>
+          </div>
 
           {/* Statistik Tab */}
           <TabsContent value="statistik" className="space-y-4">
             <div>
-              <h2 className="text-xl font-semibold">Statistik Pengunjung</h2>
-              <p className="text-sm text-muted-foreground">Data real-time pengunjung & instalasi aplikasi (refresh otomatis 30 detik)</p>
+              <h2 className="text-base font-semibold">Statistik Pengunjung</h2>
+              <p className="text-xs text-muted-foreground">Data real-time pengunjung</p>
             </div>
 
             {analyticsLoading ? (
@@ -572,7 +562,7 @@ export default function Admin() {
             ) : analyticsStats ? (
               <>
                 {/* Summary Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   <Card>
                     <CardContent className="p-4 text-center">
                       <div className="flex justify-center mb-2">
@@ -620,7 +610,7 @@ export default function Admin() {
                 </div>
 
                 {/* Detail Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-3">
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-base">Ringkasan Kunjungan</CardTitle>
@@ -686,7 +676,7 @@ export default function Admin() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-3 gap-3">
                       <div className="text-center p-3 bg-muted rounded-lg">
                         <p className="text-xl font-bold text-foreground">{analyticsStats.todayInstalls}</p>
                         <p className="text-xs text-muted-foreground">Install Hari Ini</p>
@@ -714,12 +704,12 @@ export default function Admin() {
           <TabsContent value="program" className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Kelola Program Donasi</h2>
-                <p className="text-sm text-muted-foreground">Program penggalangan dana dengan QRIS</p>
+                <h2 className="text-base font-semibold">Program Donasi</h2>
+                <p className="text-xs text-muted-foreground">Program penggalangan dana</p>
               </div>
               <Dialog open={isAddProgramOpen} onOpenChange={setIsAddProgramOpen}>
                 <DialogTrigger asChild>
-                  <Button><Plus className="mr-2 h-4 w-4" /> Tambah Program</Button>
+                  <Button size="sm"><Plus className="mr-1 h-3.5 w-3.5" /> Tambah</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -763,115 +753,108 @@ export default function Admin() {
               </Dialog>
             </div>
 
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Program</TableHead>
-                    <TableHead className="text-right">Terkumpul</TableHead>
-                    <TableHead className="text-right">Target</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="w-[100px]">Aksi</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {programs.map((program) => (
-                    <TableRow key={program.id}>
-                      <TableCell className="font-medium max-w-[200px] truncate">{program.title}</TableCell>
-                      <TableCell className="text-right font-semibold text-primary">{formatCurrency(program.collected_amount)}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(program.target_amount)}</TableCell>
-                      <TableCell>
-                        <span className={`text-xs px-2 py-1 rounded-full ${program.is_active ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
-                          {program.is_active ? "Aktif" : "Nonaktif"}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="icon" onClick={() => setEditingProgram(program)}>
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader><DialogTitle>Edit Program</DialogTitle></DialogHeader>
-                              {editingProgram && (
-                                <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
-                                  <div className="grid gap-2">
-                                    <Label>Judul</Label>
-                                    <Input value={editingProgram.title} onChange={(e) => setEditingProgram({ ...editingProgram, title: e.target.value })} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Deskripsi</Label>
-                                    <Textarea value={editingProgram.description || ""} onChange={(e) => setEditingProgram({ ...editingProgram, description: e.target.value })} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Target (Rp)</Label>
-                                    <Input value={formatAmount(editingProgram.target_amount.toString())} onChange={(e) => { const num = parseInt(e.target.value.replace(/[^\d]/g, "")) || 0; setEditingProgram({ ...editingProgram, target_amount: num }); }} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Terkumpul (Rp)</Label>
-                                    <Input value={formatAmount(editingProgram.collected_amount.toString())} onChange={(e) => { const num = parseInt(e.target.value.replace(/[^\d]/g, "")) || 0; setEditingProgram({ ...editingProgram, collected_amount: num }); }} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label className="flex items-center gap-2"><Image className="h-4 w-4" /> Gambar Program</Label>
-                                    {editingProgram.image_url && <img src={editingProgram.image_url} alt="Preview" className="h-20 w-auto rounded object-cover" />}
-                                    <Input type="file" accept="image/*" onChange={(e) => setEditProgramImageFile(e.target.files?.[0] || null)} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label className="flex items-center gap-2"><Upload className="h-4 w-4" /> Gambar QRIS</Label>
-                                    {editingProgram.qris_image_url && <img src={editingProgram.qris_image_url} alt="QRIS" className="h-20 w-auto rounded" />}
-                                    <Input type="file" accept="image/*" onChange={(e) => setEditQrisImageFile(e.target.files?.[0] || null)} />
-                                    <Input value={editingProgram.qris_image_url || ""} onChange={(e) => setEditingProgram({ ...editingProgram, qris_image_url: e.target.value })} placeholder="Atau URL QRIS" />
-                                  </div>
-                                  <div className="flex items-center gap-3">
-                                    <Label>Aktif</Label>
-                                    <Switch checked={editingProgram.is_active} onCheckedChange={(v) => setEditingProgram({ ...editingProgram, is_active: v })} />
-                                  </div>
-                                </div>
-                              )}
-                              <DialogFooter>
-                                <Button onClick={handleUpdateProgram} disabled={uploading}>
-                                  {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                  Simpan
-                                </Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Hapus Program?</AlertDialogTitle>
-                                <AlertDialogDescription>Program donasi akan dihapus permanen.</AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDeleteProgram(program.id)} className="bg-destructive">Hapus</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+            <div className="space-y-2">
+              {programs.map((program) => (
+                <Card key={program.id}>
+                  <CardContent className="p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold truncate">{program.title}</p>
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${program.is_active ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
+                            {program.is_active ? "Aktif" : "Off"}
+                          </span>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
+                        <p className="text-xs text-primary font-bold">{formatCurrency(program.collected_amount)} <span className="text-muted-foreground font-normal">/ {formatCurrency(program.target_amount)}</span></p>
+                        <div className="w-full bg-muted rounded-full h-1.5">
+                          <div className="h-full rounded-full gradient-primary" style={{ width: `${Math.min(100, (program.collected_amount / program.target_amount) * 100)}%` }} />
+                        </div>
+                      </div>
+                      <div className="flex gap-0.5 shrink-0 ml-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingProgram(program)}>
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader><DialogTitle>Edit Program</DialogTitle></DialogHeader>
+                            {editingProgram && (
+                              <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
+                                <div className="grid gap-2">
+                                  <Label>Judul</Label>
+                                  <Input value={editingProgram.title} onChange={(e) => setEditingProgram({ ...editingProgram, title: e.target.value })} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Deskripsi</Label>
+                                  <Textarea value={editingProgram.description || ""} onChange={(e) => setEditingProgram({ ...editingProgram, description: e.target.value })} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Target (Rp)</Label>
+                                  <Input value={formatAmount(editingProgram.target_amount.toString())} onChange={(e) => { const num = parseInt(e.target.value.replace(/[^\d]/g, "")) || 0; setEditingProgram({ ...editingProgram, target_amount: num }); }} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Terkumpul (Rp)</Label>
+                                  <Input value={formatAmount(editingProgram.collected_amount.toString())} onChange={(e) => { const num = parseInt(e.target.value.replace(/[^\d]/g, "")) || 0; setEditingProgram({ ...editingProgram, collected_amount: num }); }} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label className="flex items-center gap-2"><Image className="h-4 w-4" /> Gambar Program</Label>
+                                  {editingProgram.image_url && <img src={editingProgram.image_url} alt="Preview" className="h-20 w-auto rounded object-cover" />}
+                                  <Input type="file" accept="image/*" onChange={(e) => setEditProgramImageFile(e.target.files?.[0] || null)} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label className="flex items-center gap-2"><Upload className="h-4 w-4" /> Gambar QRIS</Label>
+                                  {editingProgram.qris_image_url && <img src={editingProgram.qris_image_url} alt="QRIS" className="h-20 w-auto rounded" />}
+                                  <Input type="file" accept="image/*" onChange={(e) => setEditQrisImageFile(e.target.files?.[0] || null)} />
+                                  <Input value={editingProgram.qris_image_url || ""} onChange={(e) => setEditingProgram({ ...editingProgram, qris_image_url: e.target.value })} placeholder="Atau URL QRIS" />
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <Label>Aktif</Label>
+                                  <Switch checked={editingProgram.is_active} onCheckedChange={(v) => setEditingProgram({ ...editingProgram, is_active: v })} />
+                                </div>
+                              </div>
+                            )}
+                            <DialogFooter>
+                              <Button onClick={handleUpdateProgram} disabled={uploading}>
+                                {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Simpan
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Hapus Program?</AlertDialogTitle>
+                              <AlertDialogDescription>Program donasi akan dihapus permanen.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteProgram(program.id)} className="bg-destructive">Hapus</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           {/* Pemasukan Tab */}
           <TabsContent value="pemasukan" className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Kelola Pemasukan</h2>
-                <p className="text-sm text-muted-foreground">Data donasi infaq kaleng koin</p>
+                <h2 className="text-base font-semibold">Pemasukan</h2>
+                <p className="text-xs text-muted-foreground">Data donasi infaq</p>
               </div>
               <Dialog open={isAddDonationOpen} onOpenChange={setIsAddDonationOpen}>
                 <DialogTrigger asChild>
-                  <Button><Plus className="mr-2 h-4 w-4" /> Tambah Pemasukan</Button>
+                  <Button size="sm"><Plus className="mr-1 h-3.5 w-3.5" /> Tambah</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -920,94 +903,89 @@ export default function Admin() {
               </Dialog>
             </div>
 
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tanggal</TableHead>
-                    <TableHead>Kategori</TableHead>
-                    <TableHead>Wilayah</TableHead>
-                    <TableHead className="text-right">Nominal</TableHead>
-                    <TableHead className="w-[100px]">Aksi</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {donations.map((donation) => (
-                    <TableRow key={donation.id}>
-                      <TableCell>{formatDate(donation.date)}</TableCell>
-                      <TableCell><span className="px-2 py-0.5 text-xs rounded-full bg-accent text-accent-foreground">{donation.category || "Infaq Kaleng Koin"}</span></TableCell>
-                      <TableCell>{donation.region_id ? getRegionName(donation.region_id) : "-"}</TableCell>
-                      <TableCell className="text-right font-semibold text-primary">{formatCurrency(donation.amount)}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="icon" onClick={() => setEditingDonation(donation)}>
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader><DialogTitle>Edit Pemasukan</DialogTitle></DialogHeader>
-                              {editingDonation && (
-                                <div className="grid gap-4 py-4">
-                                  <div className="grid gap-2">
-                                    <Label>Wilayah</Label>
-                                    <Select value={editingDonation.region_id} onValueChange={(v) => setEditingDonation({ ...editingDonation, region_id: v })}>
-                                      <SelectTrigger><SelectValue /></SelectTrigger>
-                                      <SelectContent>{regions.map((r) => (<SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>))}</SelectContent>
-                                    </Select>
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Nominal</Label>
-                                    <Input value={formatAmount(editingDonation.amount.toString())} onChange={(e) => { const num = parseInt(e.target.value.replace(/[^\d]/g, "")) || 0; setEditingDonation({ ...editingDonation, amount: num }); }} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Tanggal</Label>
-                                    <Input type="date" value={editingDonation.date} onChange={(e) => setEditingDonation({ ...editingDonation, date: e.target.value })} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Catatan</Label>
-                                    <Textarea value={editingDonation.notes || ""} onChange={(e) => setEditingDonation({ ...editingDonation, notes: e.target.value })} />
-                                  </div>
-                                </div>
-                              )}
-                              <DialogFooter><Button onClick={handleUpdateDonation}>Simpan</Button></DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Hapus Pemasukan?</AlertDialogTitle>
-                                <AlertDialogDescription>Data pemasukan akan dihapus permanen.</AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDeleteDonation(donation.id)} className="bg-destructive">Hapus</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+            <div className="space-y-2">
+              {donations.map((donation) => (
+                <Card key={donation.id}>
+                  <CardContent className="p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-primary">{formatCurrency(donation.amount)}</span>
+                          <span className="px-1.5 py-0.5 text-[10px] rounded-full bg-accent text-accent-foreground">{donation.category || "Infaq Kaleng Koin"}</span>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(donation.date)} • {donation.region_id ? getRegionName(donation.region_id) : "Umum"}
+                        </p>
+                        {donation.notes && <p className="text-xs text-muted-foreground truncate">{donation.notes}</p>}
+                      </div>
+                      <div className="flex gap-0.5 shrink-0">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingDonation(donation)}>
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader><DialogTitle>Edit Pemasukan</DialogTitle></DialogHeader>
+                            {editingDonation && (
+                              <div className="grid gap-4 py-4">
+                                <div className="grid gap-2">
+                                  <Label>Wilayah</Label>
+                                  <Select value={editingDonation.region_id} onValueChange={(v) => setEditingDonation({ ...editingDonation, region_id: v })}>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>{regions.map((r) => (<SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>))}</SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Nominal</Label>
+                                  <Input value={formatAmount(editingDonation.amount.toString())} onChange={(e) => { const num = parseInt(e.target.value.replace(/[^\d]/g, "")) || 0; setEditingDonation({ ...editingDonation, amount: num }); }} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Tanggal</Label>
+                                  <Input type="date" value={editingDonation.date} onChange={(e) => setEditingDonation({ ...editingDonation, date: e.target.value })} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Catatan</Label>
+                                  <Textarea value={editingDonation.notes || ""} onChange={(e) => setEditingDonation({ ...editingDonation, notes: e.target.value })} />
+                                </div>
+                              </div>
+                            )}
+                            <DialogFooter><Button onClick={handleUpdateDonation}>Simpan</Button></DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Hapus Pemasukan?</AlertDialogTitle>
+                              <AlertDialogDescription>Data pemasukan akan dihapus permanen.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteDonation(donation.id)} className="bg-destructive">Hapus</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           {/* Pengeluaran Tab */}
           <TabsContent value="pengeluaran" className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Kelola Pengeluaran</h2>
-                <p className="text-sm text-muted-foreground">Data pengeluaran operasional</p>
+                <h2 className="text-base font-semibold">Pengeluaran</h2>
+                <p className="text-xs text-muted-foreground">Data pengeluaran operasional</p>
               </div>
               <Dialog open={isAddExpenseOpen} onOpenChange={setIsAddExpenseOpen}>
                 <DialogTrigger asChild>
-                  <Button><Plus className="mr-2 h-4 w-4" /> Tambah Pengeluaran</Button>
+                  <Button size="sm"><Plus className="mr-1 h-3.5 w-3.5" /> Tambah</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -1053,66 +1031,56 @@ export default function Admin() {
               </Dialog>
             </div>
 
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tanggal</TableHead>
-                    <TableHead>Kategori</TableHead>
-                    <TableHead>Keterangan</TableHead>
-                    <TableHead className="text-right">Nominal</TableHead>
-                    <TableHead>Bukti</TableHead>
-                    <TableHead className="w-[80px]">Aksi</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {expenses.map((expense) => (
-                    <TableRow key={expense.id}>
-                      <TableCell>{formatDate(expense.date)}</TableCell>
-                      <TableCell><span className="px-2 py-0.5 text-xs rounded-full bg-accent text-accent-foreground">{expense.category || "Operasional"}</span></TableCell>
-                      <TableCell className="max-w-[200px] truncate">{expense.description || "-"}</TableCell>
-                      <TableCell className="text-right font-semibold text-destructive">{formatCurrency(expense.amount)}</TableCell>
-                      <TableCell>
-                        {expense.receipt_url ? (
-                          <a href={expense.receipt_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-xs flex items-center gap-1">
-                            <Image className="h-3 w-3" /> Lihat
+            <div className="space-y-2">
+              {expenses.map((expense) => (
+                <Card key={expense.id}>
+                  <CardContent className="p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-destructive">{formatCurrency(expense.amount)}</span>
+                          <span className="px-1.5 py-0.5 text-[10px] rounded-full bg-accent text-accent-foreground">{expense.category || "Operasional"}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">{formatDate(expense.date)}</p>
+                        {expense.description && <p className="text-xs text-muted-foreground truncate">{expense.description}</p>}
+                        {expense.receipt_url && (
+                          <a href={expense.receipt_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                            <Image className="h-3 w-3" /> Lihat Bukti
                           </a>
-                        ) : <span className="text-xs text-muted-foreground">-</span>}
-                      </TableCell>
-                      <TableCell>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Hapus Pengeluaran?</AlertDialogTitle>
-                              <AlertDialogDescription>Data pengeluaran akan dihapus permanen.</AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Batal</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteExpense(expense.id)} className="bg-destructive">Hapus</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
+                        )}
+                      </div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive shrink-0"><Trash2 className="h-3.5 w-3.5" /></Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Hapus Pengeluaran?</AlertDialogTitle>
+                            <AlertDialogDescription>Data pengeluaran akan dihapus permanen.</AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Batal</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteExpense(expense.id)} className="bg-destructive">Hapus</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           {/* Regions Tab */}
           <TabsContent value="regions" className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Kelola Wilayah</h2>
-                <p className="text-sm text-muted-foreground">Edit nama wilayah dan koordinator</p>
+                <h2 className="text-base font-semibold">Wilayah</h2>
+                <p className="text-xs text-muted-foreground">Wilayah dan koordinator</p>
               </div>
               <Dialog open={isAddRegionOpen} onOpenChange={setIsAddRegionOpen}>
                 <DialogTrigger asChild>
-                  <Button><Plus className="mr-2 h-4 w-4" /> Tambah Wilayah</Button>
+                  <Button size="sm"><Plus className="mr-1 h-3.5 w-3.5" /> Tambah</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -1141,85 +1109,76 @@ export default function Admin() {
               </Dialog>
             </div>
 
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nama Wilayah</TableHead>
-                    <TableHead>Koordinator</TableHead>
-                    <TableHead>Telepon</TableHead>
-                    <TableHead className="w-[100px]">Aksi</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {regions.map((region) => (
-                    <TableRow key={region.id}>
-                      <TableCell className="font-medium">{region.name}</TableCell>
-                      <TableCell>{region.coordinator}</TableCell>
-                      <TableCell>{region.phone}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="icon" onClick={() => setEditingRegion(region)}>
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader><DialogTitle>Edit Wilayah</DialogTitle></DialogHeader>
-                              {editingRegion && (
-                                <div className="grid gap-4 py-4">
-                                  <div className="grid gap-2">
-                                    <Label>Nama Wilayah</Label>
-                                    <Input value={editingRegion.name} onChange={(e) => setEditingRegion({ ...editingRegion, name: e.target.value })} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Koordinator</Label>
-                                    <Input value={editingRegion.coordinator} onChange={(e) => setEditingRegion({ ...editingRegion, coordinator: e.target.value })} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Telepon</Label>
-                                    <Input value={editingRegion.phone} onChange={(e) => setEditingRegion({ ...editingRegion, phone: e.target.value })} />
-                                  </div>
+            <div className="space-y-2">
+              {regions.map((region) => (
+                <Card key={region.id}>
+                  <CardContent className="p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <p className="text-sm font-semibold">{region.name}</p>
+                        <p className="text-xs text-muted-foreground">{region.coordinator} • {region.phone}</p>
+                      </div>
+                      <div className="flex gap-0.5 shrink-0">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingRegion(region)}>
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader><DialogTitle>Edit Wilayah</DialogTitle></DialogHeader>
+                            {editingRegion && (
+                              <div className="grid gap-4 py-4">
+                                <div className="grid gap-2">
+                                  <Label>Nama Wilayah</Label>
+                                  <Input value={editingRegion.name} onChange={(e) => setEditingRegion({ ...editingRegion, name: e.target.value })} />
                                 </div>
-                              )}
-                              <DialogFooter><Button onClick={handleUpdateRegion}>Simpan</Button></DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Hapus Wilayah?</AlertDialogTitle>
-                                <AlertDialogDescription>Semua data donasi wilayah ini juga akan terhapus.</AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDeleteRegion(region.id)} className="bg-destructive">Hapus</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
+                                <div className="grid gap-2">
+                                  <Label>Koordinator</Label>
+                                  <Input value={editingRegion.coordinator} onChange={(e) => setEditingRegion({ ...editingRegion, coordinator: e.target.value })} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Telepon</Label>
+                                  <Input value={editingRegion.phone} onChange={(e) => setEditingRegion({ ...editingRegion, phone: e.target.value })} />
+                                </div>
+                              </div>
+                            )}
+                            <DialogFooter><Button onClick={handleUpdateRegion}>Simpan</Button></DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Hapus Wilayah?</AlertDialogTitle>
+                              <AlertDialogDescription>Semua data donasi wilayah ini juga akan terhapus.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteRegion(region.id)} className="bg-destructive">Hapus</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           {/* Berita Tab */}
           <TabsContent value="berita" className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Kelola Berita</h2>
-                <p className="text-sm text-muted-foreground">Berita & pengumuman dengan gambar</p>
+                <h2 className="text-base font-semibold">Berita</h2>
+                <p className="text-xs text-muted-foreground">Berita & pengumuman</p>
               </div>
               <Dialog open={isAddNewsOpen} onOpenChange={setIsAddNewsOpen}>
                 <DialogTrigger asChild>
-                  <Button><Plus className="mr-2 h-4 w-4" /> Tambah Berita</Button>
+                  <Button size="sm"><Plus className="mr-1 h-3.5 w-3.5" /> Tambah</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -1267,124 +1226,112 @@ export default function Admin() {
               </Dialog>
             </div>
 
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Gambar</TableHead>
-                    <TableHead>Judul</TableHead>
-                    <TableHead>Kategori</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Tanggal</TableHead>
-                    <TableHead className="text-right">Aksi</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {news.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>
-                        {item.image_url ? (
-                          <img src={item.image_url} alt="" className="h-12 w-16 object-cover rounded" />
-                        ) : (
-                          <div className="h-12 w-16 bg-muted rounded flex items-center justify-center">
-                            <Image className="h-4 w-4 text-muted-foreground" />
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell className="font-medium max-w-[200px] truncate">{item.title}</TableCell>
-                      <TableCell><span className="px-2 py-0.5 text-xs rounded-full bg-accent text-accent-foreground">{item.category}</span></TableCell>
-                      <TableCell>{item.is_published ? "✅ Publik" : "📝 Draft"}</TableCell>
-                      <TableCell>{formatDate(item.published_at)}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="icon" onClick={() => { setEditingNews(item); setEditNewsImageFile(null); }}>
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Edit Berita</DialogTitle>
-                              </DialogHeader>
-                              {editingNews?.id === item.id && (
-                                <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
-                                  <div className="grid gap-2">
-                                    <Label>Judul</Label>
-                                    <Input value={editingNews.title} onChange={(e) => setEditingNews({ ...editingNews, title: e.target.value })} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Kategori</Label>
-                                    <Select value={editingNews.category} onValueChange={(v) => setEditingNews({ ...editingNews, category: v })}>
-                                      <SelectTrigger><SelectValue /></SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="Umum">Umum</SelectItem>
-                                        <SelectItem value="Penyaluran">Penyaluran</SelectItem>
-                                        <SelectItem value="Pengumpulan">Pengumpulan</SelectItem>
-                                        <SelectItem value="Kegiatan">Kegiatan</SelectItem>
-                                        <SelectItem value="Sosialisasi">Sosialisasi</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Ringkasan</Label>
-                                    <Textarea value={editingNews.excerpt || ""} onChange={(e) => setEditingNews({ ...editingNews, excerpt: e.target.value })} rows={2} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Konten Lengkap</Label>
-                                    <Textarea value={editingNews.content || ""} onChange={(e) => setEditingNews({ ...editingNews, content: e.target.value })} rows={5} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Gambar</Label>
-                                    {editingNews.image_url && <img src={editingNews.image_url} alt="" className="h-24 object-cover rounded" />}
-                                    <Input type="file" accept="image/*" onChange={(e) => setEditNewsImageFile(e.target.files?.[0] || null)} />
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <Switch checked={editingNews.is_published} onCheckedChange={(v) => setEditingNews({ ...editingNews, is_published: v })} />
-                                    <Label>Dipublikasikan</Label>
-                                  </div>
-                                </div>
-                              )}
-                              <DialogFooter>
-                                <Button onClick={handleUpdateNews} disabled={uploading}>
-                                  {uploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Mengupload...</> : "Simpan"}
-                                </Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Hapus Berita?</AlertDialogTitle>
-                                <AlertDialogDescription>Berita ini akan dihapus permanen.</AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDeleteNews(item.id)} className="bg-destructive">Hapus</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+            <div className="space-y-2">
+              {news.map((item) => (
+                <Card key={item.id}>
+                  <CardContent className="p-3">
+                    <div className="flex items-start gap-3">
+                      {item.image_url ? (
+                        <img src={item.image_url} alt="" className="h-12 w-12 object-cover rounded shrink-0" />
+                      ) : (
+                        <div className="h-12 w-12 bg-muted rounded flex items-center justify-center shrink-0">
+                          <Image className="h-4 w-4 text-muted-foreground" />
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
+                      )}
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <p className="text-sm font-semibold truncate">{item.title}</p>
+                        <div className="flex items-center gap-2">
+                          <span className="px-1.5 py-0.5 text-[10px] rounded-full bg-accent text-accent-foreground">{item.category}</span>
+                          <span className="text-[10px] text-muted-foreground">{item.is_published ? "✅ Publik" : "📝 Draft"}</span>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">{formatDate(item.published_at)}</p>
+                      </div>
+                      <div className="flex gap-0.5 shrink-0">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditingNews(item); setEditNewsImageFile(null); }}>
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader><DialogTitle>Edit Berita</DialogTitle></DialogHeader>
+                            {editingNews?.id === item.id && (
+                              <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
+                                <div className="grid gap-2">
+                                  <Label>Judul</Label>
+                                  <Input value={editingNews.title} onChange={(e) => setEditingNews({ ...editingNews, title: e.target.value })} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Kategori</Label>
+                                  <Select value={editingNews.category} onValueChange={(v) => setEditingNews({ ...editingNews, category: v })}>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="Umum">Umum</SelectItem>
+                                      <SelectItem value="Penyaluran">Penyaluran</SelectItem>
+                                      <SelectItem value="Pengumpulan">Pengumpulan</SelectItem>
+                                      <SelectItem value="Kegiatan">Kegiatan</SelectItem>
+                                      <SelectItem value="Sosialisasi">Sosialisasi</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Ringkasan</Label>
+                                  <Textarea value={editingNews.excerpt || ""} onChange={(e) => setEditingNews({ ...editingNews, excerpt: e.target.value })} rows={2} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Konten Lengkap</Label>
+                                  <Textarea value={editingNews.content || ""} onChange={(e) => setEditingNews({ ...editingNews, content: e.target.value })} rows={5} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Gambar</Label>
+                                  {editingNews.image_url && <img src={editingNews.image_url} alt="" className="h-24 object-cover rounded" />}
+                                  <Input type="file" accept="image/*" onChange={(e) => setEditNewsImageFile(e.target.files?.[0] || null)} />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Switch checked={editingNews.is_published} onCheckedChange={(v) => setEditingNews({ ...editingNews, is_published: v })} />
+                                  <Label>Dipublikasikan</Label>
+                                </div>
+                              </div>
+                            )}
+                            <DialogFooter>
+                              <Button onClick={handleUpdateNews} disabled={uploading}>
+                                {uploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Mengupload...</> : "Simpan"}
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Hapus Berita?</AlertDialogTitle>
+                              <AlertDialogDescription>Berita ini akan dihapus permanen.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteNews(item.id)} className="bg-destructive">Hapus</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           {/* Kontak Tab */}
           <TabsContent value="kontak" className="space-y-4">
             <div>
-              <h2 className="text-xl font-semibold">Kelola Info Kontak</h2>
-              <p className="text-sm text-muted-foreground">Edit informasi kontak yang tampil di halaman Kontak</p>
+              <h2 className="text-base font-semibold">Info Kontak</h2>
+              <p className="text-xs text-muted-foreground">Edit informasi kontak</p>
             </div>
             <Card>
-              <CardContent className="p-6 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardContent className="p-4 space-y-4">
+                <div className="grid grid-cols-1 gap-3">
                   <div className="space-y-2">
                     <Label>Nama Organisasi</Label>
                     <Input value={contactForm.org_name || ""} onChange={(e) => setContactForm(p => ({ ...p, org_name: e.target.value }))} />
@@ -1409,7 +1356,7 @@ export default function Admin() {
                     <Label>Email</Label>
                     <Input value={contactForm.email || ""} onChange={(e) => setContactForm(p => ({ ...p, email: e.target.value }))} />
                   </div>
-                  <div className="space-y-2 md:col-span-2">
+                  <div className="space-y-2">
                     <Label>Alamat</Label>
                     <Textarea value={contactForm.address || ""} onChange={(e) => setContactForm(p => ({ ...p, address: e.target.value }))} rows={2} />
                   </div>
@@ -1433,7 +1380,7 @@ export default function Admin() {
                     <Label>Facebook</Label>
                     <Input value={contactForm.facebook || ""} onChange={(e) => setContactForm(p => ({ ...p, facebook: e.target.value }))} />
                   </div>
-                  <div className="space-y-2 md:col-span-2">
+                  <div className="space-y-2">
                     <Label>Layanan (pisah dengan koma)</Label>
                     <Input value={contactForm.services || ""} onChange={(e) => setContactForm(p => ({ ...p, services: e.target.value }))} placeholder="Donasi Zakat,Infaq & Sedekah,Program Sosial" />
                   </div>
@@ -1491,108 +1438,95 @@ export default function Admin() {
           {/* Diskusi Tab */}
           <TabsContent value="diskusi" className="space-y-4">
             <div>
-              <h2 className="text-xl font-semibold">Kelola Diskusi</h2>
-              <p className="text-sm text-muted-foreground">Hapus atau beri tanggapan pada pesan pengunjung</p>
+              <h2 className="text-base font-semibold">Diskusi</h2>
+              <p className="text-xs text-muted-foreground">Tanggapan pesan pengunjung</p>
             </div>
-            <Card>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nama</TableHead>
-                      <TableHead>Pesan</TableHead>
-                      <TableHead>Tanggal</TableHead>
-                      <TableHead>Tanggapan</TableHead>
-                      <TableHead className="text-right">Aksi</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {discussions.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                          Belum ada diskusi
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      discussions.map((d) => (
-                        <TableRow key={d.id}>
-                          <TableCell className="font-medium">{d.author_name}</TableCell>
-                          <TableCell className="max-w-xs truncate">{d.message}</TableCell>
-                          <TableCell className="text-xs">{formatDate(d.created_at)}</TableCell>
-                          <TableCell className="max-w-xs">
-                            {replyingTo === d.id ? (
-                              <div className="flex flex-col gap-1.5">
-                                <Textarea
-                                  value={replyText}
-                                  onChange={(e) => setReplyText(e.target.value)}
-                                  placeholder="Tulis tanggapan..."
-                                  rows={2}
-                                  className="text-xs"
-                                />
-                                <div className="flex gap-1">
-                                  <Button size="sm" className="gap-1 text-xs h-7" onClick={async () => {
-                                    if (!replyText.trim()) return;
-                                    const { error } = await replyDiscussion(d.id, replyText.trim());
-                                    if (error) toast({ title: "Gagal", variant: "destructive" });
-                                    else { toast({ title: "Tanggapan terkirim" }); setReplyingTo(null); setReplyText(""); }
-                                  }}>
-                                    <Send className="h-3 w-3" /> Kirim
-                                  </Button>
-                                  <Button size="sm" variant="ghost" className="text-xs h-7" onClick={() => { setReplyingTo(null); setReplyText(""); }}>
-                                    Batal
-                                  </Button>
-                                </div>
-                              </div>
-                            ) : d.admin_reply ? (
-                              <span className="text-xs text-muted-foreground truncate block">{d.admin_reply}</span>
-                            ) : (
-                              <span className="text-xs text-muted-foreground/50">—</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex gap-1 justify-end">
-                              <Button size="sm" variant="outline" className="gap-1" onClick={() => {
-                                setReplyingTo(d.id);
-                                setReplyText(d.admin_reply || "");
-                              }}>
-                                <MessageCircle className="h-3.5 w-3.5" /> Balas
-                              </Button>
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button size="sm" variant="destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Hapus Diskusi?</AlertDialogTitle>
-                                    <AlertDialogDescription>Pesan ini akan dihapus permanen.</AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                                    <AlertDialogAction onClick={async () => {
-                                      const { error } = await deleteDiscussion(d.id);
-                                      if (error) toast({ title: "Gagal", variant: "destructive" });
-                                      else toast({ title: "Berhasil dihapus" });
-                                    }}>Hapus</AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            {discussions.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground text-sm">Belum ada diskusi</CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-2">
+                {discussions.map((d) => (
+                  <Card key={d.id}>
+                    <CardContent className="p-3 space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold">{d.author_name}</p>
+                          <p className="text-xs text-muted-foreground">{formatDate(d.created_at)}</p>
+                        </div>
+                        <div className="flex gap-0.5 shrink-0">
+                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => {
+                            setReplyingTo(d.id);
+                            setReplyText(d.admin_reply || "");
+                          }}>
+                            <MessageCircle className="h-3.5 w-3.5" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Hapus Diskusi?</AlertDialogTitle>
+                                <AlertDialogDescription>Pesan ini akan dihapus permanen.</AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Batal</AlertDialogCancel>
+                                <AlertDialogAction onClick={async () => {
+                                  const { error } = await deleteDiscussion(d.id);
+                                  if (error) toast({ title: "Gagal", variant: "destructive" });
+                                  else toast({ title: "Berhasil dihapus" });
+                                }}>Hapus</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </div>
+                      <p className="text-xs">{d.message}</p>
+                      {d.admin_reply && (
+                        <div className="bg-muted rounded-lg p-2">
+                          <p className="text-[10px] text-muted-foreground font-semibold mb-0.5">Tanggapan:</p>
+                          <p className="text-xs">{d.admin_reply}</p>
+                        </div>
+                      )}
+                      {replyingTo === d.id && (
+                        <div className="space-y-2 pt-1">
+                          <Textarea
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            placeholder="Tulis tanggapan..."
+                            rows={2}
+                            className="text-xs"
+                          />
+                          <div className="flex gap-1">
+                            <Button size="sm" className="gap-1 text-xs h-7" onClick={async () => {
+                              if (!replyText.trim()) return;
+                              const { error } = await replyDiscussion(d.id, replyText.trim());
+                              if (error) toast({ title: "Gagal", variant: "destructive" });
+                              else { toast({ title: "Tanggapan terkirim" }); setReplyingTo(null); setReplyText(""); }
+                            }}>
+                              <Send className="h-3 w-3" /> Kirim
+                            </Button>
+                            <Button size="sm" variant="ghost" className="text-xs h-7" onClick={() => { setReplyingTo(null); setReplyText(""); }}>
+                              Batal
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           {/* Santunan Tab */}
           <TabsContent value="santunan" className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Pendaftaran & Dompet Santunan</h2>
-                <p className="text-sm text-muted-foreground">Kelola pendaftaran & saldo dompet anak yatim</p>
+                <h2 className="text-base font-semibold">Santunan</h2>
+                <p className="text-xs text-muted-foreground">Pendaftaran & saldo dompet anak yatim</p>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
@@ -1640,7 +1574,7 @@ export default function Admin() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4">
                 {orphanRegistrations.map(reg => (
                   <Card key={reg.id} className={reg.status === "pending" ? "border-amber-300 border-2" : ""}>
                     <CardHeader className="pb-2">
@@ -1828,8 +1762,8 @@ export default function Admin() {
           {/* Koordinator Input Pemasukan Tab */}
           <TabsContent value="input-pemasukan" className="space-y-4">
             <div>
-              <h2 className="text-xl font-semibold">Input Pemasukan Wilayah</h2>
-              <p className="text-sm text-muted-foreground">Kirim data pemasukan dari pengambilan koin kaleng. Data akan dikonfirmasi oleh Admin/Bendahara.</p>
+              <h2 className="text-base font-semibold">Input Pemasukan</h2>
+              <p className="text-xs text-muted-foreground">Kirim data pemasukan koin kaleng untuk konfirmasi</p>
             </div>
 
             <Card>
@@ -1837,7 +1771,7 @@ export default function Admin() {
                 <CardTitle>Form Pemasukan Baru</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-3">
                   <div className="space-y-2">
                     <Label>Wilayah *</Label>
                     <Select value={newDonation.region_id} onValueChange={(v) => setNewDonation({ ...newDonation, region_id: v })}>
@@ -1862,7 +1796,7 @@ export default function Admin() {
                     <Input placeholder="Catatan opsional" value={newDonation.notes} onChange={(e) => setNewDonation({ ...newDonation, notes: e.target.value })} />
                   </div>
                 </div>
-                <Button onClick={handleSubmitPendingDonation} className="w-full md:w-auto">
+                <Button onClick={handleSubmitPendingDonation} className="w-full">
                   <Send className="mr-2 h-4 w-4" /> Kirim untuk Konfirmasi
                 </Button>
               </CardContent>
@@ -1913,8 +1847,8 @@ export default function Admin() {
           {/* Konfirmasi Tab - Admin/Bendahara */}
           <TabsContent value="konfirmasi" className="space-y-4">
             <div>
-              <h2 className="text-xl font-semibold">Konfirmasi Pemasukan</h2>
-              <p className="text-sm text-muted-foreground">Data pemasukan dari Koordinator yang menunggu konfirmasi</p>
+              <h2 className="text-base font-semibold">Konfirmasi Pemasukan</h2>
+              <p className="text-xs text-muted-foreground">Data dari Koordinator yang menunggu konfirmasi</p>
             </div>
 
             {donations.filter(d => d.status === 'pending').length === 0 ? (
@@ -1929,7 +1863,7 @@ export default function Admin() {
                 {donations.filter(d => d.status === 'pending').map((d) => (
                   <Card key={d.id} className="border-yellow-200 bg-yellow-50/50">
                     <CardContent className="p-4">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                      <div className="flex flex-col justify-between gap-3">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Menunggu</span>
