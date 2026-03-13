@@ -1387,7 +1387,7 @@ export default function Admin() {
                     <Label>Facebook</Label>
                     <Input value={contactForm.facebook || ""} onChange={(e) => setContactForm(p => ({ ...p, facebook: e.target.value }))} />
                   </div>
-                  <div className="space-y-2 md:col-span-2">
+                  <div className="space-y-2">
                     <Label>Layanan (pisah dengan koma)</Label>
                     <Input value={contactForm.services || ""} onChange={(e) => setContactForm(p => ({ ...p, services: e.target.value }))} placeholder="Donasi Zakat,Infaq & Sedekah,Program Sosial" />
                   </div>
