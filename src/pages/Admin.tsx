@@ -1445,8 +1445,8 @@ export default function Admin() {
           {/* Diskusi Tab */}
           <TabsContent value="diskusi" className="space-y-4">
             <div>
-              <h2 className="text-xl font-semibold">Kelola Diskusi</h2>
-              <p className="text-sm text-muted-foreground">Hapus atau beri tanggapan pada pesan pengunjung</p>
+              <h2 className="text-base font-semibold">Diskusi</h2>
+              <p className="text-xs text-muted-foreground">Tanggapan pesan pengunjung</p>
             </div>
             <Card>
               <CardContent className="p-0">
