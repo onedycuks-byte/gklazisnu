@@ -856,12 +856,12 @@ export default function Admin() {
           <TabsContent value="pemasukan" className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Kelola Pemasukan</h2>
-                <p className="text-sm text-muted-foreground">Data donasi infaq kaleng koin</p>
+                <h2 className="text-base font-semibold">Pemasukan</h2>
+                <p className="text-xs text-muted-foreground">Data donasi infaq</p>
               </div>
               <Dialog open={isAddDonationOpen} onOpenChange={setIsAddDonationOpen}>
                 <DialogTrigger asChild>
-                  <Button><Plus className="mr-2 h-4 w-4" /> Tambah Pemasukan</Button>
+                  <Button size="sm"><Plus className="mr-1 h-3.5 w-3.5" /> Tambah</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -910,82 +910,77 @@ export default function Admin() {
               </Dialog>
             </div>
 
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tanggal</TableHead>
-                    <TableHead>Kategori</TableHead>
-                    <TableHead>Wilayah</TableHead>
-                    <TableHead className="text-right">Nominal</TableHead>
-                    <TableHead className="w-[100px]">Aksi</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {donations.map((donation) => (
-                    <TableRow key={donation.id}>
-                      <TableCell>{formatDate(donation.date)}</TableCell>
-                      <TableCell><span className="px-2 py-0.5 text-xs rounded-full bg-accent text-accent-foreground">{donation.category || "Infaq Kaleng Koin"}</span></TableCell>
-                      <TableCell>{donation.region_id ? getRegionName(donation.region_id) : "-"}</TableCell>
-                      <TableCell className="text-right font-semibold text-primary">{formatCurrency(donation.amount)}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="icon" onClick={() => setEditingDonation(donation)}>
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader><DialogTitle>Edit Pemasukan</DialogTitle></DialogHeader>
-                              {editingDonation && (
-                                <div className="grid gap-4 py-4">
-                                  <div className="grid gap-2">
-                                    <Label>Wilayah</Label>
-                                    <Select value={editingDonation.region_id} onValueChange={(v) => setEditingDonation({ ...editingDonation, region_id: v })}>
-                                      <SelectTrigger><SelectValue /></SelectTrigger>
-                                      <SelectContent>{regions.map((r) => (<SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>))}</SelectContent>
-                                    </Select>
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Nominal</Label>
-                                    <Input value={formatAmount(editingDonation.amount.toString())} onChange={(e) => { const num = parseInt(e.target.value.replace(/[^\d]/g, "")) || 0; setEditingDonation({ ...editingDonation, amount: num }); }} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Tanggal</Label>
-                                    <Input type="date" value={editingDonation.date} onChange={(e) => setEditingDonation({ ...editingDonation, date: e.target.value })} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Catatan</Label>
-                                    <Textarea value={editingDonation.notes || ""} onChange={(e) => setEditingDonation({ ...editingDonation, notes: e.target.value })} />
-                                  </div>
-                                </div>
-                              )}
-                              <DialogFooter><Button onClick={handleUpdateDonation}>Simpan</Button></DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Hapus Pemasukan?</AlertDialogTitle>
-                                <AlertDialogDescription>Data pemasukan akan dihapus permanen.</AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDeleteDonation(donation.id)} className="bg-destructive">Hapus</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+            <div className="space-y-2">
+              {donations.map((donation) => (
+                <Card key={donation.id}>
+                  <CardContent className="p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-primary">{formatCurrency(donation.amount)}</span>
+                          <span className="px-1.5 py-0.5 text-[10px] rounded-full bg-accent text-accent-foreground">{donation.category || "Infaq Kaleng Koin"}</span>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(donation.date)} • {donation.region_id ? getRegionName(donation.region_id) : "Umum"}
+                        </p>
+                        {donation.notes && <p className="text-xs text-muted-foreground truncate">{donation.notes}</p>}
+                      </div>
+                      <div className="flex gap-0.5 shrink-0">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingDonation(donation)}>
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader><DialogTitle>Edit Pemasukan</DialogTitle></DialogHeader>
+                            {editingDonation && (
+                              <div className="grid gap-4 py-4">
+                                <div className="grid gap-2">
+                                  <Label>Wilayah</Label>
+                                  <Select value={editingDonation.region_id} onValueChange={(v) => setEditingDonation({ ...editingDonation, region_id: v })}>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>{regions.map((r) => (<SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>))}</SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Nominal</Label>
+                                  <Input value={formatAmount(editingDonation.amount.toString())} onChange={(e) => { const num = parseInt(e.target.value.replace(/[^\d]/g, "")) || 0; setEditingDonation({ ...editingDonation, amount: num }); }} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Tanggal</Label>
+                                  <Input type="date" value={editingDonation.date} onChange={(e) => setEditingDonation({ ...editingDonation, date: e.target.value })} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Catatan</Label>
+                                  <Textarea value={editingDonation.notes || ""} onChange={(e) => setEditingDonation({ ...editingDonation, notes: e.target.value })} />
+                                </div>
+                              </div>
+                            )}
+                            <DialogFooter><Button onClick={handleUpdateDonation}>Simpan</Button></DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Hapus Pemasukan?</AlertDialogTitle>
+                              <AlertDialogDescription>Data pemasukan akan dihapus permanen.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteDonation(donation.id)} className="bg-destructive">Hapus</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           {/* Pengeluaran Tab */}
