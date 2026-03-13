@@ -64,7 +64,8 @@ export function useSupabaseDonations() {
     };
   }, []);
 
-  const addDonation = async (donation: DonationInput) => {
+  const addDonation = async (donation: DonationInput, pending = false) => {
+    const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase
       .from("donations")
       .insert({
@@ -73,7 +74,8 @@ export function useSupabaseDonations() {
         date: donation.date,
         notes: donation.notes || null,
         category: donation.category,
-      });
+        ...(pending ? { status: "pending", submitted_by: user?.id } : {}),
+      } as any);
     
     return { error };
   };
