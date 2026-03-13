@@ -356,7 +356,7 @@ export default function Admin() {
     );
   }
 
-  const hasAccess = hasAnyRole(["admin", "bendahara", "sekretaris", "dokumentasi"]);
+  const hasAccess = hasAnyRole(["admin", "bendahara", "sekretaris", "dokumentasi", "koordinator"]);
 
   if (!hasAccess) {
     return (
