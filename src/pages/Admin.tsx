@@ -430,31 +430,31 @@ export default function Admin() {
   const saldo = totalPemasukan - totalPengeluaran;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary">
-              <Shield className="h-5 w-5 text-primary-foreground" />
+    <div className="min-h-screen bg-background max-w-lg mx-auto">
+      {/* Header - compact sticky */}
+      <header className="sticky top-0 z-30 border-b bg-card/95 backdrop-blur-sm">
+        <div className="flex h-14 items-center justify-between px-4">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg gradient-primary">
+              <Shield className="h-4 w-4 text-primary-foreground" />
             </div>
-            <div>
-              <h1 className="text-lg font-bold text-foreground">Portal {roleLabel}</h1>
-              <p className="text-xs text-muted-foreground">LAZISNU Gendongkulon • {roles.filter(r => r !== "user").map(r => ROLE_LABELS[r] || r).join(", ")}</p>
+            <div className="min-w-0">
+              <h1 className="text-sm font-bold text-foreground truncate">Portal {roleLabel}</h1>
+              <p className="text-[10px] text-muted-foreground truncate">{roles.filter(r => r !== "user").map(r => ROLE_LABELS[r] || r).join(", ")}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => navigate("/")}>
-              <ArrowLeft className="mr-2 h-4 w-4" /> Lihat Publik
+          <div className="flex items-center gap-1 shrink-0">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/")}>
+              <ArrowLeft className="h-4 w-4" />
             </Button>
-            <Button variant="outline" onClick={handleSignOut}>
-              <LogOut className="mr-2 h-4 w-4" /> Logout
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="container py-8">
+      <main className="px-4 py-4 space-y-4">
         {/* Summary Cards - only for roles that can see financials */}
         {(visibleTabs.has("pemasukan") || visibleTabs.has("pengeluaran")) && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
