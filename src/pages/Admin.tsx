@@ -354,7 +354,9 @@ export default function Admin() {
     );
   }
 
-  if (!isAdmin) {
+  const hasAccess = hasAnyRole(["admin", "bendahara", "sekretaris", "dokumentasi"]);
+
+  if (!hasAccess) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
@@ -365,7 +367,7 @@ export default function Admin() {
               </div>
             </div>
             <CardTitle>Akses Ditolak</CardTitle>
-            <CardDescription>Anda tidak memiliki akses admin.</CardDescription>
+            <CardDescription>Anda tidak memiliki akses ke portal ini.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Button className="w-full" onClick={() => navigate("/")}>Kembali ke Halaman Utama</Button>
@@ -377,6 +379,16 @@ export default function Admin() {
       </div>
     );
   }
+
+  // Compute visible tabs based on user roles
+  const visibleTabs = new Set<string>();
+  roles.forEach(role => {
+    const tabs = ROLE_TABS[role];
+    if (tabs) tabs.forEach(t => visibleTabs.add(t));
+  });
+
+  const activeRole = roles.find(r => r !== "user") || "user";
+  const roleLabel = ROLE_LABELS[activeRole] || activeRole;
 
   const totalPemasukan = getTotalDonations();
   const totalPengeluaran = getTotalExpenses();
