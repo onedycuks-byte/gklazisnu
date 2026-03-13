@@ -1545,8 +1545,8 @@ export default function Admin() {
           <TabsContent value="santunan" className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Pendaftaran & Dompet Santunan</h2>
-                <p className="text-sm text-muted-foreground">Kelola pendaftaran & saldo dompet anak yatim</p>
+                <h2 className="text-base font-semibold">Santunan</h2>
+                <p className="text-xs text-muted-foreground">Pendaftaran & saldo dompet anak yatim</p>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
