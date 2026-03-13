@@ -5,11 +5,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const PIN_ROLE_MAP: Record<string, string> = {
-  "159357": "bendahara",
-  "456123": "sekretaris",
-  "654321": "dokumentasi",
-  "123456": "admin",
+const PIN_ROLE_MAP: Record<string, { role: string; email: string; name: string }> = {
+  "159357": { role: "bendahara", email: "bendahara@staff.internal", name: "Bendahara" },
+  "456123": { role: "sekretaris", email: "sekretaris@staff.internal", name: "Sekretaris" },
+  "654321": { role: "dokumentasi", email: "dokumentasi@staff.internal", name: "Dokumentasi" },
+  "123456": { role: "admin", email: "admin@staff.internal", name: "Admin" },
 };
 
 Deno.serve(async (req) => {
@@ -19,9 +19,9 @@ Deno.serve(async (req) => {
 
   try {
     const { pin } = await req.json();
-    const role = PIN_ROLE_MAP[pin];
+    const staffInfo = PIN_ROLE_MAP[pin];
 
-    if (!role) {
+    if (!staffInfo) {
       return new Response(
         JSON.stringify({ error: "PIN tidak valid" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -33,35 +33,53 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Find user with this role
-    const { data: roleData, error: roleError } = await supabaseAdmin
-      .from("user_roles")
-      .select("user_id")
-      .eq("role", role)
-      .limit(1)
-      .single();
+    // Find or create the staff user
+    const { data: userList } = await supabaseAdmin.auth.admin.listUsers();
+    let staffUser = userList?.users?.find((u) => u.email === staffInfo.email);
 
-    if (roleError || !roleData) {
-      return new Response(
-        JSON.stringify({ error: `Tidak ada user dengan role ${role}. Pastikan admin sudah assign role tersebut.` }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (!staffUser) {
+      // Auto-create staff user
+      const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
+        email: staffInfo.email,
+        password: crypto.randomUUID(), // random password, login via magic link only
+        email_confirm: true,
+        user_metadata: { full_name: staffInfo.name, is_staff: true },
+      });
+
+      if (createErr || !created?.user) {
+        return new Response(
+          JSON.stringify({ error: "Gagal membuat akun staff" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      staffUser = created.user;
+
+      // Assign role
+      await supabaseAdmin.from("user_roles").insert({
+        user_id: staffUser.id,
+        role: staffInfo.role,
+      });
     }
 
-    // Get user email
-    const { data: userData } = await supabaseAdmin.auth.admin.getUserById(roleData.user_id);
+    // Ensure role exists
+    const { data: existingRole } = await supabaseAdmin
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", staffUser.id)
+      .eq("role", staffInfo.role)
+      .maybeSingle();
 
-    if (!userData?.user?.email) {
-      return new Response(
-        JSON.stringify({ error: "User tidak ditemukan" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (!existingRole) {
+      await supabaseAdmin.from("user_roles").insert({
+        user_id: staffUser.id,
+        role: staffInfo.role,
+      });
     }
 
     // Generate magic link token
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: "magiclink",
-      email: userData.user.email,
+      email: staffInfo.email,
     });
 
     if (linkError || !linkData) {
@@ -73,9 +91,9 @@ Deno.serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        email: userData.user.email,
+        email: staffInfo.email,
         token_hash: linkData.properties?.hashed_token,
-        role,
+        role: staffInfo.role,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
