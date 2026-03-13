@@ -18,6 +18,8 @@ export interface Donation {
   date: string;
   notes: string | null;
   category: string;
+  status: string;
+  submitted_by: string | null;
   created_at: string;
 }
 
@@ -62,7 +64,8 @@ export function useSupabaseDonations() {
     };
   }, []);
 
-  const addDonation = async (donation: DonationInput) => {
+  const addDonation = async (donation: DonationInput, pending = false) => {
+    const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase
       .from("donations")
       .insert({
@@ -71,7 +74,8 @@ export function useSupabaseDonations() {
         date: donation.date,
         notes: donation.notes || null,
         category: donation.category,
-      });
+        ...(pending ? { status: "pending", submitted_by: user?.id } : {}),
+      } as any);
     
     return { error };
   };
@@ -99,11 +103,11 @@ export function useSupabaseDonations() {
   };
 
   const getTotalDonations = () => {
-    return donations.reduce((sum, d) => sum + d.amount, 0);
+    return donations.filter(d => d.status === 'confirmed').reduce((sum, d) => sum + d.amount, 0);
   };
 
   const getRecentDonations = (limit: number = 10) => {
-    return donations.slice(0, limit);
+    return donations.filter(d => d.status === 'confirmed').slice(0, limit);
   };
 
   return {

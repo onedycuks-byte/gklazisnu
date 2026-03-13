@@ -40,10 +40,11 @@ import {
 
 // Role-tab access mapping
 const ROLE_TABS: Record<string, string[]> = {
-  admin: ["statistik", "program", "pemasukan", "pengeluaran", "regions", "berita", "kontak", "diskusi", "santunan", "ai"],
-  bendahara: ["statistik", "pemasukan", "pengeluaran", "santunan"],
+  admin: ["statistik", "program", "pemasukan", "pengeluaran", "regions", "berita", "kontak", "diskusi", "santunan", "konfirmasi", "ai"],
+  bendahara: ["statistik", "pemasukan", "pengeluaran", "santunan", "konfirmasi"],
   sekretaris: ["regions", "kontak", "diskusi", "santunan"],
   dokumentasi: ["berita", "program", "ai"],
+  koordinator: ["input-pemasukan"],
 };
 
 const ROLE_LABELS: Record<string, string> = {
@@ -51,6 +52,7 @@ const ROLE_LABELS: Record<string, string> = {
   bendahara: "Bendahara",
   sekretaris: "Sekretaris",
   dokumentasi: "Dokumentasi",
+  koordinator: "Koordinator",
 };
 
 export default function Admin() {
@@ -185,6 +187,39 @@ export default function Admin() {
     const { error } = await deleteDonation(id);
     if (error) toast({ title: "Gagal", description: "Gagal menghapus pemasukan", variant: "destructive" });
     else toast({ title: "Berhasil", description: "Pemasukan berhasil dihapus" });
+  };
+
+  // Koordinator: submit pending donation
+  const handleSubmitPendingDonation = async () => {
+    if (!newDonation.region_id || !newDonation.amount) {
+      toast({ title: "Error", description: "Pilih wilayah dan masukkan nominal", variant: "destructive" }); return;
+    }
+    const amount = parseInt(newDonation.amount.replace(/[^\d]/g, ""));
+    const { error } = await addDonation({
+      region_id: newDonation.region_id,
+      amount,
+      date: newDonation.date,
+      notes: newDonation.notes || undefined,
+      category: "Infaq Kaleng Koin",
+    }, true); // pending = true
+    if (error) toast({ title: "Gagal", description: "Gagal mengirim data", variant: "destructive" });
+    else {
+      toast({ title: "Berhasil", description: "Data pemasukan dikirim untuk konfirmasi" });
+      setNewDonation({ region_id: "", amount: "", date: new Date().toISOString().split("T")[0], notes: "", category: "Infaq Kaleng Koin" });
+    }
+  };
+
+  // Admin/Bendahara: confirm/reject pending donation
+  const handleConfirmDonation = async (id: string) => {
+    const { error } = await updateDonation(id, { status: "confirmed" } as any);
+    if (error) toast({ title: "Gagal", description: "Gagal mengkonfirmasi", variant: "destructive" });
+    else toast({ title: "Berhasil", description: "Pemasukan dikonfirmasi" });
+  };
+
+  const handleRejectDonation = async (id: string) => {
+    const { error } = await updateDonation(id, { status: "rejected" } as any);
+    if (error) toast({ title: "Gagal", description: "Gagal menolak", variant: "destructive" });
+    else toast({ title: "Berhasil", description: "Pemasukan ditolak" });
   };
 
   // Expense handlers
@@ -354,7 +389,7 @@ export default function Admin() {
     );
   }
 
-  const hasAccess = hasAnyRole(["admin", "bendahara", "sekretaris", "dokumentasi"]);
+  const hasAccess = hasAnyRole(["admin", "bendahara", "sekretaris", "dokumentasi", "koordinator"]);
 
   if (!hasAccess) {
     return (
@@ -509,6 +544,16 @@ export default function Admin() {
             {visibleTabs.has("ai") && (
               <TabsTrigger value="ai" className="gap-2">
                 <Sparkles className="h-4 w-4" /> AI
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("input-pemasukan") && (
+              <TabsTrigger value="input-pemasukan" className="gap-2">
+                <Plus className="h-4 w-4" /> Input Pemasukan
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("konfirmasi") && (
+              <TabsTrigger value="konfirmasi" className="gap-2">
+                <Check className="h-4 w-4" /> Konfirmasi
               </TabsTrigger>
             )}
           </TabsList>
@@ -1778,6 +1823,138 @@ export default function Admin() {
           {/* AI Tab */}
           <TabsContent value="ai">
             <AdminAiChat />
+          </TabsContent>
+
+          {/* Koordinator Input Pemasukan Tab */}
+          <TabsContent value="input-pemasukan" className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold">Input Pemasukan Wilayah</h2>
+              <p className="text-sm text-muted-foreground">Kirim data pemasukan dari pengambilan koin kaleng. Data akan dikonfirmasi oleh Admin/Bendahara.</p>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Form Pemasukan Baru</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Wilayah *</Label>
+                    <Select value={newDonation.region_id} onValueChange={(v) => setNewDonation({ ...newDonation, region_id: v })}>
+                      <SelectTrigger><SelectValue placeholder="Pilih wilayah" /></SelectTrigger>
+                      <SelectContent>
+                        {regions.map((r) => (
+                          <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Nominal *</Label>
+                    <Input placeholder="Rp 0" value={newDonation.amount} onChange={(e) => setNewDonation({ ...newDonation, amount: formatAmount(e.target.value) })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Tanggal</Label>
+                    <Input type="date" value={newDonation.date} onChange={(e) => setNewDonation({ ...newDonation, date: e.target.value })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Catatan</Label>
+                    <Input placeholder="Catatan opsional" value={newDonation.notes} onChange={(e) => setNewDonation({ ...newDonation, notes: e.target.value })} />
+                  </div>
+                </div>
+                <Button onClick={handleSubmitPendingDonation} className="w-full md:w-auto">
+                  <Send className="mr-2 h-4 w-4" /> Kirim untuk Konfirmasi
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Show own pending submissions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Riwayat Pengiriman Saya</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {donations.filter(d => d.submitted_by === user?.id).length === 0 ? (
+                  <p className="text-muted-foreground text-center py-4">Belum ada data yang dikirim</p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Tanggal</TableHead>
+                        <TableHead>Wilayah</TableHead>
+                        <TableHead>Nominal</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {donations.filter(d => d.submitted_by === user?.id).map((d) => (
+                        <TableRow key={d.id}>
+                          <TableCell>{formatDate(d.date)}</TableCell>
+                          <TableCell>{d.region_id ? getRegionName(d.region_id) : "-"}</TableCell>
+                          <TableCell>{formatCurrency(d.amount)}</TableCell>
+                          <TableCell>
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              d.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                              d.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                              'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {d.status === 'confirmed' ? 'Dikonfirmasi' : d.status === 'rejected' ? 'Ditolak' : 'Menunggu'}
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Konfirmasi Tab - Admin/Bendahara */}
+          <TabsContent value="konfirmasi" className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold">Konfirmasi Pemasukan</h2>
+              <p className="text-sm text-muted-foreground">Data pemasukan dari Koordinator yang menunggu konfirmasi</p>
+            </div>
+
+            {donations.filter(d => d.status === 'pending').length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  <Check className="h-12 w-12 mx-auto mb-2 text-green-500" />
+                  <p>Semua data sudah dikonfirmasi</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {donations.filter(d => d.status === 'pending').map((d) => (
+                  <Card key={d.id} className="border-yellow-200 bg-yellow-50/50">
+                    <CardContent className="p-4">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Menunggu</span>
+                            <span className="text-sm text-muted-foreground">{formatDate(d.date)}</span>
+                          </div>
+                          <p className="font-semibold text-lg">{formatCurrency(d.amount)}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Wilayah: {d.region_id ? getRegionName(d.region_id) : "-"} • Kategori: {d.category}
+                          </p>
+                          {d.notes && <p className="text-sm">Catatan: {d.notes}</p>}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={() => handleConfirmDonation(d.id)} className="bg-green-600 hover:bg-green-700">
+                            <Check className="mr-1 h-4 w-4" /> Konfirmasi
+                          </Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleRejectDonation(d.id)}>
+                            <X className="mr-1 h-4 w-4" /> Tolak
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </main>

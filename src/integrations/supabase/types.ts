@@ -53,6 +53,8 @@ export type Database = {
           id: string
           notes: string | null
           region_id: string | null
+          status: string
+          submitted_by: string | null
         }
         Insert: {
           amount: number
@@ -62,6 +64,8 @@ export type Database = {
           id?: string
           notes?: string | null
           region_id?: string | null
+          status?: string
+          submitted_by?: string | null
         }
         Update: {
           amount?: number
@@ -71,6 +75,8 @@ export type Database = {
           id?: string
           notes?: string | null
           region_id?: string | null
+          status?: string
+          submitted_by?: string | null
         }
         Relationships: [
           {
@@ -405,7 +411,13 @@ export type Database = {
       has_staff_role: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "user" | "bendahara" | "sekretaris" | "dokumentasi"
+      app_role:
+        | "admin"
+        | "user"
+        | "bendahara"
+        | "sekretaris"
+        | "dokumentasi"
+        | "koordinator"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -533,7 +545,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "bendahara", "sekretaris", "dokumentasi"],
+      app_role: [
+        "admin",
+        "user",
+        "bendahara",
+        "sekretaris",
+        "dokumentasi",
+        "koordinator",
+      ],
     },
   },
 } as const

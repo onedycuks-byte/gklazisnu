@@ -10,6 +10,7 @@ const PIN_ROLE_MAP: Record<string, { role: string; email: string; name: string }
   "321654": { role: "bendahara", email: "bendahara@staff.internal", name: "Bendahara" },
   "456123": { role: "sekretaris", email: "sekretaris@staff.internal", name: "Sekretaris" },
   "654321": { role: "dokumentasi", email: "dokumentasi@staff.internal", name: "Dokumentasi" },
+  "789456": { role: "koordinator", email: "koordinator@staff.internal", name: "Koordinator" },
 };
 
 Deno.serve(async (req) => {
@@ -38,10 +39,9 @@ Deno.serve(async (req) => {
     let staffUser = userList?.users?.find((u) => u.email === staffInfo.email);
 
     if (!staffUser) {
-      // Auto-create staff user
       const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
         email: staffInfo.email,
-        password: crypto.randomUUID(), // random password, login via magic link only
+        password: crypto.randomUUID(),
         email_confirm: true,
         user_metadata: { full_name: staffInfo.name, is_staff: true },
       });
@@ -54,7 +54,6 @@ Deno.serve(async (req) => {
       }
       staffUser = created.user;
 
-      // Assign role
       await supabaseAdmin.from("user_roles").insert({
         user_id: staffUser.id,
         role: staffInfo.role,
