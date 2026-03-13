@@ -53,6 +53,8 @@ export type Database = {
           id: string
           notes: string | null
           region_id: string | null
+          status: string
+          submitted_by: string | null
         }
         Insert: {
           amount: number
@@ -62,6 +64,8 @@ export type Database = {
           id?: string
           notes?: string | null
           region_id?: string | null
+          status?: string
+          submitted_by?: string | null
         }
         Update: {
           amount?: number
@@ -71,6 +75,8 @@ export type Database = {
           id?: string
           notes?: string | null
           region_id?: string | null
+          status?: string
+          submitted_by?: string | null
         }
         Relationships: [
           {
