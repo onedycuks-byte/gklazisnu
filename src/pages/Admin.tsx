@@ -420,75 +420,97 @@ export default function Admin() {
       </header>
 
       <main className="container py-8">
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card>
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Total Pemasukan</p>
-                <p className="text-lg font-bold text-foreground">{formatCurrency(totalPemasukan)}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
-                <TrendingDown className="h-5 w-5 text-red-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Total Pengeluaran</p>
-                <p className="text-lg font-bold text-foreground">{formatCurrency(totalPengeluaran)}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                <Wallet className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Saldo</p>
-                <p className="text-lg font-bold text-foreground">{formatCurrency(saldo)}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Summary Cards - only for roles that can see financials */}
+        {(visibleTabs.has("pemasukan") || visibleTabs.has("pengeluaran")) && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <Card>
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                  <TrendingUp className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Total Pemasukan</p>
+                  <p className="text-lg font-bold text-foreground">{formatCurrency(totalPemasukan)}</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
+                  <TrendingDown className="h-5 w-5 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Total Pengeluaran</p>
+                  <p className="text-lg font-bold text-foreground">{formatCurrency(totalPengeluaran)}</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  <Wallet className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Saldo</p>
+                  <p className="text-lg font-bold text-foreground">{formatCurrency(saldo)}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
-        <Tabs defaultValue="statistik" className="space-y-6">
+        <Tabs defaultValue={Array.from(visibleTabs)[0] || "statistik"} className="space-y-6">
           <TabsList className="flex-wrap">
-            <TabsTrigger value="statistik" className="gap-2">
-              <BarChart3 className="h-4 w-4" /> Statistik
-            </TabsTrigger>
-            <TabsTrigger value="program" className="gap-2">
-              <Target className="h-4 w-4" /> Program
-            </TabsTrigger>
-            <TabsTrigger value="pemasukan" className="gap-2">
-              <TrendingUp className="h-4 w-4" /> Pemasukan
-            </TabsTrigger>
-            <TabsTrigger value="pengeluaran" className="gap-2">
-              <TrendingDown className="h-4 w-4" /> Pengeluaran
-            </TabsTrigger>
-            <TabsTrigger value="regions" className="gap-2">
-              <MapPin className="h-4 w-4" /> Wilayah
-            </TabsTrigger>
-            <TabsTrigger value="berita" className="gap-2">
-              <Newspaper className="h-4 w-4" /> Berita
-            </TabsTrigger>
-            <TabsTrigger value="kontak" className="gap-2">
-              <Phone className="h-4 w-4" /> Kontak
-            </TabsTrigger>
-            <TabsTrigger value="diskusi" className="gap-2">
-              <MessageCircle className="h-4 w-4" /> Diskusi
-            </TabsTrigger>
-            <TabsTrigger value="santunan" className="gap-2">
-              <Heart className="h-4 w-4" /> Santunan
-            </TabsTrigger>
-            <TabsTrigger value="ai" className="gap-2">
-              <Sparkles className="h-4 w-4" /> AI
-            </TabsTrigger>
+            {visibleTabs.has("statistik") && (
+              <TabsTrigger value="statistik" className="gap-2">
+                <BarChart3 className="h-4 w-4" /> Statistik
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("program") && (
+              <TabsTrigger value="program" className="gap-2">
+                <Target className="h-4 w-4" /> Program
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("pemasukan") && (
+              <TabsTrigger value="pemasukan" className="gap-2">
+                <TrendingUp className="h-4 w-4" /> Pemasukan
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("pengeluaran") && (
+              <TabsTrigger value="pengeluaran" className="gap-2">
+                <TrendingDown className="h-4 w-4" /> Pengeluaran
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("regions") && (
+              <TabsTrigger value="regions" className="gap-2">
+                <MapPin className="h-4 w-4" /> Wilayah
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("berita") && (
+              <TabsTrigger value="berita" className="gap-2">
+                <Newspaper className="h-4 w-4" /> Berita
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("kontak") && (
+              <TabsTrigger value="kontak" className="gap-2">
+                <Phone className="h-4 w-4" /> Kontak
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("diskusi") && (
+              <TabsTrigger value="diskusi" className="gap-2">
+                <MessageCircle className="h-4 w-4" /> Diskusi
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("santunan") && (
+              <TabsTrigger value="santunan" className="gap-2">
+                <Heart className="h-4 w-4" /> Santunan
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("ai") && (
+              <TabsTrigger value="ai" className="gap-2">
+                <Sparkles className="h-4 w-4" /> AI
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Statistik Tab */}
