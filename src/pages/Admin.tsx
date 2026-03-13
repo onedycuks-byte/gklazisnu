@@ -1448,97 +1448,84 @@ export default function Admin() {
               <h2 className="text-base font-semibold">Diskusi</h2>
               <p className="text-xs text-muted-foreground">Tanggapan pesan pengunjung</p>
             </div>
-            <Card>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nama</TableHead>
-                      <TableHead>Pesan</TableHead>
-                      <TableHead>Tanggal</TableHead>
-                      <TableHead>Tanggapan</TableHead>
-                      <TableHead className="text-right">Aksi</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {discussions.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                          Belum ada diskusi
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      discussions.map((d) => (
-                        <TableRow key={d.id}>
-                          <TableCell className="font-medium">{d.author_name}</TableCell>
-                          <TableCell className="max-w-xs truncate">{d.message}</TableCell>
-                          <TableCell className="text-xs">{formatDate(d.created_at)}</TableCell>
-                          <TableCell className="max-w-xs">
-                            {replyingTo === d.id ? (
-                              <div className="flex flex-col gap-1.5">
-                                <Textarea
-                                  value={replyText}
-                                  onChange={(e) => setReplyText(e.target.value)}
-                                  placeholder="Tulis tanggapan..."
-                                  rows={2}
-                                  className="text-xs"
-                                />
-                                <div className="flex gap-1">
-                                  <Button size="sm" className="gap-1 text-xs h-7" onClick={async () => {
-                                    if (!replyText.trim()) return;
-                                    const { error } = await replyDiscussion(d.id, replyText.trim());
-                                    if (error) toast({ title: "Gagal", variant: "destructive" });
-                                    else { toast({ title: "Tanggapan terkirim" }); setReplyingTo(null); setReplyText(""); }
-                                  }}>
-                                    <Send className="h-3 w-3" /> Kirim
-                                  </Button>
-                                  <Button size="sm" variant="ghost" className="text-xs h-7" onClick={() => { setReplyingTo(null); setReplyText(""); }}>
-                                    Batal
-                                  </Button>
-                                </div>
-                              </div>
-                            ) : d.admin_reply ? (
-                              <span className="text-xs text-muted-foreground truncate block">{d.admin_reply}</span>
-                            ) : (
-                              <span className="text-xs text-muted-foreground/50">—</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex gap-1 justify-end">
-                              <Button size="sm" variant="outline" className="gap-1" onClick={() => {
-                                setReplyingTo(d.id);
-                                setReplyText(d.admin_reply || "");
-                              }}>
-                                <MessageCircle className="h-3.5 w-3.5" /> Balas
-                              </Button>
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button size="sm" variant="destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Hapus Diskusi?</AlertDialogTitle>
-                                    <AlertDialogDescription>Pesan ini akan dihapus permanen.</AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                                    <AlertDialogAction onClick={async () => {
-                                      const { error } = await deleteDiscussion(d.id);
-                                      if (error) toast({ title: "Gagal", variant: "destructive" });
-                                      else toast({ title: "Berhasil dihapus" });
-                                    }}>Hapus</AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            {discussions.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground text-sm">Belum ada diskusi</CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-2">
+                {discussions.map((d) => (
+                  <Card key={d.id}>
+                    <CardContent className="p-3 space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold">{d.author_name}</p>
+                          <p className="text-xs text-muted-foreground">{formatDate(d.created_at)}</p>
+                        </div>
+                        <div className="flex gap-0.5 shrink-0">
+                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => {
+                            setReplyingTo(d.id);
+                            setReplyText(d.admin_reply || "");
+                          }}>
+                            <MessageCircle className="h-3.5 w-3.5" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Hapus Diskusi?</AlertDialogTitle>
+                                <AlertDialogDescription>Pesan ini akan dihapus permanen.</AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Batal</AlertDialogCancel>
+                                <AlertDialogAction onClick={async () => {
+                                  const { error } = await deleteDiscussion(d.id);
+                                  if (error) toast({ title: "Gagal", variant: "destructive" });
+                                  else toast({ title: "Berhasil dihapus" });
+                                }}>Hapus</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </div>
+                      <p className="text-xs">{d.message}</p>
+                      {d.admin_reply && (
+                        <div className="bg-muted rounded-lg p-2">
+                          <p className="text-[10px] text-muted-foreground font-semibold mb-0.5">Tanggapan:</p>
+                          <p className="text-xs">{d.admin_reply}</p>
+                        </div>
+                      )}
+                      {replyingTo === d.id && (
+                        <div className="space-y-2 pt-1">
+                          <Textarea
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            placeholder="Tulis tanggapan..."
+                            rows={2}
+                            className="text-xs"
+                          />
+                          <div className="flex gap-1">
+                            <Button size="sm" className="gap-1 text-xs h-7" onClick={async () => {
+                              if (!replyText.trim()) return;
+                              const { error } = await replyDiscussion(d.id, replyText.trim());
+                              if (error) toast({ title: "Gagal", variant: "destructive" });
+                              else { toast({ title: "Tanggapan terkirim" }); setReplyingTo(null); setReplyText(""); }
+                            }}>
+                              <Send className="h-3 w-3" /> Kirim
+                            </Button>
+                            <Button size="sm" variant="ghost" className="text-xs h-7" onClick={() => { setReplyingTo(null); setReplyText(""); }}>
+                              Batal
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           {/* Santunan Tab */}
