@@ -482,69 +482,71 @@ export default function Admin() {
           </div>
         )}
 
-        <Tabs defaultValue={Array.from(visibleTabs)[0] || "statistik"} className="space-y-6">
-          <TabsList className="flex-wrap">
-            {visibleTabs.has("statistik") && (
-              <TabsTrigger value="statistik" className="gap-2">
-                <BarChart3 className="h-4 w-4" /> Statistik
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("program") && (
-              <TabsTrigger value="program" className="gap-2">
-                <Target className="h-4 w-4" /> Program
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("pemasukan") && (
-              <TabsTrigger value="pemasukan" className="gap-2">
-                <TrendingUp className="h-4 w-4" /> Pemasukan
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("pengeluaran") && (
-              <TabsTrigger value="pengeluaran" className="gap-2">
-                <TrendingDown className="h-4 w-4" /> Pengeluaran
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("regions") && (
-              <TabsTrigger value="regions" className="gap-2">
-                <MapPin className="h-4 w-4" /> Wilayah
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("berita") && (
-              <TabsTrigger value="berita" className="gap-2">
-                <Newspaper className="h-4 w-4" /> Berita
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("kontak") && (
-              <TabsTrigger value="kontak" className="gap-2">
-                <Phone className="h-4 w-4" /> Kontak
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("diskusi") && (
-              <TabsTrigger value="diskusi" className="gap-2">
-                <MessageCircle className="h-4 w-4" /> Diskusi
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("santunan") && (
-              <TabsTrigger value="santunan" className="gap-2">
-                <Heart className="h-4 w-4" /> Santunan
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("ai") && (
-              <TabsTrigger value="ai" className="gap-2">
-                <Sparkles className="h-4 w-4" /> AI
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("input-pemasukan") && (
-              <TabsTrigger value="input-pemasukan" className="gap-2">
-                <Plus className="h-4 w-4" /> Input Pemasukan
-              </TabsTrigger>
-            )}
-            {visibleTabs.has("konfirmasi") && (
-              <TabsTrigger value="konfirmasi" className="gap-2">
-                <Check className="h-4 w-4" /> Konfirmasi
-              </TabsTrigger>
-            )}
-          </TabsList>
+        <Tabs defaultValue={Array.from(visibleTabs)[0] || "statistik"} className="space-y-4">
+          <div className="overflow-x-auto -mx-4 px-4 scrollbar-hide">
+            <TabsList className="inline-flex w-max gap-1">
+              {visibleTabs.has("statistik") && (
+                <TabsTrigger value="statistik" className="text-xs px-2.5 py-1.5 gap-1">
+                  <BarChart3 className="h-3.5 w-3.5" /> Statistik
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("program") && (
+                <TabsTrigger value="program" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Target className="h-3.5 w-3.5" /> Program
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("pemasukan") && (
+                <TabsTrigger value="pemasukan" className="text-xs px-2.5 py-1.5 gap-1">
+                  <TrendingUp className="h-3.5 w-3.5" /> Masuk
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("pengeluaran") && (
+                <TabsTrigger value="pengeluaran" className="text-xs px-2.5 py-1.5 gap-1">
+                  <TrendingDown className="h-3.5 w-3.5" /> Keluar
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("regions") && (
+                <TabsTrigger value="regions" className="text-xs px-2.5 py-1.5 gap-1">
+                  <MapPin className="h-3.5 w-3.5" /> Wilayah
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("berita") && (
+                <TabsTrigger value="berita" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Newspaper className="h-3.5 w-3.5" /> Berita
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("kontak") && (
+                <TabsTrigger value="kontak" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Phone className="h-3.5 w-3.5" /> Kontak
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("diskusi") && (
+                <TabsTrigger value="diskusi" className="text-xs px-2.5 py-1.5 gap-1">
+                  <MessageCircle className="h-3.5 w-3.5" /> Diskusi
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("santunan") && (
+                <TabsTrigger value="santunan" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Heart className="h-3.5 w-3.5" /> Santunan
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("ai") && (
+                <TabsTrigger value="ai" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Sparkles className="h-3.5 w-3.5" /> AI
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("input-pemasukan") && (
+                <TabsTrigger value="input-pemasukan" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Plus className="h-3.5 w-3.5" /> Input
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("konfirmasi") && (
+                <TabsTrigger value="konfirmasi" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Check className="h-3.5 w-3.5" /> Konfirmasi
+                </TabsTrigger>
+              )}
+            </TabsList>
+          </div>
 
           {/* Statistik Tab */}
           <TabsContent value="statistik" className="space-y-4">
