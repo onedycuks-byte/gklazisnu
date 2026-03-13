@@ -51,7 +51,6 @@ export default function StaffLogin() {
 
       // Verify OTP to create session
       const { error: otpError } = await supabase.auth.verifyOtp({
-        email: data.email,
         token_hash: data.token_hash,
         type: "magiclink",
       });
