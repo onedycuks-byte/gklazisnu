@@ -38,8 +38,23 @@ import {
   ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send, Users, Eye, Download, BarChart3, Heart
 } from "lucide-react";
 
+// Role-tab access mapping
+const ROLE_TABS: Record<string, string[]> = {
+  admin: ["statistik", "program", "pemasukan", "pengeluaran", "regions", "berita", "kontak", "diskusi", "santunan", "ai"],
+  bendahara: ["statistik", "pemasukan", "pengeluaran", "santunan"],
+  sekretaris: ["regions", "kontak", "diskusi", "santunan"],
+  dokumentasi: ["berita", "program", "ai"],
+};
+
+const ROLE_LABELS: Record<string, string> = {
+  admin: "Admin",
+  bendahara: "Bendahara",
+  sekretaris: "Sekretaris",
+  dokumentasi: "Dokumentasi",
+};
+
 export default function Admin() {
-  const { user, isAdmin, isLoading: authLoading, signOut } = useAuth();
+  const { user, isAdmin, roles, hasAnyRole, isLoading: authLoading, signOut } = useAuth();
   const { regions, isLoading: regionsLoading, updateRegion, addRegion, deleteRegion } = useRegions();
   const { donations, isLoading: donationsLoading, addDonation, updateDonation, deleteDonation, getTotalDonations } = useSupabaseDonations();
   const { expenses, isLoading: expensesLoading, addExpense, deleteExpense, uploadReceipt, getTotalExpenses } = useExpenses();
@@ -339,7 +354,9 @@ export default function Admin() {
     );
   }
 
-  if (!isAdmin) {
+  const hasAccess = hasAnyRole(["admin", "bendahara", "sekretaris", "dokumentasi"]);
+
+  if (!hasAccess) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
@@ -350,7 +367,7 @@ export default function Admin() {
               </div>
             </div>
             <CardTitle>Akses Ditolak</CardTitle>
-            <CardDescription>Anda tidak memiliki akses admin.</CardDescription>
+            <CardDescription>Anda tidak memiliki akses ke portal ini.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Button className="w-full" onClick={() => navigate("/")}>Kembali ke Halaman Utama</Button>
@@ -362,6 +379,16 @@ export default function Admin() {
       </div>
     );
   }
+
+  // Compute visible tabs based on user roles
+  const visibleTabs = new Set<string>();
+  roles.forEach(role => {
+    const tabs = ROLE_TABS[role];
+    if (tabs) tabs.forEach(t => visibleTabs.add(t));
+  });
+
+  const activeRole = roles.find(r => r !== "user") || "user";
+  const roleLabel = ROLE_LABELS[activeRole] || activeRole;
 
   const totalPemasukan = getTotalDonations();
   const totalPengeluaran = getTotalExpenses();
@@ -377,8 +404,8 @@ export default function Admin() {
               <Shield className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-foreground">Admin Dashboard</h1>
-              <p className="text-xs text-muted-foreground">LAZISNU Gendongkulon</p>
+              <h1 className="text-lg font-bold text-foreground">Portal {roleLabel}</h1>
+              <p className="text-xs text-muted-foreground">LAZISNU Gendongkulon • {roles.filter(r => r !== "user").map(r => ROLE_LABELS[r] || r).join(", ")}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -393,75 +420,97 @@ export default function Admin() {
       </header>
 
       <main className="container py-8">
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card>
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Total Pemasukan</p>
-                <p className="text-lg font-bold text-foreground">{formatCurrency(totalPemasukan)}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
-                <TrendingDown className="h-5 w-5 text-red-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Total Pengeluaran</p>
-                <p className="text-lg font-bold text-foreground">{formatCurrency(totalPengeluaran)}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                <Wallet className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Saldo</p>
-                <p className="text-lg font-bold text-foreground">{formatCurrency(saldo)}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Summary Cards - only for roles that can see financials */}
+        {(visibleTabs.has("pemasukan") || visibleTabs.has("pengeluaran")) && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <Card>
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                  <TrendingUp className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Total Pemasukan</p>
+                  <p className="text-lg font-bold text-foreground">{formatCurrency(totalPemasukan)}</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
+                  <TrendingDown className="h-5 w-5 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Total Pengeluaran</p>
+                  <p className="text-lg font-bold text-foreground">{formatCurrency(totalPengeluaran)}</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  <Wallet className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Saldo</p>
+                  <p className="text-lg font-bold text-foreground">{formatCurrency(saldo)}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
-        <Tabs defaultValue="statistik" className="space-y-6">
+        <Tabs defaultValue={Array.from(visibleTabs)[0] || "statistik"} className="space-y-6">
           <TabsList className="flex-wrap">
-            <TabsTrigger value="statistik" className="gap-2">
-              <BarChart3 className="h-4 w-4" /> Statistik
-            </TabsTrigger>
-            <TabsTrigger value="program" className="gap-2">
-              <Target className="h-4 w-4" /> Program
-            </TabsTrigger>
-            <TabsTrigger value="pemasukan" className="gap-2">
-              <TrendingUp className="h-4 w-4" /> Pemasukan
-            </TabsTrigger>
-            <TabsTrigger value="pengeluaran" className="gap-2">
-              <TrendingDown className="h-4 w-4" /> Pengeluaran
-            </TabsTrigger>
-            <TabsTrigger value="regions" className="gap-2">
-              <MapPin className="h-4 w-4" /> Wilayah
-            </TabsTrigger>
-            <TabsTrigger value="berita" className="gap-2">
-              <Newspaper className="h-4 w-4" /> Berita
-            </TabsTrigger>
-            <TabsTrigger value="kontak" className="gap-2">
-              <Phone className="h-4 w-4" /> Kontak
-            </TabsTrigger>
-            <TabsTrigger value="diskusi" className="gap-2">
-              <MessageCircle className="h-4 w-4" /> Diskusi
-            </TabsTrigger>
-            <TabsTrigger value="santunan" className="gap-2">
-              <Heart className="h-4 w-4" /> Santunan
-            </TabsTrigger>
-            <TabsTrigger value="ai" className="gap-2">
-              <Sparkles className="h-4 w-4" /> AI
-            </TabsTrigger>
+            {visibleTabs.has("statistik") && (
+              <TabsTrigger value="statistik" className="gap-2">
+                <BarChart3 className="h-4 w-4" /> Statistik
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("program") && (
+              <TabsTrigger value="program" className="gap-2">
+                <Target className="h-4 w-4" /> Program
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("pemasukan") && (
+              <TabsTrigger value="pemasukan" className="gap-2">
+                <TrendingUp className="h-4 w-4" /> Pemasukan
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("pengeluaran") && (
+              <TabsTrigger value="pengeluaran" className="gap-2">
+                <TrendingDown className="h-4 w-4" /> Pengeluaran
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("regions") && (
+              <TabsTrigger value="regions" className="gap-2">
+                <MapPin className="h-4 w-4" /> Wilayah
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("berita") && (
+              <TabsTrigger value="berita" className="gap-2">
+                <Newspaper className="h-4 w-4" /> Berita
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("kontak") && (
+              <TabsTrigger value="kontak" className="gap-2">
+                <Phone className="h-4 w-4" /> Kontak
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("diskusi") && (
+              <TabsTrigger value="diskusi" className="gap-2">
+                <MessageCircle className="h-4 w-4" /> Diskusi
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("santunan") && (
+              <TabsTrigger value="santunan" className="gap-2">
+                <Heart className="h-4 w-4" /> Santunan
+              </TabsTrigger>
+            )}
+            {visibleTabs.has("ai") && (
+              <TabsTrigger value="ai" className="gap-2">
+                <Sparkles className="h-4 w-4" /> AI
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Statistik Tab */}
