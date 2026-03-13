@@ -987,12 +987,12 @@ export default function Admin() {
           <TabsContent value="pengeluaran" className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Kelola Pengeluaran</h2>
-                <p className="text-sm text-muted-foreground">Data pengeluaran operasional</p>
+                <h2 className="text-base font-semibold">Pengeluaran</h2>
+                <p className="text-xs text-muted-foreground">Data pengeluaran operasional</p>
               </div>
               <Dialog open={isAddExpenseOpen} onOpenChange={setIsAddExpenseOpen}>
                 <DialogTrigger asChild>
-                  <Button><Plus className="mr-2 h-4 w-4" /> Tambah Pengeluaran</Button>
+                  <Button size="sm"><Plus className="mr-1 h-3.5 w-3.5" /> Tambah</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -1038,54 +1038,44 @@ export default function Admin() {
               </Dialog>
             </div>
 
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tanggal</TableHead>
-                    <TableHead>Kategori</TableHead>
-                    <TableHead>Keterangan</TableHead>
-                    <TableHead className="text-right">Nominal</TableHead>
-                    <TableHead>Bukti</TableHead>
-                    <TableHead className="w-[80px]">Aksi</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {expenses.map((expense) => (
-                    <TableRow key={expense.id}>
-                      <TableCell>{formatDate(expense.date)}</TableCell>
-                      <TableCell><span className="px-2 py-0.5 text-xs rounded-full bg-accent text-accent-foreground">{expense.category || "Operasional"}</span></TableCell>
-                      <TableCell className="max-w-[200px] truncate">{expense.description || "-"}</TableCell>
-                      <TableCell className="text-right font-semibold text-destructive">{formatCurrency(expense.amount)}</TableCell>
-                      <TableCell>
-                        {expense.receipt_url ? (
-                          <a href={expense.receipt_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-xs flex items-center gap-1">
-                            <Image className="h-3 w-3" /> Lihat
+            <div className="space-y-2">
+              {expenses.map((expense) => (
+                <Card key={expense.id}>
+                  <CardContent className="p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-destructive">{formatCurrency(expense.amount)}</span>
+                          <span className="px-1.5 py-0.5 text-[10px] rounded-full bg-accent text-accent-foreground">{expense.category || "Operasional"}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">{formatDate(expense.date)}</p>
+                        {expense.description && <p className="text-xs text-muted-foreground truncate">{expense.description}</p>}
+                        {expense.receipt_url && (
+                          <a href={expense.receipt_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-xs inline-flex items-center gap-1">
+                            <Image className="h-3 w-3" /> Lihat Bukti
                           </a>
-                        ) : <span className="text-xs text-muted-foreground">-</span>}
-                      </TableCell>
-                      <TableCell>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Hapus Pengeluaran?</AlertDialogTitle>
-                              <AlertDialogDescription>Data pengeluaran akan dihapus permanen.</AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Batal</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteExpense(expense.id)} className="bg-destructive">Hapus</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
+                        )}
+                      </div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive shrink-0"><Trash2 className="h-3.5 w-3.5" /></Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Hapus Pengeluaran?</AlertDialogTitle>
+                            <AlertDialogDescription>Data pengeluaran akan dihapus permanen.</AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Batal</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteExpense(expense.id)} className="bg-destructive">Hapus</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           {/* Regions Tab */}
