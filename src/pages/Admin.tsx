@@ -1796,7 +1796,7 @@ export default function Admin() {
                     <Input placeholder="Catatan opsional" value={newDonation.notes} onChange={(e) => setNewDonation({ ...newDonation, notes: e.target.value })} />
                   </div>
                 </div>
-                <Button onClick={handleSubmitPendingDonation} className="w-full md:w-auto">
+                <Button onClick={handleSubmitPendingDonation} className="w-full">
                   <Send className="mr-2 h-4 w-4" /> Kirim untuk Konfirmasi
                 </Button>
               </CardContent>
