@@ -709,7 +709,7 @@ export default function Admin() {
               </div>
               <Dialog open={isAddProgramOpen} onOpenChange={setIsAddProgramOpen}>
                 <DialogTrigger asChild>
-                  <Button><Plus className="mr-2 h-4 w-4" /> Tambah Program</Button>
+                  <Button size="sm"><Plus className="mr-1 h-3.5 w-3.5" /> Tambah</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
