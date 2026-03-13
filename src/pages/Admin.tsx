@@ -1363,7 +1363,7 @@ export default function Admin() {
                     <Label>Email</Label>
                     <Input value={contactForm.email || ""} onChange={(e) => setContactForm(p => ({ ...p, email: e.target.value }))} />
                   </div>
-                  <div className="space-y-2 md:col-span-2">
+                  <div className="space-y-2">
                     <Label>Alamat</Label>
                     <Textarea value={contactForm.address || ""} onChange={(e) => setContactForm(p => ({ ...p, address: e.target.value }))} rows={2} />
                   </div>
