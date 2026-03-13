@@ -1180,12 +1180,12 @@ export default function Admin() {
           <TabsContent value="berita" className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Kelola Berita</h2>
-                <p className="text-sm text-muted-foreground">Berita & pengumuman dengan gambar</p>
+                <h2 className="text-base font-semibold">Berita</h2>
+                <p className="text-xs text-muted-foreground">Berita & pengumuman</p>
               </div>
               <Dialog open={isAddNewsOpen} onOpenChange={setIsAddNewsOpen}>
                 <DialogTrigger asChild>
-                  <Button><Plus className="mr-2 h-4 w-4" /> Tambah Berita</Button>
+                  <Button size="sm"><Plus className="mr-1 h-3.5 w-3.5" /> Tambah</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -1233,113 +1233,101 @@ export default function Admin() {
               </Dialog>
             </div>
 
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Gambar</TableHead>
-                    <TableHead>Judul</TableHead>
-                    <TableHead>Kategori</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Tanggal</TableHead>
-                    <TableHead className="text-right">Aksi</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {news.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>
-                        {item.image_url ? (
-                          <img src={item.image_url} alt="" className="h-12 w-16 object-cover rounded" />
-                        ) : (
-                          <div className="h-12 w-16 bg-muted rounded flex items-center justify-center">
-                            <Image className="h-4 w-4 text-muted-foreground" />
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell className="font-medium max-w-[200px] truncate">{item.title}</TableCell>
-                      <TableCell><span className="px-2 py-0.5 text-xs rounded-full bg-accent text-accent-foreground">{item.category}</span></TableCell>
-                      <TableCell>{item.is_published ? "✅ Publik" : "📝 Draft"}</TableCell>
-                      <TableCell>{formatDate(item.published_at)}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="icon" onClick={() => { setEditingNews(item); setEditNewsImageFile(null); }}>
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Edit Berita</DialogTitle>
-                              </DialogHeader>
-                              {editingNews?.id === item.id && (
-                                <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
-                                  <div className="grid gap-2">
-                                    <Label>Judul</Label>
-                                    <Input value={editingNews.title} onChange={(e) => setEditingNews({ ...editingNews, title: e.target.value })} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Kategori</Label>
-                                    <Select value={editingNews.category} onValueChange={(v) => setEditingNews({ ...editingNews, category: v })}>
-                                      <SelectTrigger><SelectValue /></SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="Umum">Umum</SelectItem>
-                                        <SelectItem value="Penyaluran">Penyaluran</SelectItem>
-                                        <SelectItem value="Pengumpulan">Pengumpulan</SelectItem>
-                                        <SelectItem value="Kegiatan">Kegiatan</SelectItem>
-                                        <SelectItem value="Sosialisasi">Sosialisasi</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Ringkasan</Label>
-                                    <Textarea value={editingNews.excerpt || ""} onChange={(e) => setEditingNews({ ...editingNews, excerpt: e.target.value })} rows={2} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Konten Lengkap</Label>
-                                    <Textarea value={editingNews.content || ""} onChange={(e) => setEditingNews({ ...editingNews, content: e.target.value })} rows={5} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Gambar</Label>
-                                    {editingNews.image_url && <img src={editingNews.image_url} alt="" className="h-24 object-cover rounded" />}
-                                    <Input type="file" accept="image/*" onChange={(e) => setEditNewsImageFile(e.target.files?.[0] || null)} />
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <Switch checked={editingNews.is_published} onCheckedChange={(v) => setEditingNews({ ...editingNews, is_published: v })} />
-                                    <Label>Dipublikasikan</Label>
-                                  </div>
-                                </div>
-                              )}
-                              <DialogFooter>
-                                <Button onClick={handleUpdateNews} disabled={uploading}>
-                                  {uploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Mengupload...</> : "Simpan"}
-                                </Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Hapus Berita?</AlertDialogTitle>
-                                <AlertDialogDescription>Berita ini akan dihapus permanen.</AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDeleteNews(item.id)} className="bg-destructive">Hapus</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+            <div className="space-y-2">
+              {news.map((item) => (
+                <Card key={item.id}>
+                  <CardContent className="p-3">
+                    <div className="flex items-start gap-3">
+                      {item.image_url ? (
+                        <img src={item.image_url} alt="" className="h-12 w-12 object-cover rounded shrink-0" />
+                      ) : (
+                        <div className="h-12 w-12 bg-muted rounded flex items-center justify-center shrink-0">
+                          <Image className="h-4 w-4 text-muted-foreground" />
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
+                      )}
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <p className="text-sm font-semibold truncate">{item.title}</p>
+                        <div className="flex items-center gap-2">
+                          <span className="px-1.5 py-0.5 text-[10px] rounded-full bg-accent text-accent-foreground">{item.category}</span>
+                          <span className="text-[10px] text-muted-foreground">{item.is_published ? "✅ Publik" : "📝 Draft"}</span>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">{formatDate(item.published_at)}</p>
+                      </div>
+                      <div className="flex gap-0.5 shrink-0">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditingNews(item); setEditNewsImageFile(null); }}>
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader><DialogTitle>Edit Berita</DialogTitle></DialogHeader>
+                            {editingNews?.id === item.id && (
+                              <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
+                                <div className="grid gap-2">
+                                  <Label>Judul</Label>
+                                  <Input value={editingNews.title} onChange={(e) => setEditingNews({ ...editingNews, title: e.target.value })} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Kategori</Label>
+                                  <Select value={editingNews.category} onValueChange={(v) => setEditingNews({ ...editingNews, category: v })}>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="Umum">Umum</SelectItem>
+                                      <SelectItem value="Penyaluran">Penyaluran</SelectItem>
+                                      <SelectItem value="Pengumpulan">Pengumpulan</SelectItem>
+                                      <SelectItem value="Kegiatan">Kegiatan</SelectItem>
+                                      <SelectItem value="Sosialisasi">Sosialisasi</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Ringkasan</Label>
+                                  <Textarea value={editingNews.excerpt || ""} onChange={(e) => setEditingNews({ ...editingNews, excerpt: e.target.value })} rows={2} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Konten Lengkap</Label>
+                                  <Textarea value={editingNews.content || ""} onChange={(e) => setEditingNews({ ...editingNews, content: e.target.value })} rows={5} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Gambar</Label>
+                                  {editingNews.image_url && <img src={editingNews.image_url} alt="" className="h-24 object-cover rounded" />}
+                                  <Input type="file" accept="image/*" onChange={(e) => setEditNewsImageFile(e.target.files?.[0] || null)} />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Switch checked={editingNews.is_published} onCheckedChange={(v) => setEditingNews({ ...editingNews, is_published: v })} />
+                                  <Label>Dipublikasikan</Label>
+                                </div>
+                              </div>
+                            )}
+                            <DialogFooter>
+                              <Button onClick={handleUpdateNews} disabled={uploading}>
+                                {uploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Mengupload...</> : "Simpan"}
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Hapus Berita?</AlertDialogTitle>
+                              <AlertDialogDescription>Berita ini akan dihapus permanen.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteNews(item.id)} className="bg-destructive">Hapus</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           {/* Kontak Tab */}
