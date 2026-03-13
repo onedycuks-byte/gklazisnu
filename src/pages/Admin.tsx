@@ -753,103 +753,96 @@ export default function Admin() {
               </Dialog>
             </div>
 
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Program</TableHead>
-                    <TableHead className="text-right">Terkumpul</TableHead>
-                    <TableHead className="text-right">Target</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="w-[100px]">Aksi</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {programs.map((program) => (
-                    <TableRow key={program.id}>
-                      <TableCell className="font-medium max-w-[200px] truncate">{program.title}</TableCell>
-                      <TableCell className="text-right font-semibold text-primary">{formatCurrency(program.collected_amount)}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(program.target_amount)}</TableCell>
-                      <TableCell>
-                        <span className={`text-xs px-2 py-1 rounded-full ${program.is_active ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
-                          {program.is_active ? "Aktif" : "Nonaktif"}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="icon" onClick={() => setEditingProgram(program)}>
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader><DialogTitle>Edit Program</DialogTitle></DialogHeader>
-                              {editingProgram && (
-                                <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
-                                  <div className="grid gap-2">
-                                    <Label>Judul</Label>
-                                    <Input value={editingProgram.title} onChange={(e) => setEditingProgram({ ...editingProgram, title: e.target.value })} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Deskripsi</Label>
-                                    <Textarea value={editingProgram.description || ""} onChange={(e) => setEditingProgram({ ...editingProgram, description: e.target.value })} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Target (Rp)</Label>
-                                    <Input value={formatAmount(editingProgram.target_amount.toString())} onChange={(e) => { const num = parseInt(e.target.value.replace(/[^\d]/g, "")) || 0; setEditingProgram({ ...editingProgram, target_amount: num }); }} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Terkumpul (Rp)</Label>
-                                    <Input value={formatAmount(editingProgram.collected_amount.toString())} onChange={(e) => { const num = parseInt(e.target.value.replace(/[^\d]/g, "")) || 0; setEditingProgram({ ...editingProgram, collected_amount: num }); }} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label className="flex items-center gap-2"><Image className="h-4 w-4" /> Gambar Program</Label>
-                                    {editingProgram.image_url && <img src={editingProgram.image_url} alt="Preview" className="h-20 w-auto rounded object-cover" />}
-                                    <Input type="file" accept="image/*" onChange={(e) => setEditProgramImageFile(e.target.files?.[0] || null)} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label className="flex items-center gap-2"><Upload className="h-4 w-4" /> Gambar QRIS</Label>
-                                    {editingProgram.qris_image_url && <img src={editingProgram.qris_image_url} alt="QRIS" className="h-20 w-auto rounded" />}
-                                    <Input type="file" accept="image/*" onChange={(e) => setEditQrisImageFile(e.target.files?.[0] || null)} />
-                                    <Input value={editingProgram.qris_image_url || ""} onChange={(e) => setEditingProgram({ ...editingProgram, qris_image_url: e.target.value })} placeholder="Atau URL QRIS" />
-                                  </div>
-                                  <div className="flex items-center gap-3">
-                                    <Label>Aktif</Label>
-                                    <Switch checked={editingProgram.is_active} onCheckedChange={(v) => setEditingProgram({ ...editingProgram, is_active: v })} />
-                                  </div>
-                                </div>
-                              )}
-                              <DialogFooter>
-                                <Button onClick={handleUpdateProgram} disabled={uploading}>
-                                  {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                  Simpan
-                                </Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Hapus Program?</AlertDialogTitle>
-                                <AlertDialogDescription>Program donasi akan dihapus permanen.</AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDeleteProgram(program.id)} className="bg-destructive">Hapus</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+            <div className="space-y-2">
+              {programs.map((program) => (
+                <Card key={program.id}>
+                  <CardContent className="p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold truncate">{program.title}</p>
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${program.is_active ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
+                            {program.is_active ? "Aktif" : "Off"}
+                          </span>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
+                        <p className="text-xs text-primary font-bold">{formatCurrency(program.collected_amount)} <span className="text-muted-foreground font-normal">/ {formatCurrency(program.target_amount)}</span></p>
+                        <div className="w-full bg-muted rounded-full h-1.5">
+                          <div className="h-full rounded-full gradient-primary" style={{ width: `${Math.min(100, (program.collected_amount / program.target_amount) * 100)}%` }} />
+                        </div>
+                      </div>
+                      <div className="flex gap-0.5 shrink-0 ml-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingProgram(program)}>
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader><DialogTitle>Edit Program</DialogTitle></DialogHeader>
+                            {editingProgram && (
+                              <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
+                                <div className="grid gap-2">
+                                  <Label>Judul</Label>
+                                  <Input value={editingProgram.title} onChange={(e) => setEditingProgram({ ...editingProgram, title: e.target.value })} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Deskripsi</Label>
+                                  <Textarea value={editingProgram.description || ""} onChange={(e) => setEditingProgram({ ...editingProgram, description: e.target.value })} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Target (Rp)</Label>
+                                  <Input value={formatAmount(editingProgram.target_amount.toString())} onChange={(e) => { const num = parseInt(e.target.value.replace(/[^\d]/g, "")) || 0; setEditingProgram({ ...editingProgram, target_amount: num }); }} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Terkumpul (Rp)</Label>
+                                  <Input value={formatAmount(editingProgram.collected_amount.toString())} onChange={(e) => { const num = parseInt(e.target.value.replace(/[^\d]/g, "")) || 0; setEditingProgram({ ...editingProgram, collected_amount: num }); }} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label className="flex items-center gap-2"><Image className="h-4 w-4" /> Gambar Program</Label>
+                                  {editingProgram.image_url && <img src={editingProgram.image_url} alt="Preview" className="h-20 w-auto rounded object-cover" />}
+                                  <Input type="file" accept="image/*" onChange={(e) => setEditProgramImageFile(e.target.files?.[0] || null)} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label className="flex items-center gap-2"><Upload className="h-4 w-4" /> Gambar QRIS</Label>
+                                  {editingProgram.qris_image_url && <img src={editingProgram.qris_image_url} alt="QRIS" className="h-20 w-auto rounded" />}
+                                  <Input type="file" accept="image/*" onChange={(e) => setEditQrisImageFile(e.target.files?.[0] || null)} />
+                                  <Input value={editingProgram.qris_image_url || ""} onChange={(e) => setEditingProgram({ ...editingProgram, qris_image_url: e.target.value })} placeholder="Atau URL QRIS" />
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <Label>Aktif</Label>
+                                  <Switch checked={editingProgram.is_active} onCheckedChange={(v) => setEditingProgram({ ...editingProgram, is_active: v })} />
+                                </div>
+                              </div>
+                            )}
+                            <DialogFooter>
+                              <Button onClick={handleUpdateProgram} disabled={uploading}>
+                                {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Simpan
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Hapus Program?</AlertDialogTitle>
+                              <AlertDialogDescription>Program donasi akan dihapus permanen.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteProgram(program.id)} className="bg-destructive">Hapus</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           {/* Pemasukan Tab */}
