@@ -704,8 +704,8 @@ export default function Admin() {
           <TabsContent value="program" className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Kelola Program Donasi</h2>
-                <p className="text-sm text-muted-foreground">Program penggalangan dana dengan QRIS</p>
+                <h2 className="text-base font-semibold">Program Donasi</h2>
+                <p className="text-xs text-muted-foreground">Program penggalangan dana</p>
               </div>
               <Dialog open={isAddProgramOpen} onOpenChange={setIsAddProgramOpen}>
                 <DialogTrigger asChild>
