@@ -551,8 +551,8 @@ export default function Admin() {
           {/* Statistik Tab */}
           <TabsContent value="statistik" className="space-y-4">
             <div>
-              <h2 className="text-xl font-semibold">Statistik Pengunjung</h2>
-              <p className="text-sm text-muted-foreground">Data real-time pengunjung & instalasi aplikasi (refresh otomatis 30 detik)</p>
+              <h2 className="text-base font-semibold">Statistik Pengunjung</h2>
+              <p className="text-xs text-muted-foreground">Data real-time pengunjung</p>
             </div>
 
             {analyticsLoading ? (
