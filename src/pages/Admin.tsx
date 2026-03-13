@@ -1791,7 +1791,7 @@ export default function Admin() {
                 <CardTitle>Form Pemasukan Baru</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-3">
                   <div className="space-y-2">
                     <Label>Wilayah *</Label>
                     <Select value={newDonation.region_id} onValueChange={(v) => setNewDonation({ ...newDonation, region_id: v })}>
