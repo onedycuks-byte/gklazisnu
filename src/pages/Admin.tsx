@@ -404,8 +404,8 @@ export default function Admin() {
               <Shield className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-foreground">Admin Dashboard</h1>
-              <p className="text-xs text-muted-foreground">LAZISNU Gendongkulon</p>
+              <h1 className="text-lg font-bold text-foreground">Portal {roleLabel}</h1>
+              <p className="text-xs text-muted-foreground">LAZISNU Gendongkulon • {roles.filter(r => r !== "user").map(r => ROLE_LABELS[r] || r).join(", ")}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
