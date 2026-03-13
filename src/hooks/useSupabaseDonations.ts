@@ -18,6 +18,8 @@ export interface Donation {
   date: string;
   notes: string | null;
   category: string;
+  status: string;
+  submitted_by: string | null;
   created_at: string;
 }
 

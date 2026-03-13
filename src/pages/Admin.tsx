@@ -189,6 +189,39 @@ export default function Admin() {
     else toast({ title: "Berhasil", description: "Pemasukan berhasil dihapus" });
   };
 
+  // Koordinator: submit pending donation
+  const handleSubmitPendingDonation = async () => {
+    if (!newDonation.region_id || !newDonation.amount) {
+      toast({ title: "Error", description: "Pilih wilayah dan masukkan nominal", variant: "destructive" }); return;
+    }
+    const amount = parseInt(newDonation.amount.replace(/[^\d]/g, ""));
+    const { error } = await addDonation({
+      region_id: newDonation.region_id,
+      amount,
+      date: newDonation.date,
+      notes: newDonation.notes || undefined,
+      category: "Infaq Kaleng Koin",
+    }, true); // pending = true
+    if (error) toast({ title: "Gagal", description: "Gagal mengirim data", variant: "destructive" });
+    else {
+      toast({ title: "Berhasil", description: "Data pemasukan dikirim untuk konfirmasi" });
+      setNewDonation({ region_id: "", amount: "", date: new Date().toISOString().split("T")[0], notes: "", category: "Infaq Kaleng Koin" });
+    }
+  };
+
+  // Admin/Bendahara: confirm/reject pending donation
+  const handleConfirmDonation = async (id: string) => {
+    const { error } = await updateDonation(id, { status: "confirmed" } as any);
+    if (error) toast({ title: "Gagal", description: "Gagal mengkonfirmasi", variant: "destructive" });
+    else toast({ title: "Berhasil", description: "Pemasukan dikonfirmasi" });
+  };
+
+  const handleRejectDonation = async (id: string) => {
+    const { error } = await updateDonation(id, { status: "rejected" } as any);
+    if (error) toast({ title: "Gagal", description: "Gagal menolak", variant: "destructive" });
+    else toast({ title: "Berhasil", description: "Pemasukan ditolak" });
+  };
+
   // Expense handlers
   const handleAddExpense = async () => {
     if (!newExpense.amount || !newExpense.date) {
