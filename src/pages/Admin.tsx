@@ -1333,12 +1333,12 @@ export default function Admin() {
           {/* Kontak Tab */}
           <TabsContent value="kontak" className="space-y-4">
             <div>
-              <h2 className="text-xl font-semibold">Kelola Info Kontak</h2>
-              <p className="text-sm text-muted-foreground">Edit informasi kontak yang tampil di halaman Kontak</p>
+              <h2 className="text-base font-semibold">Info Kontak</h2>
+              <p className="text-xs text-muted-foreground">Edit informasi kontak</p>
             </div>
             <Card>
-              <CardContent className="p-6 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardContent className="p-4 space-y-4">
+                <div className="grid grid-cols-1 gap-3">
                   <div className="space-y-2">
                     <Label>Nama Organisasi</Label>
                     <Input value={contactForm.org_name || ""} onChange={(e) => setContactForm(p => ({ ...p, org_name: e.target.value }))} />
