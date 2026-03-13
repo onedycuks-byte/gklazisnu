@@ -1082,12 +1082,12 @@ export default function Admin() {
           <TabsContent value="regions" className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">Kelola Wilayah</h2>
-                <p className="text-sm text-muted-foreground">Edit nama wilayah dan koordinator</p>
+                <h2 className="text-base font-semibold">Wilayah</h2>
+                <p className="text-xs text-muted-foreground">Wilayah dan koordinator</p>
               </div>
               <Dialog open={isAddRegionOpen} onOpenChange={setIsAddRegionOpen}>
                 <DialogTrigger asChild>
-                  <Button><Plus className="mr-2 h-4 w-4" /> Tambah Wilayah</Button>
+                  <Button size="sm"><Plus className="mr-1 h-3.5 w-3.5" /> Tambah</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -1116,73 +1116,64 @@ export default function Admin() {
               </Dialog>
             </div>
 
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nama Wilayah</TableHead>
-                    <TableHead>Koordinator</TableHead>
-                    <TableHead>Telepon</TableHead>
-                    <TableHead className="w-[100px]">Aksi</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {regions.map((region) => (
-                    <TableRow key={region.id}>
-                      <TableCell className="font-medium">{region.name}</TableCell>
-                      <TableCell>{region.coordinator}</TableCell>
-                      <TableCell>{region.phone}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="icon" onClick={() => setEditingRegion(region)}>
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader><DialogTitle>Edit Wilayah</DialogTitle></DialogHeader>
-                              {editingRegion && (
-                                <div className="grid gap-4 py-4">
-                                  <div className="grid gap-2">
-                                    <Label>Nama Wilayah</Label>
-                                    <Input value={editingRegion.name} onChange={(e) => setEditingRegion({ ...editingRegion, name: e.target.value })} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Koordinator</Label>
-                                    <Input value={editingRegion.coordinator} onChange={(e) => setEditingRegion({ ...editingRegion, coordinator: e.target.value })} />
-                                  </div>
-                                  <div className="grid gap-2">
-                                    <Label>Telepon</Label>
-                                    <Input value={editingRegion.phone} onChange={(e) => setEditingRegion({ ...editingRegion, phone: e.target.value })} />
-                                  </div>
+            <div className="space-y-2">
+              {regions.map((region) => (
+                <Card key={region.id}>
+                  <CardContent className="p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <p className="text-sm font-semibold">{region.name}</p>
+                        <p className="text-xs text-muted-foreground">{region.coordinator} • {region.phone}</p>
+                      </div>
+                      <div className="flex gap-0.5 shrink-0">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingRegion(region)}>
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader><DialogTitle>Edit Wilayah</DialogTitle></DialogHeader>
+                            {editingRegion && (
+                              <div className="grid gap-4 py-4">
+                                <div className="grid gap-2">
+                                  <Label>Nama Wilayah</Label>
+                                  <Input value={editingRegion.name} onChange={(e) => setEditingRegion({ ...editingRegion, name: e.target.value })} />
                                 </div>
-                              )}
-                              <DialogFooter><Button onClick={handleUpdateRegion}>Simpan</Button></DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Hapus Wilayah?</AlertDialogTitle>
-                                <AlertDialogDescription>Semua data donasi wilayah ini juga akan terhapus.</AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDeleteRegion(region.id)} className="bg-destructive">Hapus</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
+                                <div className="grid gap-2">
+                                  <Label>Koordinator</Label>
+                                  <Input value={editingRegion.coordinator} onChange={(e) => setEditingRegion({ ...editingRegion, coordinator: e.target.value })} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Telepon</Label>
+                                  <Input value={editingRegion.phone} onChange={(e) => setEditingRegion({ ...editingRegion, phone: e.target.value })} />
+                                </div>
+                              </div>
+                            )}
+                            <DialogFooter><Button onClick={handleUpdateRegion}>Simpan</Button></DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Hapus Wilayah?</AlertDialogTitle>
+                              <AlertDialogDescription>Semua data donasi wilayah ini juga akan terhapus.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteRegion(region.id)} className="bg-destructive">Hapus</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           {/* Berita Tab */}
