@@ -16,6 +16,7 @@ import ProgramDetail from "./pages/ProgramDetail";
 import AiChat from "./pages/AiChat";
 import Diskusi from "./pages/Diskusi";
 import Santunan from "./pages/Santunan";
+import StaffLogin from "./pages/StaffLogin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
