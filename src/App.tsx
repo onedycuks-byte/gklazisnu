@@ -16,6 +16,7 @@ import ProgramDetail from "./pages/ProgramDetail";
 import AiChat from "./pages/AiChat";
 import Diskusi from "./pages/Diskusi";
 import Santunan from "./pages/Santunan";
+import StaffLogin from "./pages/StaffLogin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="/ai-chat" element={<AiChat />} />
             <Route path="/diskusi" element={<Diskusi />} />
             <Route path="/santunan" element={<Santunan />} />
+            <Route path="/staff-login" element={<StaffLogin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
