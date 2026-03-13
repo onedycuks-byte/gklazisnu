@@ -1867,8 +1867,8 @@ export default function Admin() {
           {/* Konfirmasi Tab - Admin/Bendahara */}
           <TabsContent value="konfirmasi" className="space-y-4">
             <div>
-              <h2 className="text-xl font-semibold">Konfirmasi Pemasukan</h2>
-              <p className="text-sm text-muted-foreground">Data pemasukan dari Koordinator yang menunggu konfirmasi</p>
+              <h2 className="text-base font-semibold">Konfirmasi Pemasukan</h2>
+              <p className="text-xs text-muted-foreground">Data dari Koordinator yang menunggu konfirmasi</p>
             </div>
 
             {donations.filter(d => d.status === 'pending').length === 0 ? (
