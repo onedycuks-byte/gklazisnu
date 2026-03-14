@@ -6,6 +6,7 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, Delete, Lock, ShieldCheck } from "lucide-react";
 
 const ROLE_LABELS: Record<string, string> = {
+  ketua: "Ketua",
   admin: "Admin",
   bendahara: "Bendahara",
   sekretaris: "Sekretaris",
