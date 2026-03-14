@@ -543,6 +543,16 @@ export default function Admin() {
                   <Plus className="h-3.5 w-3.5" /> Input
                 </TabsTrigger>
               )}
+              {visibleTabs.has("chat-bendahara") && (
+                <TabsTrigger value="chat-bendahara" className="text-xs px-2.5 py-1.5 gap-1">
+                  <MessageCircle className="h-3.5 w-3.5" /> Chat
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("perintah") && (
+                <TabsTrigger value="perintah" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Send className="h-3.5 w-3.5" /> Perintah
+                </TabsTrigger>
+              )}
               {visibleTabs.has("konfirmasi") && (
                 <TabsTrigger value="konfirmasi" className="text-xs px-2.5 py-1.5 gap-1">
                   <Check className="h-3.5 w-3.5" /> Konfirmasi
