@@ -95,6 +95,8 @@ export default function Admin() {
     region_id: "", amount: "", date: new Date().toISOString().split("T")[0], notes: "", category: "Infaq Kaleng Koin",
   });
   const [isAddDonationOpen, setIsAddDonationOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("");
+  const [koordinatorAutoMessage, setKoordinatorAutoMessage] = useState("");
 
   const [newExpense, setNewExpense] = useState({
     amount: "", date: new Date().toISOString().split("T")[0], description: "", category: "Operasional",
