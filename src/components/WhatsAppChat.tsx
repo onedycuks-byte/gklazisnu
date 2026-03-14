@@ -153,6 +153,8 @@ export function WhatsAppChat({ role, targets, initialMessage, onMessageConsumed 
 
   const templates = role === "koordinator"
     ? KOORDINATOR_TEMPLATES
+    : role === "sekretaris"
+    ? SEKRETARIS_KOORDINATOR_TEMPLATES
     : selectedTarget.label.toLowerCase().includes("bendahara")
     ? KETUA_BENDAHARA_TEMPLATES
     : KETUA_SEKRETARIS_TEMPLATES;
