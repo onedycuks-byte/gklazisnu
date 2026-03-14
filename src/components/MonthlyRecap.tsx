@@ -65,15 +65,7 @@ export function MonthlyRecap({ donations, expenses }: MonthlyRecapProps) {
   if (monthlyData.length === 0) return null;
 
   return (
-    <div className="px-4 mt-7">
-      <div className="flex items-center gap-2 mb-4">
-        <CalendarDays className="h-4 w-4 text-primary" />
-        <div>
-          <h2 className="text-base font-bold text-foreground">Rekap Bulanan</h2>
-          <p className="text-[11px] text-muted-foreground mt-0.5">Ringkasan keuangan per bulan</p>
-        </div>
-      </div>
-
+    <div>
       <div className="space-y-2.5">
         {monthlyData.map((month, i) => (
           <div

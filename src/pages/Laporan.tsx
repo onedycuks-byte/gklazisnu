@@ -3,6 +3,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { RegionCard } from "@/components/RegionCard";
 import { RegionDetail } from "@/components/RegionDetail";
 import { DonationTable } from "@/components/DonationTable";
+import { MonthlyRecap } from "@/components/MonthlyRecap";
 import { useRegions } from "@/hooks/useRegions";
 import { useSupabaseDonations } from "@/hooks/useSupabaseDonations";
 import { useExpenses } from "@/hooks/useExpenses";
@@ -105,6 +106,7 @@ const Laporan = () => {
         <Tabs defaultValue="regions" className="space-y-3">
           <TabsList className="w-full bg-card shadow-card rounded-xl h-11 p-1 border border-border/30">
             <TabsTrigger value="regions" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:shadow-sm">Wilayah</TabsTrigger>
+            <TabsTrigger value="monthly" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:shadow-sm">Bulanan</TabsTrigger>
             <TabsTrigger value="history" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:shadow-sm">Riwayat</TabsTrigger>
             <TabsTrigger value="expenses" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:shadow-sm">Pengeluaran</TabsTrigger>
           </TabsList>
@@ -113,6 +115,10 @@ const Laporan = () => {
             {regionSummaries.map((region, index) => (
               <RegionCard key={region.id} region={region} index={index} onSelect={setSelectedRegionId} />
             ))}
+          </TabsContent>
+
+          <TabsContent value="monthly">
+            <MonthlyRecap donations={donations} expenses={expenses} />
           </TabsContent>
 
           <TabsContent value="history" className="space-y-3">

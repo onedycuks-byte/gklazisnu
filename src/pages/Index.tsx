@@ -11,7 +11,6 @@ import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageC
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
-import { MonthlyRecap } from "@/components/MonthlyRecap";
 import { useState } from "react";
 import { useTrackPageView } from "@/hooks/useAnalytics";
 
@@ -112,9 +111,6 @@ const Index = () => {
           ))}
         </div>
       </div>
-
-      {/* Rekap Bulanan */}
-      <MonthlyRecap donations={donations} expenses={expenses} />
 
       {/* Program Donasi */}
       <div className="px-4 mt-7">
