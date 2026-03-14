@@ -3,6 +3,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { RegionCard } from "@/components/RegionCard";
 import { RegionDetail } from "@/components/RegionDetail";
 import { DonationTable } from "@/components/DonationTable";
+import { MonthlyRecap } from "@/components/MonthlyRecap";
 import { useRegions } from "@/hooks/useRegions";
 import { useSupabaseDonations } from "@/hooks/useSupabaseDonations";
 import { useExpenses } from "@/hooks/useExpenses";
