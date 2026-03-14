@@ -44,7 +44,7 @@ const ROLE_TABS: Record<string, string[]> = {
   admin: ["statistik", "program", "pemasukan", "pengeluaran", "regions", "berita", "kontak", "diskusi", "santunan", "konfirmasi", "ai"],
   ketua: ["statistik", "perintah", "konfirmasi"],
   bendahara: ["statistik", "pemasukan", "pengeluaran", "santunan", "konfirmasi"],
-  sekretaris: ["regions", "kontak", "diskusi", "santunan"],
+  sekretaris: ["regions", "kontak", "diskusi", "santunan", "chat-koordinator"],
   dokumentasi: ["berita", "program", "ai"],
   koordinator: ["input-pemasukan", "chat-bendahara"],
 };
@@ -556,6 +556,11 @@ export default function Admin() {
               {visibleTabs.has("chat-bendahara") && (
                 <TabsTrigger value="chat-bendahara" className="text-xs px-2.5 py-1.5 gap-1">
                   <MessageCircle className="h-3.5 w-3.5" /> Chat
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("chat-koordinator") && (
+                <TabsTrigger value="chat-koordinator" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Send className="h-3.5 w-3.5" /> Chat Koordinator
                 </TabsTrigger>
               )}
               {visibleTabs.has("perintah") && (
@@ -1926,6 +1931,29 @@ export default function Admin() {
               initialMessage={koordinatorAutoMessage}
               onMessageConsumed={() => setKoordinatorAutoMessage("")}
             />
+          </TabsContent>
+
+          {/* Chat Koordinator Tab - for Sekretaris */}
+          <TabsContent value="chat-koordinator" className="space-y-4">
+            <div>
+              <h2 className="text-base font-semibold">Chat Koordinator Wilayah</h2>
+              <p className="text-xs text-muted-foreground">Kirim pesan ke koordinator wilayah via WhatsApp</p>
+            </div>
+            {regions.length > 0 ? (
+              <WhatsAppChat
+                role="sekretaris"
+                targets={regions.map(r => ({
+                  label: `${r.coordinator} (${r.name})`,
+                  number: r.phone.replace(/^\+/, "").replace(/^0/, "62"),
+                }))}
+              />
+            ) : (
+              <Card>
+                <CardContent className="p-6 text-center text-muted-foreground text-sm">
+                  Belum ada data wilayah. Tambahkan wilayah terlebih dahulu di tab Wilayah.
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Perintah Tab - for Ketua */}
