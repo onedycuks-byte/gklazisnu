@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -98,15 +98,25 @@ const KETUA_SEKRETARIS_TEMPLATES: MessageTemplate[] = [
 interface Props {
   role: "koordinator" | "ketua";
   targets: WhatsAppTarget[];
+  initialMessage?: string;
+  onMessageConsumed?: () => void;
 }
 
-export function WhatsAppChat({ role, targets }: Props) {
+export function WhatsAppChat({ role, targets, initialMessage, onMessageConsumed }: Props) {
   const [selectedTarget, setSelectedTarget] = useState<WhatsAppTarget>(targets[0]);
   const [selectedTemplate, setSelectedTemplate] = useState<MessageTemplate | null>(null);
   const [message, setMessage] = useState("");
   const [includeDate, setIncludeDate] = useState(false);
   const [customDate, setCustomDate] = useState(new Date().toISOString().split("T")[0]);
   const [copied, setCopied] = useState(false);
+
+  // Auto-fill message from submission
+  useEffect(() => {
+    if (initialMessage) {
+      setMessage(initialMessage);
+      onMessageConsumed?.();
+    }
+  }, [initialMessage]);
 
   const templates = role === "koordinator"
     ? KOORDINATOR_TEMPLATES

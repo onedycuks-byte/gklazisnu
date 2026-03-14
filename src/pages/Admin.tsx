@@ -95,6 +95,8 @@ export default function Admin() {
     region_id: "", amount: "", date: new Date().toISOString().split("T")[0], notes: "", category: "Infaq Kaleng Koin",
   });
   const [isAddDonationOpen, setIsAddDonationOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("");
+  const [koordinatorAutoMessage, setKoordinatorAutoMessage] = useState("");
 
   const [newExpense, setNewExpense] = useState({
     amount: "", date: new Date().toISOString().split("T")[0], description: "", category: "Operasional",
@@ -198,17 +200,25 @@ export default function Admin() {
       toast({ title: "Error", description: "Pilih wilayah dan masukkan nominal", variant: "destructive" }); return;
     }
     const amount = parseInt(newDonation.amount.replace(/[^\d]/g, ""));
+    const regionName = regions.find(r => r.id === newDonation.region_id)?.name || "-";
+    const formattedAmount = formatCurrency(amount);
+    const formattedDate = new Date(newDonation.date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
     const { error } = await addDonation({
       region_id: newDonation.region_id,
       amount,
       date: newDonation.date,
       notes: newDonation.notes || undefined,
       category: "Infaq Kaleng Koin",
-    }, true); // pending = true
+    }, true);
     if (error) toast({ title: "Gagal", description: "Gagal mengirim data", variant: "destructive" });
     else {
       toast({ title: "Berhasil", description: "Data pemasukan dikirim untuk konfirmasi" });
+      // Build auto WhatsApp message
+      const autoMsg = `Assalamu'alaikum Pak/Bu Bendahara,\n\nSaya Koordinator wilayah ingin melaporkan hasil pengambilan kaleng koin.\n\nWilayah: ${regionName}\nJumlah: ${formattedAmount}\nTanggal: ${formattedDate}${newDonation.notes ? `\nCatatan: ${newDonation.notes}` : ""}\n\nData sudah saya input di sistem dan menunggu konfirmasi. Mohon dicek dan dikonfirmasi.\n\nJazakallahu khairan.`;
+      setKoordinatorAutoMessage(autoMsg);
       setNewDonation({ region_id: "", amount: "", date: new Date().toISOString().split("T")[0], notes: "", category: "Infaq Kaleng Koin" });
+      // Switch to chat tab
+      setActiveTab("chat-bendahara");
     }
   };
 
@@ -485,7 +495,7 @@ export default function Admin() {
           </div>
         )}
 
-        <Tabs defaultValue={Array.from(visibleTabs)[0] || "statistik"} className="space-y-4">
+        <Tabs value={activeTab || Array.from(visibleTabs)[0] || "statistik"} onValueChange={setActiveTab} className="space-y-4">
           <div className="overflow-x-auto -mx-4 px-4 scrollbar-hide">
             <TabsList className="inline-flex w-max gap-1">
               {visibleTabs.has("statistik") && (
@@ -1913,6 +1923,8 @@ export default function Admin() {
             <WhatsAppChat
               role="koordinator"
               targets={[{ label: "Bendahara", number: "62895380700506" }]}
+              initialMessage={koordinatorAutoMessage}
+              onMessageConsumed={() => setKoordinatorAutoMessage("")}
             />
           </TabsContent>
 
