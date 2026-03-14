@@ -558,6 +558,11 @@ export default function Admin() {
                   <MessageCircle className="h-3.5 w-3.5" /> Chat
                 </TabsTrigger>
               )}
+              {visibleTabs.has("chat-koordinator") && (
+                <TabsTrigger value="chat-koordinator" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Send className="h-3.5 w-3.5" /> Chat Koordinator
+                </TabsTrigger>
+              )}
               {visibleTabs.has("perintah") && (
                 <TabsTrigger value="perintah" className="text-xs px-2.5 py-1.5 gap-1">
                   <Send className="h-3.5 w-3.5" /> Perintah
