@@ -53,14 +53,14 @@ export default function StaffLogin() {
 
       setSuccess(data.role);
 
-      // Verify OTP to create session
-      const { error: otpError } = await supabase.auth.verifyOtp({
-        token_hash: data.token_hash,
-        type: "magiclink",
+      // Sign in with password - supports multiple devices simultaneously
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
       });
 
-      if (otpError) {
-        setError("Gagal membuat sesi: " + otpError.message);
+      if (signInError) {
+        setError("Gagal membuat sesi: " + signInError.message);
         setSuccess(null);
         setPin("");
         setIsVerifying(false);

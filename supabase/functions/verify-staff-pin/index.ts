@@ -5,13 +5,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const PIN_ROLE_MAP: Record<string, { role: string; email: string; name: string }> = {
-  "112233": { role: "ketua", email: "ketua@staff.internal", name: "Ketua" },
-  "159357": { role: "admin", email: "admin@staff.internal", name: "Admin" },
-  "321654": { role: "bendahara", email: "bendahara@staff.internal", name: "Bendahara" },
-  "456123": { role: "sekretaris", email: "sekretaris@staff.internal", name: "Sekretaris" },
-  "654321": { role: "dokumentasi", email: "dokumentasi@staff.internal", name: "Dokumentasi" },
-  "789456": { role: "koordinator", email: "koordinator@staff.internal", name: "Koordinator" },
+const PIN_ROLE_MAP: Record<string, { role: string; email: string; name: string; password: string }> = {
+  "112233": { role: "ketua", email: "ketua@staff.internal", name: "Ketua", password: "staff-ketua-secure-2026!" },
+  "159357": { role: "admin", email: "admin@staff.internal", name: "Admin", password: "staff-admin-secure-2026!" },
+  "321654": { role: "bendahara", email: "bendahara@staff.internal", name: "Bendahara", password: "staff-bendahara-secure-2026!" },
+  "456123": { role: "sekretaris", email: "sekretaris@staff.internal", name: "Sekretaris", password: "staff-sekretaris-secure-2026!" },
+  "654321": { role: "dokumentasi", email: "dokumentasi@staff.internal", name: "Dokumentasi", password: "staff-dokumentasi-secure-2026!" },
+  "789456": { role: "koordinator", email: "koordinator@staff.internal", name: "Koordinator", password: "staff-koordinator-secure-2026!" },
 };
 
 Deno.serve(async (req) => {
@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     if (!staffUser) {
       const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
         email: staffInfo.email,
-        password: crypto.randomUUID(),
+        password: staffInfo.password,
         email_confirm: true,
         user_metadata: { full_name: staffInfo.name, is_staff: true },
       });
@@ -58,6 +58,11 @@ Deno.serve(async (req) => {
       await supabaseAdmin.from("user_roles").insert({
         user_id: staffUser.id,
         role: staffInfo.role,
+      });
+    } else {
+      // Update password to ensure it matches (in case it was random before)
+      await supabaseAdmin.auth.admin.updateUserById(staffUser.id, {
+        password: staffInfo.password,
       });
     }
 
@@ -76,23 +81,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Generate magic link token
-    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-      type: "magiclink",
-      email: staffInfo.email,
-    });
-
-    if (linkError || !linkData) {
-      return new Response(
-        JSON.stringify({ error: "Gagal membuat sesi login" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
+    // Return credentials for client-side signInWithPassword
     return new Response(
       JSON.stringify({
         email: staffInfo.email,
-        token_hash: linkData.properties?.hashed_token,
+        password: staffInfo.password,
         role: staffInfo.role,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
