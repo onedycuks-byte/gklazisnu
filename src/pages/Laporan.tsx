@@ -106,6 +106,7 @@ const Laporan = () => {
         <Tabs defaultValue="regions" className="space-y-3">
           <TabsList className="w-full bg-card shadow-card rounded-xl h-11 p-1 border border-border/30">
             <TabsTrigger value="regions" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:shadow-sm">Wilayah</TabsTrigger>
+            <TabsTrigger value="monthly" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:shadow-sm">Bulanan</TabsTrigger>
             <TabsTrigger value="history" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:shadow-sm">Riwayat</TabsTrigger>
             <TabsTrigger value="expenses" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:shadow-sm">Pengeluaran</TabsTrigger>
           </TabsList>
