@@ -1923,6 +1923,8 @@ export default function Admin() {
             <WhatsAppChat
               role="koordinator"
               targets={[{ label: "Bendahara", number: "62895380700506" }]}
+              initialMessage={koordinatorAutoMessage}
+              onMessageConsumed={() => setKoordinatorAutoMessage("")}
             />
           </TabsContent>
 
