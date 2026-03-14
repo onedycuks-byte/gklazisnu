@@ -1933,6 +1933,29 @@ export default function Admin() {
             />
           </TabsContent>
 
+          {/* Chat Koordinator Tab - for Sekretaris */}
+          <TabsContent value="chat-koordinator" className="space-y-4">
+            <div>
+              <h2 className="text-base font-semibold">Chat Koordinator Wilayah</h2>
+              <p className="text-xs text-muted-foreground">Kirim pesan ke koordinator wilayah via WhatsApp</p>
+            </div>
+            {regions.length > 0 ? (
+              <WhatsAppChat
+                role="sekretaris"
+                targets={regions.map(r => ({
+                  label: `${r.coordinator} (${r.name})`,
+                  number: r.phone.replace(/^\+/, "").replace(/^0/, "62"),
+                }))}
+              />
+            ) : (
+              <Card>
+                <CardContent className="p-6 text-center text-muted-foreground text-sm">
+                  Belum ada data wilayah. Tambahkan wilayah terlebih dahulu di tab Wilayah.
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
           {/* Perintah Tab - for Ketua */}
           <TabsContent value="perintah" className="space-y-4">
             <div>
