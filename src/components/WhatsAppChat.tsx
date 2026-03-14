@@ -95,8 +95,41 @@ const KETUA_SEKRETARIS_TEMPLATES: MessageTemplate[] = [
   },
 ];
 
+const SEKRETARIS_KOORDINATOR_TEMPLATES: MessageTemplate[] = [
+  {
+    id: "info-jadwal",
+    label: "📅 Info Jadwal Pengambilan",
+    template: "Assalamu'alaikum Pak/Bu Koordinator,\n\nDiinformasikan jadwal pengambilan kaleng koin untuk wilayah Anda:\n\nHari/Tanggal: {tanggal}\nWaktu: {waktu}\nTempat: {tempat}\n\nMohon dipersiapkan. Terima kasih.",
+    hasDate: true,
+  },
+  {
+    id: "reminder-laporan",
+    label: "🔔 Reminder Laporan",
+    template: "Assalamu'alaikum Pak/Bu Koordinator,\n\nMohon segera melaporkan hasil pengambilan kaleng koin wilayah Anda melalui sistem.\n\nJika sudah diinput, mohon abaikan pesan ini. Jazakallahu khairan.",
+    hasDate: false,
+  },
+  {
+    id: "info-rapat",
+    label: "📨 Undangan Rapat/Kegiatan",
+    template: "Assalamu'alaikum Pak/Bu Koordinator,\n\nDiundang untuk menghadiri:\n\nAgenda: {agenda}\nHari/Tanggal: {tanggal}\nWaktu: {waktu}\nTempat: {tempat}\n\nMohon kehadirannya. Terima kasih.",
+    hasDate: true,
+  },
+  {
+    id: "info-update",
+    label: "📋 Info & Update",
+    template: "Assalamu'alaikum Pak/Bu Koordinator,\n\n{pesan}\n\nMohon ditindaklanjuti. Terima kasih.",
+    hasDate: false,
+  },
+  {
+    id: "ucapan-terima-kasih",
+    label: "🤝 Ucapan Terima Kasih",
+    template: "Assalamu'alaikum Pak/Bu Koordinator,\n\nTerima kasih atas kerja keras dan dedikasi Anda dalam mengelola wilayah. Semoga Allah membalas kebaikan Anda.\n\nJazakallahu khairan.",
+    hasDate: false,
+  },
+];
+
 interface Props {
-  role: "koordinator" | "ketua";
+  role: "koordinator" | "ketua" | "sekretaris";
   targets: WhatsAppTarget[];
   initialMessage?: string;
   onMessageConsumed?: () => void;
