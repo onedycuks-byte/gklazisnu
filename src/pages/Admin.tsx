@@ -1903,6 +1903,34 @@ export default function Admin() {
               </div>
             )}
           </TabsContent>
+
+          {/* Chat Bendahara Tab - for Koordinator */}
+          <TabsContent value="chat-bendahara" className="space-y-4">
+            <div>
+              <h2 className="text-base font-semibold">Chat Bendahara</h2>
+              <p className="text-xs text-muted-foreground">Kirim pesan langsung via WhatsApp</p>
+            </div>
+            <WhatsAppChat
+              role="koordinator"
+              targets={[{ label: "Bendahara", number: "62895380700506" }]}
+            />
+          </TabsContent>
+
+          {/* Perintah Tab - for Ketua */}
+          <TabsContent value="perintah" className="space-y-4">
+            <div>
+              <h2 className="text-base font-semibold">Perintah & Instruksi</h2>
+              <p className="text-xs text-muted-foreground">Kirim instruksi ke Bendahara atau Sekretaris via WhatsApp</p>
+            </div>
+            <WhatsAppChat
+              role="ketua"
+              targets={[
+                { label: "Bendahara", number: "62895380700506" },
+                { label: "Sekretaris", number: "62895429688228" },
+              ]}
+            />
+          </TabsContent>
+
         </Tabs>
       </main>
     </div>
