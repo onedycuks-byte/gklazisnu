@@ -117,6 +117,10 @@ const Laporan = () => {
             ))}
           </TabsContent>
 
+          <TabsContent value="monthly">
+            <MonthlyRecap donations={donations} expenses={expenses} />
+          </TabsContent>
+
           <TabsContent value="history" className="space-y-3">
             <DonationTable donations={recentDonations} regions={regions} />
           </TabsContent>

@@ -112,9 +112,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Rekap Bulanan */}
-      <MonthlyRecap donations={donations} expenses={expenses} />
-
       {/* Program Donasi */}
       <div className="px-4 mt-7">
         <div className="flex items-center justify-between mb-4">
