@@ -495,7 +495,7 @@ export default function Admin() {
           </div>
         )}
 
-        <Tabs defaultValue={Array.from(visibleTabs)[0] || "statistik"} className="space-y-4">
+        <Tabs value={activeTab || Array.from(visibleTabs)[0] || "statistik"} onValueChange={setActiveTab} className="space-y-4">
           <div className="overflow-x-auto -mx-4 px-4 scrollbar-hide">
             <TabsList className="inline-flex w-max gap-1">
               {visibleTabs.has("statistik") && (
