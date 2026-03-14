@@ -6,6 +6,7 @@ const corsHeaders = {
 };
 
 const PIN_ROLE_MAP: Record<string, { role: string; email: string; name: string }> = {
+  "112233": { role: "ketua", email: "ketua@staff.internal", name: "Ketua" },
   "159357": { role: "admin", email: "admin@staff.internal", name: "Admin" },
   "321654": { role: "bendahara", email: "bendahara@staff.internal", name: "Bendahara" },
   "456123": { role: "sekretaris", email: "sekretaris@staff.internal", name: "Sekretaris" },
