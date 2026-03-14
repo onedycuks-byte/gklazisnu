@@ -8,6 +8,7 @@ import { usePrograms, Program } from "@/hooks/usePrograms";
 import { useNews, NewsItem } from "@/hooks/useNews";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { AdminAiChat } from "@/components/AdminAiChat";
+import { WhatsAppChat } from "@/components/WhatsAppChat";
 import { useDiscussions } from "@/hooks/useDiscussions";
 import { useAnalyticsStats } from "@/hooks/useAnalytics";
 import { useOrphanRegistrations } from "@/hooks/useOrphanRegistrations";
@@ -41,14 +42,16 @@ import {
 // Role-tab access mapping
 const ROLE_TABS: Record<string, string[]> = {
   admin: ["statistik", "program", "pemasukan", "pengeluaran", "regions", "berita", "kontak", "diskusi", "santunan", "konfirmasi", "ai"],
+  ketua: ["statistik", "perintah", "konfirmasi"],
   bendahara: ["statistik", "pemasukan", "pengeluaran", "santunan", "konfirmasi"],
   sekretaris: ["regions", "kontak", "diskusi", "santunan"],
   dokumentasi: ["berita", "program", "ai"],
-  koordinator: ["input-pemasukan"],
+  koordinator: ["input-pemasukan", "chat-bendahara"],
 };
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "Admin",
+  ketua: "Ketua",
   bendahara: "Bendahara",
   sekretaris: "Sekretaris",
   dokumentasi: "Dokumentasi",
@@ -389,7 +392,7 @@ export default function Admin() {
     );
   }
 
-  const hasAccess = hasAnyRole(["admin", "bendahara", "sekretaris", "dokumentasi", "koordinator"]);
+  const hasAccess = hasAnyRole(["admin", "ketua", "bendahara", "sekretaris", "dokumentasi", "koordinator"]);
 
   if (!hasAccess) {
     return (
@@ -538,6 +541,16 @@ export default function Admin() {
               {visibleTabs.has("input-pemasukan") && (
                 <TabsTrigger value="input-pemasukan" className="text-xs px-2.5 py-1.5 gap-1">
                   <Plus className="h-3.5 w-3.5" /> Input
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("chat-bendahara") && (
+                <TabsTrigger value="chat-bendahara" className="text-xs px-2.5 py-1.5 gap-1">
+                  <MessageCircle className="h-3.5 w-3.5" /> Chat
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("perintah") && (
+                <TabsTrigger value="perintah" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Send className="h-3.5 w-3.5" /> Perintah
                 </TabsTrigger>
               )}
               {visibleTabs.has("konfirmasi") && (
@@ -1890,6 +1903,34 @@ export default function Admin() {
               </div>
             )}
           </TabsContent>
+
+          {/* Chat Bendahara Tab - for Koordinator */}
+          <TabsContent value="chat-bendahara" className="space-y-4">
+            <div>
+              <h2 className="text-base font-semibold">Chat Bendahara</h2>
+              <p className="text-xs text-muted-foreground">Kirim pesan langsung via WhatsApp</p>
+            </div>
+            <WhatsAppChat
+              role="koordinator"
+              targets={[{ label: "Bendahara", number: "62895380700506" }]}
+            />
+          </TabsContent>
+
+          {/* Perintah Tab - for Ketua */}
+          <TabsContent value="perintah" className="space-y-4">
+            <div>
+              <h2 className="text-base font-semibold">Perintah & Instruksi</h2>
+              <p className="text-xs text-muted-foreground">Kirim instruksi ke Bendahara atau Sekretaris via WhatsApp</p>
+            </div>
+            <WhatsAppChat
+              role="ketua"
+              targets={[
+                { label: "Bendahara", number: "62895380700506" },
+                { label: "Sekretaris", number: "62895429688228" },
+              ]}
+            />
+          </TabsContent>
+
         </Tabs>
       </main>
     </div>

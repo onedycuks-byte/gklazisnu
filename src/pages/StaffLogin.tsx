@@ -6,6 +6,7 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, Delete, Lock, ShieldCheck } from "lucide-react";
 
 const ROLE_LABELS: Record<string, string> = {
+  ketua: "Ketua",
   admin: "Admin",
   bendahara: "Bendahara",
   sekretaris: "Sekretaris",
@@ -14,6 +15,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 const ROLE_COLORS: Record<string, string> = {
+  ketua: "from-yellow-500 to-amber-600",
   admin: "from-red-500 to-rose-600",
   bendahara: "from-emerald-500 to-teal-600",
   sekretaris: "from-blue-500 to-indigo-600",
