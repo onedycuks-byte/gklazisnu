@@ -41,14 +41,16 @@ import {
 // Role-tab access mapping
 const ROLE_TABS: Record<string, string[]> = {
   admin: ["statistik", "program", "pemasukan", "pengeluaran", "regions", "berita", "kontak", "diskusi", "santunan", "konfirmasi", "ai"],
+  ketua: ["statistik", "perintah", "konfirmasi"],
   bendahara: ["statistik", "pemasukan", "pengeluaran", "santunan", "konfirmasi"],
   sekretaris: ["regions", "kontak", "diskusi", "santunan"],
   dokumentasi: ["berita", "program", "ai"],
-  koordinator: ["input-pemasukan"],
+  koordinator: ["input-pemasukan", "chat-bendahara"],
 };
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "Admin",
+  ketua: "Ketua",
   bendahara: "Bendahara",
   sekretaris: "Sekretaris",
   dokumentasi: "Dokumentasi",
