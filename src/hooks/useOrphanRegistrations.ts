@@ -208,6 +208,18 @@ export function useOrphanRegistrations(adminMode = false) {
       description?: string;
       adminNote?: string;
     }) => {
+      // Check current balance first
+      const { data: current } = await supabase
+        .from("orphan_registrations" as any)
+        .select("balance")
+        .eq("id", registrationId)
+        .single();
+      
+      const currentBalance = (current as any)?.balance || 0;
+      if (amount > currentBalance) {
+        throw new Error(`Saldo tidak cukup. Saldo saat ini: Rp ${currentBalance.toLocaleString("id-ID")}`);
+      }
+
       const { error: txError } = await supabase
         .from("wallet_transactions" as any)
         .insert({
@@ -219,16 +231,9 @@ export function useOrphanRegistrations(adminMode = false) {
         } as any);
       if (txError) throw txError;
 
-      const { data: current } = await supabase
-        .from("orphan_registrations" as any)
-        .select("balance")
-        .eq("id", registrationId)
-        .single();
-      
-      const currentBalance = (current as any)?.balance || 0;
       const { error: updateError } = await supabase
         .from("orphan_registrations" as any)
-        .update({ balance: Math.max(0, currentBalance - amount) } as any)
+        .update({ balance: currentBalance - amount } as any)
         .eq("id", registrationId);
       if (updateError) throw updateError;
     },
