@@ -74,6 +74,7 @@ export default function Admin() {
   const [orphanNotes, setOrphanNotes] = useState<Record<string, string>>({});
   const [walletAmounts, setWalletAmounts] = useState<Record<string, string>>({});
   const [walletDescs, setWalletDescs] = useState<Record<string, string>>({});
+  const [disbursementType, setDisbursementType] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
   const [contactForm, setContactForm] = useState<Record<string, string>>({});
@@ -1647,6 +1648,27 @@ export default function Admin() {
                                 className="text-xs h-8 flex-1"
                               />
                             </div>
+                            
+                            {/* Disbursement type selector */}
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant={(!disbursementType[reg.id] || disbursementType[reg.id] === "wallet") ? "default" : "outline"}
+                                className="flex-1 h-7 text-[10px] gap-1"
+                                onClick={() => setDisbursementType(d => ({ ...d, [reg.id]: "wallet" }))}
+                              >
+                                <Wallet className="h-3 w-3" /> Ke Saldo
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant={disbursementType[reg.id] === "cash" ? "default" : "outline"}
+                                className="flex-1 h-7 text-[10px] gap-1"
+                                onClick={() => setDisbursementType(d => ({ ...d, [reg.id]: "cash" }))}
+                              >
+                                <TrendingDown className="h-3 w-3" /> Uang Tunai
+                              </Button>
+                            </div>
+
                             <div className="flex gap-2">
                               <Button
                                 size="sm"
@@ -1672,27 +1694,42 @@ export default function Admin() {
                                 size="sm"
                                 variant="outline"
                                 className="flex-1 gap-1 h-8 text-xs text-red-600 hover:text-red-700 border-red-200"
-                                disabled={isDeducting || !walletAmounts[reg.id] || (reg.balance || 0) === 0}
+                                disabled={isDeducting || !walletAmounts[reg.id] || ((disbursementType[reg.id] !== "cash") && (reg.balance || 0) === 0)}
                                 onClick={async () => {
                                   const amount = parseInt((walletAmounts[reg.id] || "0").replace(/[^\d]/g, ""));
                                   if (!amount) return;
+                                  const isCash = disbursementType[reg.id] === "cash";
                                   const currentBalance = reg.balance || 0;
-                                  if (amount > currentBalance) {
+                                  
+                                  if (!isCash && amount > currentBalance) {
                                     toast({ title: "Gagal", description: `Saldo tidak cukup. Saldo saat ini: ${formatCurrency(currentBalance)}`, variant: "destructive" });
                                     return;
                                   }
+                                  
                                   try {
-                                    await deduct({ registrationId: reg.id, amount, description: walletDescs[reg.id] || "Pencairan dana" });
-                                    toast({ title: "Berhasil", description: `Saldo ${reg.child_name} dikurangi ${formatCurrency(amount)}` });
+                                    if (isCash) {
+                                      // Cash disbursement: record as expense only, no wallet deduction
+                                      await addExpense({
+                                        amount,
+                                        category: "Santunan Yatim-Piatu",
+                                        description: `Pencairan tunai - ${reg.child_name}: ${walletDescs[reg.id] || "Santunan tunai"}`,
+                                        date: new Date().toISOString().split("T")[0],
+                                      });
+                                      toast({ title: "Berhasil", description: `Pencairan tunai ${formatCurrency(amount)} untuk ${reg.child_name} dicatat` });
+                                    } else {
+                                      // Wallet deduction
+                                      await deduct({ registrationId: reg.id, amount, description: walletDescs[reg.id] || "Pencairan dana" });
+                                      toast({ title: "Berhasil", description: `Saldo ${reg.child_name} dikurangi ${formatCurrency(amount)}` });
+                                    }
                                     setWalletAmounts(w => ({ ...w, [reg.id]: "" }));
                                     setWalletDescs(w => ({ ...w, [reg.id]: "" }));
                                   } catch {
-                                    toast({ title: "Gagal", description: "Gagal mengurangi saldo", variant: "destructive" });
+                                    toast({ title: "Gagal", description: "Gagal memproses pencairan", variant: "destructive" });
                                   }
                                 }}
                               >
                                 {isDeducting ? <Loader2 className="h-3 w-3 animate-spin" /> : <TrendingDown className="h-3 w-3" />}
-                                Cairkan
+                                {disbursementType[reg.id] === "cash" ? "Cairkan Tunai" : "Cairkan Saldo"}
                               </Button>
                             </div>
                           </div>
