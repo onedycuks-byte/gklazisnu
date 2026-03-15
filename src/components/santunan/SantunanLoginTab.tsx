@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import { OrphanRegistration, WalletTransaction, useWalletRealtime } from "@/hooks/useOrphanRegistrations";
 import { Button } from "@/components/ui/button";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
