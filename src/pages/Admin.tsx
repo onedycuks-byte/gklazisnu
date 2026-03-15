@@ -74,6 +74,7 @@ export default function Admin() {
   const [orphanNotes, setOrphanNotes] = useState<Record<string, string>>({});
   const [walletAmounts, setWalletAmounts] = useState<Record<string, string>>({});
   const [walletDescs, setWalletDescs] = useState<Record<string, string>>({});
+  const [disbursementType, setDisbursementType] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
   const [contactForm, setContactForm] = useState<Record<string, string>>({});
