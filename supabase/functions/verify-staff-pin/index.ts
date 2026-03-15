@@ -35,11 +35,18 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Find or create the staff user
-    const { data: userList } = await supabaseAdmin.auth.admin.listUsers();
-    let staffUser = userList?.users?.find((u) => u.email === staffInfo.email);
+    // Find staff user by email directly (more efficient than listing all)
+    const { data: userList } = await supabaseAdmin.auth.admin.listUsers({
+      page: 1,
+      perPage: 1,
+    });
+    
+    // Search for user by email
+    const { data: allUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+    let staffUser = allUsers?.users?.find((u) => u.email === staffInfo.email);
 
     if (!staffUser) {
+      // Create the staff user for the first time
       const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
         email: staffInfo.email,
         password: staffInfo.password,
@@ -59,12 +66,8 @@ Deno.serve(async (req) => {
         user_id: staffUser.id,
         role: staffInfo.role,
       });
-    } else {
-      // Update password to ensure it matches (in case it was random before)
-      await supabaseAdmin.auth.admin.updateUserById(staffUser.id, {
-        password: staffInfo.password,
-      });
     }
+    // NOTE: No password update here - keeps existing sessions valid on other devices
 
     // Ensure role exists
     const { data: existingRole } = await supabaseAdmin
