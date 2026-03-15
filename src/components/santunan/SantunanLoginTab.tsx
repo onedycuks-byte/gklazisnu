@@ -212,7 +212,7 @@ export function SantunanLoginTab({ lookupByCode }: Props) {
         </div>
 
         {/* Card */}
-        <OrphanCard registration={loggedIn} showDownload />
+        <OrphanCard registration={loggedIn} showDownload={false} />
       </div>
     );
   }

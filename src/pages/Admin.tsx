@@ -1676,6 +1676,11 @@ export default function Admin() {
                                 onClick={async () => {
                                   const amount = parseInt((walletAmounts[reg.id] || "0").replace(/[^\d]/g, ""));
                                   if (!amount) return;
+                                  const currentBalance = reg.balance || 0;
+                                  if (amount > currentBalance) {
+                                    toast({ title: "Gagal", description: `Saldo tidak cukup. Saldo saat ini: ${formatCurrency(currentBalance)}`, variant: "destructive" });
+                                    return;
+                                  }
                                   try {
                                     await deduct({ registrationId: reg.id, amount, description: walletDescs[reg.id] || "Pencairan dana" });
                                     toast({ title: "Berhasil", description: `Saldo ${reg.child_name} dikurangi ${formatCurrency(amount)}` });

@@ -116,7 +116,7 @@ export default function Santunan() {
               </div>
             </div>
 
-            <OrphanCard registration={result} showDownload />
+            <OrphanCard registration={result} showDownload={false} />
 
             <Button variant="outline" className="w-full" onClick={() => { setResult(null); setForm(emptyForm); }}>
               Daftar Lagi
