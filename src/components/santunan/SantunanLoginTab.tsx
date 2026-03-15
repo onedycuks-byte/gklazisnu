@@ -219,6 +219,7 @@ export function SantunanLoginTab({ lookupByCode }: Props) {
             Untuk mencetak/download kartu, silakan hubungi admin.
           </p>
         </div>
+      </div>
     );
   }
 
