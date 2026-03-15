@@ -210,10 +210,15 @@ export function SantunanLoginTab({ lookupByCode }: Props) {
             </div>
           )}
         </div>
-
-        {/* Card */}
-        <OrphanCard registration={loggedIn} showDownload={false} />
-      </div>
+        {/* Card info summary */}
+        <div className="bg-muted/50 rounded-2xl p-4 border border-border/20 text-center">
+          <p className="text-xs text-muted-foreground">
+            Kode Kartu: <span className="font-bold text-foreground">{loggedIn.unique_code}</span>
+          </p>
+          <p className="text-[10px] text-muted-foreground mt-1">
+            Untuk mencetak/download kartu, silakan hubungi admin.
+          </p>
+        </div>
     );
   }
 
