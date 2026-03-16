@@ -12,7 +12,7 @@ import { WhatsAppChat } from "@/components/WhatsAppChat";
 import { useDiscussions } from "@/hooks/useDiscussions";
 import { useAnalyticsStats } from "@/hooks/useAnalytics";
 import { useOrphanRegistrations } from "@/hooks/useOrphanRegistrations";
-import { OrphanCard } from "@/components/OrphanCard";
+import { useSantunanGallery } from "@/hooks/useSantunanGallery";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
