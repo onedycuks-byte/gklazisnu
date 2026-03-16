@@ -1558,7 +1558,7 @@ export default function Admin() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-base font-semibold">Santunan</h2>
-                <p className="text-xs text-muted-foreground">Pendaftaran & saldo dompet anak yatim</p>
+                <p className="text-xs text-muted-foreground">Data pendaftaran & galeri santunan</p>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
@@ -1570,32 +1570,106 @@ export default function Admin() {
               </div>
             </div>
 
-            {/* Total balance summary */}
-            <div className="grid grid-cols-2 gap-3">
-              <Card className="bg-gradient-to-br from-violet-500 to-purple-600 text-white border-0">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Wallet className="h-4 w-4 opacity-70" />
-                    <span className="text-xs font-medium opacity-80">Total Saldo Tersebar</span>
-                  </div>
-                  <p className="text-xl font-bold">
-                    {formatCurrency(orphanRegistrations.reduce((s, r) => s + (r.balance || 0), 0))}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-0">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Users className="h-4 w-4 opacity-70" />
-                    <span className="text-xs font-medium opacity-80">Penerima Aktif</span>
-                  </div>
-                  <p className="text-xl font-bold">
-                    {orphanRegistrations.filter(r => r.status === "approved").length} Anak
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+            {/* Download Data Button */}
+            <Button
+              variant="outline"
+              className="w-full gap-2"
+              onClick={() => {
+                const headers = ["Nama Anak", "Tgl Lahir", "Jenis Kelamin", "Pendidikan", "Sekolah", "Nama Ayah", "Nama Ibu", "Penyebab Yatim", "Nama Wali", "Telp Wali", "Hubungan Wali", "Alamat", "Status", "Tgl Daftar", "Kode"];
+                const rows = orphanRegistrations.map(r => [
+                  r.child_name, r.birth_date, r.gender || "", r.education || "", r.school_name || "",
+                  r.father_name || "", r.mother_name || "", r.cause_of_orphan || "",
+                  r.guardian_name, r.guardian_phone, r.guardian_relation || "", r.address,
+                  r.status, r.created_at.split("T")[0], r.unique_code,
+                ]);
+                const csv = [headers, ...rows].map(r => r.map(c => `"${(c || "").replace(/"/g, '""')}"`).join(",")).join("\n");
+                const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = `data-santunan-${new Date().toISOString().split("T")[0]}.csv`;
+                link.click();
+                toast({ title: "Berhasil", description: "Data berhasil didownload" });
+              }}
+            >
+              <Download className="h-4 w-4" /> Download Data CSV
+            </Button>
 
+            {/* Gallery Management */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Kelola Galeri Santunan</CardTitle>
+                <CardDescription className="text-xs">Upload foto kegiatan santunan untuk ditampilkan di halaman publik</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Caption (opsional)"
+                    value={galleryCaption}
+                    onChange={e => setGalleryCaption(e.target.value)}
+                    className="text-xs h-8 flex-1"
+                  />
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={e => setGalleryFile(e.target.files?.[0] || null)}
+                    />
+                    <Button size="sm" variant="outline" className="h-8 text-xs gap-1" asChild>
+                      <span><Upload className="h-3 w-3" /> {galleryFile ? galleryFile.name.slice(0, 15) : "Pilih Foto"}</span>
+                    </Button>
+                  </label>
+                </div>
+                <Button
+                  size="sm"
+                  className="w-full h-8 text-xs gap-1"
+                  disabled={!galleryFile || galleryUploading}
+                  onClick={async () => {
+                    if (!galleryFile) return;
+                    setGalleryUploading(true);
+                    try {
+                      const url = await uploadGalleryImage(galleryFile);
+                      await addGalleryImage({ image_url: url, caption: galleryCaption || undefined });
+                      toast({ title: "Berhasil", description: "Foto berhasil ditambah ke galeri" });
+                      setGalleryFile(null);
+                      setGalleryCaption("");
+                    } catch {
+                      toast({ title: "Gagal", description: "Gagal upload foto", variant: "destructive" });
+                    }
+                    setGalleryUploading(false);
+                  }}
+                >
+                  {galleryUploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                  Upload ke Galeri
+                </Button>
+
+                {galleryImages.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 pt-2">
+                    {galleryImages.map(img => (
+                      <div key={img.id} className="relative group rounded-lg overflow-hidden aspect-square">
+                        <img src={img.image_url} alt={img.caption || ""} className="w-full h-full object-cover" />
+                        <button
+                          onClick={async () => {
+                            await deleteGalleryImage(img.id);
+                            toast({ title: "Dihapus", description: "Foto dihapus dari galeri" });
+                          }}
+                          className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                        {img.caption && (
+                          <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-1 py-0.5">
+                            <p className="text-[9px] text-white truncate">{img.caption}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Registration list */}
             {orphansLoading ? (
               <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
             ) : orphanRegistrations.length === 0 ? (
@@ -1623,129 +1697,24 @@ export default function Admin() {
                       <CardDescription className="font-mono text-xs">{reg.unique_code}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      {/* Wallet Balance */}
-                      <div className="bg-gradient-to-r from-violet-500/10 to-purple-500/10 rounded-xl p-3 border border-violet-200 dark:border-violet-800">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-1.5">
-                            <Wallet className="h-4 w-4 text-violet-600" />
-                            <span className="text-xs font-semibold text-violet-700 dark:text-violet-300">Saldo Dompet</span>
-                          </div>
-                          <span className="text-sm font-bold text-violet-700 dark:text-violet-300">
-                            {formatCurrency(reg.balance || 0)}
-                          </span>
-                        </div>
-                        
-                        {reg.status === "approved" && (
-                          <div className="space-y-2">
-                            <div className="flex gap-2">
-                              <Input
-                                placeholder="Nominal"
-                                value={walletAmounts[reg.id] || ""}
-                                onChange={e => setWalletAmounts(w => ({ ...w, [reg.id]: formatAmount(e.target.value) }))}
-                                className="text-xs h-8 flex-1"
-                              />
-                              <Input
-                                placeholder="Keterangan"
-                                value={walletDescs[reg.id] || ""}
-                                onChange={e => setWalletDescs(w => ({ ...w, [reg.id]: e.target.value }))}
-                                className="text-xs h-8 flex-1"
-                              />
-                            </div>
-                            
-                            {/* Disbursement type selector */}
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                variant={(!disbursementType[reg.id] || disbursementType[reg.id] === "wallet") ? "default" : "outline"}
-                                className="flex-1 h-7 text-[10px] gap-1"
-                                onClick={() => setDisbursementType(d => ({ ...d, [reg.id]: "wallet" }))}
-                              >
-                                <Wallet className="h-3 w-3" /> Ke Saldo
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant={disbursementType[reg.id] === "cash" ? "default" : "outline"}
-                                className="flex-1 h-7 text-[10px] gap-1"
-                                onClick={() => setDisbursementType(d => ({ ...d, [reg.id]: "cash" }))}
-                              >
-                                <TrendingDown className="h-3 w-3" /> Uang Tunai
-                              </Button>
-                            </div>
-
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                className="flex-1 gap-1 h-8 text-xs bg-emerald-600 hover:bg-emerald-700"
-                                disabled={isTopingUp || !walletAmounts[reg.id]}
-                                onClick={async () => {
-                                  const amount = parseInt((walletAmounts[reg.id] || "0").replace(/[^\d]/g, ""));
-                                  if (!amount) return;
-                                  try {
-                                    await topUp({ registrationId: reg.id, amount, description: walletDescs[reg.id] || "Top up saldo", childName: reg.child_name });
-                                    toast({ title: "Berhasil", description: `Saldo ${reg.child_name} ditambah ${formatCurrency(amount)}` });
-                                    setWalletAmounts(w => ({ ...w, [reg.id]: "" }));
-                                    setWalletDescs(w => ({ ...w, [reg.id]: "" }));
-                                  } catch {
-                                    toast({ title: "Gagal", description: "Gagal menambah saldo", variant: "destructive" });
-                                  }
-                                }}
-                              >
-                                {isTopingUp ? <Loader2 className="h-3 w-3 animate-spin" /> : <TrendingUp className="h-3 w-3" />}
-                                Top Up
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="flex-1 gap-1 h-8 text-xs text-red-600 hover:text-red-700 border-red-200"
-                                disabled={isDeducting || !walletAmounts[reg.id] || ((disbursementType[reg.id] !== "cash") && (reg.balance || 0) === 0)}
-                                onClick={async () => {
-                                  const amount = parseInt((walletAmounts[reg.id] || "0").replace(/[^\d]/g, ""));
-                                  if (!amount) return;
-                                  const isCash = disbursementType[reg.id] === "cash";
-                                  const currentBalance = reg.balance || 0;
-                                  
-                                  if (!isCash && amount > currentBalance) {
-                                    toast({ title: "Gagal", description: `Saldo tidak cukup. Saldo saat ini: ${formatCurrency(currentBalance)}`, variant: "destructive" });
-                                    return;
-                                  }
-                                  
-                                  try {
-                                    if (isCash) {
-                                      // Cash disbursement: record as expense only, no wallet deduction
-                                      await addExpense({
-                                        amount,
-                                        category: "Santunan Yatim-Piatu",
-                                        description: `Pencairan tunai - ${reg.child_name}: ${walletDescs[reg.id] || "Santunan tunai"}`,
-                                        date: new Date().toISOString().split("T")[0],
-                                      });
-                                      toast({ title: "Berhasil", description: `Pencairan tunai ${formatCurrency(amount)} untuk ${reg.child_name} dicatat` });
-                                    } else {
-                                      // Wallet deduction
-                                      await deduct({ registrationId: reg.id, amount, description: walletDescs[reg.id] || "Pencairan dana" });
-                                      toast({ title: "Berhasil", description: `Saldo ${reg.child_name} dikurangi ${formatCurrency(amount)}` });
-                                    }
-                                    setWalletAmounts(w => ({ ...w, [reg.id]: "" }));
-                                    setWalletDescs(w => ({ ...w, [reg.id]: "" }));
-                                  } catch {
-                                    toast({ title: "Gagal", description: "Gagal memproses pencairan", variant: "destructive" });
-                                  }
-                                }}
-                              >
-                                {isDeducting ? <Loader2 className="h-3 w-3 animate-spin" /> : <TrendingDown className="h-3 w-3" />}
-                                {disbursementType[reg.id] === "cash" ? "Cairkan Tunai" : "Cairkan Saldo"}
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div><span className="text-muted-foreground">Wali:</span> <span className="font-medium">{reg.guardian_name}</span></div>
                         <div><span className="text-muted-foreground">Telp:</span> <span className="font-medium">{reg.guardian_phone}</span></div>
                         <div><span className="text-muted-foreground">Lahir:</span> <span className="font-medium">{formatDate(reg.birth_date)}</span></div>
                         <div><span className="text-muted-foreground">Daftar:</span> <span className="font-medium">{formatDate(reg.created_at)}</span></div>
                         <div className="col-span-2"><span className="text-muted-foreground">Alamat:</span> <span className="font-medium">{reg.address}</span></div>
+                        {reg.education && <div><span className="text-muted-foreground">Pendidikan:</span> <span className="font-medium">{reg.education}</span></div>}
+                        {reg.school_name && <div><span className="text-muted-foreground">Sekolah:</span> <span className="font-medium">{reg.school_name}</span></div>}
+                        {reg.father_name && <div><span className="text-muted-foreground">Ayah:</span> <span className="font-medium">{reg.father_name}</span></div>}
+                        {reg.mother_name && <div><span className="text-muted-foreground">Ibu:</span> <span className="font-medium">{reg.mother_name}</span></div>}
+                        {reg.cause_of_orphan && <div className="col-span-2"><span className="text-muted-foreground">Penyebab:</span> <span className="font-medium">{reg.cause_of_orphan}</span></div>}
                       </div>
+
+                      {reg.ktp_url && (
+                        <div className="rounded-lg overflow-hidden border border-border">
+                          <img src={reg.ktp_url} alt="KTP Wali" className="w-full h-32 object-cover" />
+                        </div>
+                      )}
 
                       {reg.status === "pending" && (
                         <div className="space-y-2 pt-2 border-t">
@@ -1789,23 +1758,10 @@ export default function Admin() {
                       )}
 
                       <div className="flex gap-2 pt-1">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button size="sm" variant="outline" className="gap-1 text-xs flex-1">
-                              <Eye className="h-3.5 w-3.5" /> Lihat Kartu
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-md">
-                            <DialogHeader>
-                              <DialogTitle>Kartu Santunan</DialogTitle>
-                            </DialogHeader>
-                            <OrphanCard registration={reg} showDownload />
-                          </DialogContent>
-                        </Dialog>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button size="sm" variant="outline" className="gap-1 text-xs text-destructive hover:text-destructive">
-                              <Trash2 className="h-3.5 w-3.5" />
+                              <Trash2 className="h-3.5 w-3.5" /> Hapus
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
