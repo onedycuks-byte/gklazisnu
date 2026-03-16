@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
 
 export interface OrphanRegistration {
   id: string;
@@ -23,16 +22,6 @@ export interface OrphanRegistration {
   balance: number;
   created_at: string;
   approved_at: string | null;
-}
-
-export interface WalletTransaction {
-  id: string;
-  registration_id: string;
-  amount: number;
-  type: string;
-  description: string | null;
-  admin_note: string | null;
-  created_at: string;
 }
 
 function generateUniqueCode(): string {
@@ -126,123 +115,6 @@ export function useOrphanRegistrations(adminMode = false) {
     },
   });
 
-  const lookupByCode = async (code: string): Promise<OrphanRegistration | null> => {
-    const { data, error } = await supabase
-      .from("orphan_registrations" as any)
-      .select("*")
-      .eq("unique_code", code.toUpperCase().trim())
-      .single();
-    if (error) return null;
-    return data as unknown as OrphanRegistration;
-  };
-
-  // Wallet transactions
-  const getTransactions = async (registrationId: string): Promise<WalletTransaction[]> => {
-    const { data, error } = await supabase
-      .from("wallet_transactions" as any)
-      .select("*")
-      .eq("registration_id", registrationId)
-      .order("created_at", { ascending: false });
-    if (error) return [];
-    return (data || []) as unknown as WalletTransaction[];
-  };
-
-  const topUpMutation = useMutation({
-    mutationFn: async ({ registrationId, amount, description, adminNote, childName }: {
-      registrationId: string;
-      amount: number;
-      description?: string;
-      adminNote?: string;
-      childName?: string;
-    }) => {
-      // Insert wallet transaction
-      const { error: txError } = await supabase
-        .from("wallet_transactions" as any)
-        .insert({
-          registration_id: registrationId,
-          amount,
-          type: "topup",
-          description: description || "Top up saldo",
-          admin_note: adminNote || null,
-        } as any);
-      if (txError) throw txError;
-
-      // Update balance
-      const { data: current } = await supabase
-        .from("orphan_registrations" as any)
-        .select("balance")
-        .eq("id", registrationId)
-        .single();
-      
-      const currentBalance = (current as any)?.balance || 0;
-      const { error: updateError } = await supabase
-        .from("orphan_registrations" as any)
-        .update({ balance: currentBalance + amount } as any)
-        .eq("id", registrationId);
-      if (updateError) throw updateError;
-
-      // Sync: record as expense in LAZISNU financial system
-      const expenseDesc = childName
-        ? `Santunan Yatim-Piatu: ${childName}${description ? ` - ${description}` : ""}`
-        : description || "Penyaluran dana santunan yatim-piatu";
-      const { error: expError } = await supabase
-        .from("expenses")
-        .insert({
-          amount,
-          date: new Date().toISOString().split("T")[0],
-          description: expenseDesc,
-          category: "Santunan Yatim-Piatu",
-        });
-      if (expError) throw expError;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["orphan_registrations"] });
-      queryClient.invalidateQueries({ queryKey: ["wallet_transactions"] });
-    },
-  });
-
-  const deductMutation = useMutation({
-    mutationFn: async ({ registrationId, amount, description, adminNote }: {
-      registrationId: string;
-      amount: number;
-      description?: string;
-      adminNote?: string;
-    }) => {
-      // Check current balance first
-      const { data: current } = await supabase
-        .from("orphan_registrations" as any)
-        .select("balance")
-        .eq("id", registrationId)
-        .single();
-      
-      const currentBalance = (current as any)?.balance || 0;
-      if (amount > currentBalance) {
-        throw new Error(`Saldo tidak cukup. Saldo saat ini: Rp ${currentBalance.toLocaleString("id-ID")}`);
-      }
-
-      const { error: txError } = await supabase
-        .from("wallet_transactions" as any)
-        .insert({
-          registration_id: registrationId,
-          amount: -amount,
-          type: "deduct",
-          description: description || "Pencairan dana",
-          admin_note: adminNote || null,
-        } as any);
-      if (txError) throw txError;
-
-      const { error: updateError } = await supabase
-        .from("orphan_registrations" as any)
-        .update({ balance: currentBalance - amount } as any)
-        .eq("id", registrationId);
-      if (updateError) throw updateError;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["orphan_registrations"] });
-      queryClient.invalidateQueries({ queryKey: ["wallet_transactions"] });
-    },
-  });
-
   return {
     registrations,
     isLoading,
@@ -250,45 +122,5 @@ export function useOrphanRegistrations(adminMode = false) {
     isRegistering: registerMutation.isPending,
     updateStatus: updateStatusMutation.mutateAsync,
     deleteRegistration: deleteMutation.mutateAsync,
-    lookupByCode,
-    getTransactions,
-    topUp: topUpMutation.mutateAsync,
-    isTopingUp: topUpMutation.isPending,
-    deduct: deductMutation.mutateAsync,
-    isDeducting: deductMutation.isPending,
   };
-}
-
-export function useWalletRealtime(registrationId: string | null, onUpdate: () => void) {
-  useEffect(() => {
-    if (!registrationId) return;
-
-    const channel = supabase
-      .channel(`wallet-${registrationId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'wallet_transactions',
-          filter: `registration_id=eq.${registrationId}`,
-        },
-        () => onUpdate()
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'orphan_registrations',
-          filter: `id=eq.${registrationId}`,
-        },
-        () => onUpdate()
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [registrationId, onUpdate]);
 }
