@@ -12,6 +12,7 @@ const ROLE_LABELS: Record<string, string> = {
   sekretaris: "Sekretaris",
   dokumentasi: "Dokumentasi",
   koordinator: "Koordinator",
+  penyaluran: "Penyaluran Santunan",
 };
 
 const ROLE_COLORS: Record<string, string> = {
@@ -21,6 +22,7 @@ const ROLE_COLORS: Record<string, string> = {
   sekretaris: "from-blue-500 to-indigo-600",
   dokumentasi: "from-amber-500 to-orange-600",
   koordinator: "from-purple-500 to-violet-600",
+  penyaluran: "from-pink-500 to-rose-600",
 };
 
 export default function StaffLogin() {
