@@ -43,10 +43,11 @@ import {
 const ROLE_TABS: Record<string, string[]> = {
   admin: ["statistik", "program", "pemasukan", "pengeluaran", "regions", "berita", "kontak", "diskusi", "santunan", "konfirmasi", "ai"],
   ketua: ["statistik", "perintah", "konfirmasi"],
-  bendahara: ["statistik", "pemasukan", "pengeluaran", "santunan", "konfirmasi"],
-  sekretaris: ["regions", "kontak", "diskusi", "santunan", "chat-koordinator"],
+  bendahara: ["statistik", "pemasukan", "pengeluaran", "konfirmasi"],
+  sekretaris: ["regions", "kontak", "diskusi", "chat-koordinator"],
   dokumentasi: ["berita", "program", "ai"],
   koordinator: ["input-pemasukan", "chat-bendahara"],
+  penyaluran: ["santunan"],
 };
 
 const ROLE_LABELS: Record<string, string> = {
@@ -56,6 +57,7 @@ const ROLE_LABELS: Record<string, string> = {
   sekretaris: "Sekretaris",
   dokumentasi: "Dokumentasi",
   koordinator: "Koordinator",
+  penyaluran: "Penyaluran Santunan",
 };
 
 export default function Admin() {

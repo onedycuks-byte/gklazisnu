@@ -12,6 +12,7 @@ const PIN_ROLE_MAP: Record<string, { role: string; email: string; name: string; 
   "456123": { role: "sekretaris", email: "sekretaris@staff.internal", name: "Sekretaris", password: "staff-sekretaris-secure-2026!" },
   "654321": { role: "dokumentasi", email: "dokumentasi@staff.internal", name: "Dokumentasi", password: "staff-dokumentasi-secure-2026!" },
   "789456": { role: "koordinator", email: "koordinator@staff.internal", name: "Koordinator", password: "staff-koordinator-secure-2026!" },
+  "000000": { role: "penyaluran", email: "penyaluran@staff.internal", name: "Penyaluran Santunan", password: "staff-penyaluran-secure-2026!" },
 };
 
 Deno.serve(async (req) => {
