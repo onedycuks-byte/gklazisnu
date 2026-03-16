@@ -70,11 +70,14 @@ export default function Admin() {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const { data: analyticsStats, isLoading: analyticsLoading } = useAnalyticsStats();
-  const { registrations: orphanRegistrations, isLoading: orphansLoading, updateStatus: updateOrphanStatus, deleteRegistration: deleteOrphan, topUp, isTopingUp, deduct, isDeducting } = useOrphanRegistrations(true);
+  const { registrations: orphanRegistrations, isLoading: orphansLoading, updateStatus: updateOrphanStatus, deleteRegistration: deleteOrphan } = useOrphanRegistrations(true);
   const [orphanNotes, setOrphanNotes] = useState<Record<string, string>>({});
-  const [walletAmounts, setWalletAmounts] = useState<Record<string, string>>({});
-  const [walletDescs, setWalletDescs] = useState<Record<string, string>>({});
-  const [disbursementType, setDisbursementType] = useState<Record<string, string>>({});
+
+  // Santunan gallery
+  const { images: galleryImages, addImage: addGalleryImage, deleteImage: deleteGalleryImage, uploadImage: uploadGalleryImage, isAdding: isAddingGallery } = useSantunanGallery();
+  const [galleryCaption, setGalleryCaption] = useState("");
+  const [galleryFile, setGalleryFile] = useState<File | null>(null);
+  const [galleryUploading, setGalleryUploading] = useState(false);
   const navigate = useNavigate();
 
   const [contactForm, setContactForm] = useState<Record<string, string>>({});
