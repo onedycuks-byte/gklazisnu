@@ -549,6 +549,11 @@ export default function Admin() {
                   <Heart className="h-3.5 w-3.5" /> Santunan
                 </TabsTrigger>
               )}
+              {visibleTabs.has("laporan") && (
+                <TabsTrigger value="laporan" className="text-xs px-2.5 py-1.5 gap-1">
+                  <FileText className="h-3.5 w-3.5" /> Laporan
+                </TabsTrigger>
+              )}
               {visibleTabs.has("ai") && (
                 <TabsTrigger value="ai" className="text-xs px-2.5 py-1.5 gap-1">
                   <Sparkles className="h-3.5 w-3.5" /> AI
