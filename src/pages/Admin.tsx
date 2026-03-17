@@ -1979,6 +1979,169 @@ export default function Admin() {
             />
           </TabsContent>
 
+          {/* Laporan Tab */}
+          <TabsContent value="laporan" className="space-y-4">
+            <div>
+              <h2 className="text-base font-semibold">Download Laporan Keuangan</h2>
+              <p className="text-xs text-muted-foreground">Unduh laporan dalam format CSV</p>
+            </div>
+
+            <div className="grid gap-3">
+              {/* Laporan Pemasukan */}
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10">
+                        <TrendingUp className="h-5 w-5 text-emerald-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold">Laporan Pemasukan</p>
+                        <p className="text-xs text-muted-foreground">{donations.length} transaksi</p>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="outline" className="gap-1.5" onClick={() => {
+                      const headers = ["Tanggal", "Wilayah", "Kategori", "Jumlah", "Catatan", "Status"];
+                      const rows = donations.map(d => [
+                        new Date(d.date).toLocaleDateString("id-ID"),
+                        regions.find(r => r.id === d.region_id)?.name || "-",
+                        d.category,
+                        d.amount.toString(),
+                        d.notes || "",
+                        d.status,
+                      ]);
+                      const csv = [headers, ...rows].map(r => r.map(c => `"${(c || "").replace(/"/g, '""')}"`).join(",")).join("\n");
+                      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a"); a.href = url; a.download = `laporan-pemasukan-${new Date().toISOString().slice(0,10)}.csv`; a.click(); URL.revokeObjectURL(url);
+                      toast({ title: "Berhasil", description: "Laporan pemasukan berhasil diunduh" });
+                    }}>
+                      <Download className="h-3.5 w-3.5" /> CSV
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Laporan Pengeluaran */}
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10">
+                        <TrendingDown className="h-5 w-5 text-red-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold">Laporan Pengeluaran</p>
+                        <p className="text-xs text-muted-foreground">{expenses.length} transaksi</p>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="outline" className="gap-1.5" onClick={() => {
+                      const headers = ["Tanggal", "Kategori", "Deskripsi", "Jumlah"];
+                      const rows = expenses.map(e => [
+                        new Date(e.date).toLocaleDateString("id-ID"),
+                        e.category,
+                        e.description || "",
+                        e.amount.toString(),
+                      ]);
+                      const csv = [headers, ...rows].map(r => r.map(c => `"${(c || "").replace(/"/g, '""')}"`).join(",")).join("\n");
+                      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a"); a.href = url; a.download = `laporan-pengeluaran-${new Date().toISOString().slice(0,10)}.csv`; a.click(); URL.revokeObjectURL(url);
+                      toast({ title: "Berhasil", description: "Laporan pengeluaran berhasil diunduh" });
+                    }}>
+                      <Download className="h-3.5 w-3.5" /> CSV
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Laporan Rekap Bulanan */}
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                        <Wallet className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold">Rekap Bulanan</p>
+                        <p className="text-xs text-muted-foreground">Pemasukan, pengeluaran & saldo per bulan</p>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="outline" className="gap-1.5" onClick={() => {
+                      const months: Record<string, { label: string; pemasukan: number; pengeluaran: number }> = {};
+                      donations.filter(d => d.status === "confirmed").forEach(d => {
+                        const date = new Date(d.date);
+                        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+                        if (!months[key]) months[key] = { label: date.toLocaleDateString("id-ID", { month: "long", year: "numeric" }), pemasukan: 0, pengeluaran: 0 };
+                        months[key].pemasukan += d.amount;
+                      });
+                      expenses.forEach(e => {
+                        const date = new Date(e.date);
+                        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+                        if (!months[key]) months[key] = { label: date.toLocaleDateString("id-ID", { month: "long", year: "numeric" }), pemasukan: 0, pengeluaran: 0 };
+                        months[key].pengeluaran += e.amount;
+                      });
+                      const headers = ["Bulan", "Pemasukan", "Pengeluaran", "Saldo"];
+                      const rows = Object.entries(months).sort(([a], [b]) => a.localeCompare(b)).map(([, m]) => [
+                        m.label, m.pemasukan.toString(), m.pengeluaran.toString(), (m.pemasukan - m.pengeluaran).toString(),
+                      ]);
+                      const totalRow = ["TOTAL", rows.reduce((s, r) => s + Number(r[1]), 0).toString(), rows.reduce((s, r) => s + Number(r[2]), 0).toString(), rows.reduce((s, r) => s + Number(r[3]), 0).toString()];
+                      const csv = [headers, ...rows, totalRow].map(r => r.map(c => `"${(c || "").replace(/"/g, '""')}"`).join(",")).join("\n");
+                      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a"); a.href = url; a.download = `rekap-bulanan-${new Date().toISOString().slice(0,10)}.csv`; a.click(); URL.revokeObjectURL(url);
+                      toast({ title: "Berhasil", description: "Rekap bulanan berhasil diunduh" });
+                    }}>
+                      <Download className="h-3.5 w-3.5" /> CSV
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Laporan Lengkap */}
+              <Card className="border-primary/30">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                        <FileText className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold">Laporan Lengkap</p>
+                        <p className="text-xs text-muted-foreground">Semua data dalam satu file</p>
+                      </div>
+                    </div>
+                    <Button size="sm" className="gap-1.5" onClick={() => {
+                      let csv = "\uFEFF";
+                      // Section: Pemasukan
+                      csv += "=== LAPORAN PEMASUKAN ===\n";
+                      csv += ["Tanggal","Wilayah","Kategori","Jumlah","Catatan","Status"].map(c => `"${c}"`).join(",") + "\n";
+                      donations.forEach(d => {
+                        csv += [new Date(d.date).toLocaleDateString("id-ID"), regions.find(r => r.id === d.region_id)?.name || "-", d.category, d.amount.toString(), d.notes || "", d.status].map(c => `"${(c||"").replace(/"/g,'""')}"`).join(",") + "\n";
+                      });
+                      csv += `\n"Total Pemasukan","","","${getTotalDonations()}","",""\n\n`;
+                      // Section: Pengeluaran
+                      csv += "=== LAPORAN PENGELUARAN ===\n";
+                      csv += ["Tanggal","Kategori","Deskripsi","Jumlah"].map(c => `"${c}"`).join(",") + "\n";
+                      expenses.forEach(e => {
+                        csv += [new Date(e.date).toLocaleDateString("id-ID"), e.category, e.description || "", e.amount.toString()].map(c => `"${(c||"").replace(/"/g,'""')}"`).join(",") + "\n";
+                      });
+                      csv += `\n"Total Pengeluaran","","${getTotalExpenses()}",""\n`;
+                      csv += `"Saldo","","${getTotalDonations() - getTotalExpenses()}",""\n`;
+                      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a"); a.href = url; a.download = `laporan-keuangan-lengkap-${new Date().toISOString().slice(0,10)}.csv`; a.click(); URL.revokeObjectURL(url);
+                      toast({ title: "Berhasil", description: "Laporan lengkap berhasil diunduh" });
+                    }}>
+                      <Download className="h-3.5 w-3.5" /> Download Lengkap
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
         </Tabs>
       </main>
     </div>
