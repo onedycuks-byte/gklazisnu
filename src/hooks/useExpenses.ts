@@ -4,6 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 export const EXPENSE_CATEGORIES = [
   "Santunan Kematian",
   "Santunan Yatim-Piatu",
+  "Bantuan untuk Masjid",
+  "Bantuan Sosial",
+  "Santunan Guru Ngaji TPQ",
   "Operasional",
   "Lain",
 ] as const;
