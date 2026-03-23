@@ -36,7 +36,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { 
   Loader2, LogOut, MapPin, Pencil, Trash2, Plus, 
-  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send, Users, Eye, Download, BarChart3, Heart, FileText
+  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send, Users, Eye, Download, BarChart3, Heart, FileText, PieChart
 } from "lucide-react";
 
 // Role-tab access mapping
@@ -2140,6 +2140,70 @@ export default function Admin() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Alokasi Dana */}
+            <div className="pt-2">
+              <h2 className="text-base font-semibold mb-1">Pengelolaan Dana</h2>
+              <p className="text-xs text-muted-foreground mb-3">Alokasi dana berdasarkan kebijakan lembaga</p>
+            </div>
+
+            {(() => {
+              const totalIncome = getTotalDonations();
+              const santunanCats = ["Santunan Kematian", "Santunan Yatim-Piatu", "Bantuan untuk Masjid", "Bantuan Sosial", "Santunan Guru Ngaji TPQ"];
+              const spentSantunan = expenses.filter(e => santunanCats.includes(e.category)).reduce((s, e) => s + e.amount, 0);
+              const spentOps = expenses.filter(e => e.category === "Operasional").reduce((s, e) => s + e.amount, 0);
+              const allocs = [
+                { label: "Santunan & Bantuan Sosial", pct: 65, spent: spentSantunan, bg: "bg-emerald-50 dark:bg-emerald-950/30", bar: "bg-emerald-500", tx: "text-emerald-700 dark:text-emerald-400" },
+                { label: "Pengembangan Dana / Ekonomi", pct: 15, spent: 0, bg: "bg-blue-50 dark:bg-blue-950/30", bar: "bg-blue-500", tx: "text-blue-700 dark:text-blue-400" },
+                { label: "Kas Cadangan", pct: 10, spent: 0, bg: "bg-amber-50 dark:bg-amber-950/30", bar: "bg-amber-500", tx: "text-amber-700 dark:text-amber-400" },
+                { label: "Operasional Lembaga", pct: 10, spent: spentOps, bg: "bg-purple-50 dark:bg-purple-950/30", bar: "bg-purple-500", tx: "text-purple-700 dark:text-purple-400" },
+              ];
+              return (
+                <Card>
+                  <CardContent className="p-4 space-y-4">
+                    <div className="flex h-4 rounded-full overflow-hidden">
+                      {allocs.map((a, i) => (
+                        <div key={i} className={`${a.bar} transition-all`} style={{ width: `${a.pct}%` }} />
+                      ))}
+                    </div>
+                    <div className="space-y-2.5">
+                      {allocs.map((a, i) => {
+                        const allocated = Math.round(totalIncome * a.pct / 100);
+                        const remaining = allocated - a.spent;
+                        return (
+                          <div key={i} className={`rounded-xl p-3 ${a.bg}`}>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="text-xs font-bold">{a.label}</span>
+                              <span className={`text-xs font-bold ${a.tx}`}>{a.pct}%</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 text-center">
+                              <div>
+                                <p className="text-[9px] text-muted-foreground uppercase">Alokasi</p>
+                                <p className={`text-[11px] font-bold ${a.tx}`}>{formatCurrency(allocated)}</p>
+                              </div>
+                              <div>
+                                <p className="text-[9px] text-muted-foreground uppercase">Terpakai</p>
+                                <p className="text-[11px] font-bold text-foreground">{formatCurrency(a.spent)}</p>
+                              </div>
+                              <div>
+                                <p className="text-[9px] text-muted-foreground uppercase">Sisa</p>
+                                <p className={`text-[11px] font-bold ${remaining >= 0 ? a.tx : "text-destructive"}`}>{formatCurrency(remaining)}</p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="pt-2 border-t border-border/50">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">Total Pemasukan (Confirmed)</span>
+                        <span className="font-bold">{formatCurrency(totalIncome)}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
           </TabsContent>
 
         </Tabs>
