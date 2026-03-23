@@ -2141,6 +2141,93 @@ export default function Admin() {
               </Card>
             </div>
 
+            {/* Rincian Per Kategori */}
+            <div className="pt-2">
+              <h2 className="text-base font-semibold mb-1">Rincian Per Kategori</h2>
+              <p className="text-xs text-muted-foreground mb-3">Pemasukan & pengeluaran berdasarkan kategori</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* Pemasukan per Kategori */}
+              <Card>
+                <CardHeader className="p-4 pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-emerald-600" /> Pemasukan per Kategori
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  {(() => {
+                    const confirmedDonations = donations.filter(d => d.status === "confirmed");
+                    const catTotals: Record<string, number> = {};
+                    confirmedDonations.forEach(d => {
+                      catTotals[d.category] = (catTotals[d.category] || 0) + d.amount;
+                    });
+                    const totalIncome = confirmedDonations.reduce((s, d) => s + d.amount, 0);
+                    const sorted = Object.entries(catTotals).sort(([, a], [, b]) => b - a);
+                    return (
+                      <div className="space-y-2">
+                        {sorted.map(([cat, amount]) => (
+                          <div key={cat}>
+                            <div className="flex justify-between text-xs mb-0.5">
+                              <span className="truncate mr-2">{cat}</span>
+                              <span className="font-bold text-emerald-700 dark:text-emerald-400 whitespace-nowrap">{formatCurrency(amount)}</span>
+                            </div>
+                            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                              <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${totalIncome > 0 ? (amount / totalIncome * 100) : 0}%` }} />
+                            </div>
+                          </div>
+                        ))}
+                        {sorted.length === 0 && <p className="text-xs text-muted-foreground">Belum ada data</p>}
+                        <div className="pt-2 border-t border-border/50 flex justify-between text-xs">
+                          <span className="font-semibold">Total</span>
+                          <span className="font-bold">{formatCurrency(totalIncome)}</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </CardContent>
+              </Card>
+
+              {/* Pengeluaran per Kategori */}
+              <Card>
+                <CardHeader className="p-4 pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <TrendingDown className="h-4 w-4 text-red-600" /> Pengeluaran per Kategori
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  {(() => {
+                    const catTotals: Record<string, number> = {};
+                    expenses.forEach(e => {
+                      catTotals[e.category] = (catTotals[e.category] || 0) + e.amount;
+                    });
+                    const totalExp = expenses.reduce((s, e) => s + e.amount, 0);
+                    const sorted = Object.entries(catTotals).sort(([, a], [, b]) => b - a);
+                    return (
+                      <div className="space-y-2">
+                        {sorted.map(([cat, amount]) => (
+                          <div key={cat}>
+                            <div className="flex justify-between text-xs mb-0.5">
+                              <span className="truncate mr-2">{cat}</span>
+                              <span className="font-bold text-red-700 dark:text-red-400 whitespace-nowrap">{formatCurrency(amount)}</span>
+                            </div>
+                            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                              <div className="h-full bg-red-500 rounded-full" style={{ width: `${totalExp > 0 ? (amount / totalExp * 100) : 0}%` }} />
+                            </div>
+                          </div>
+                        ))}
+                        {sorted.length === 0 && <p className="text-xs text-muted-foreground">Belum ada data</p>}
+                        <div className="pt-2 border-t border-border/50 flex justify-between text-xs">
+                          <span className="font-semibold">Total</span>
+                          <span className="font-bold">{formatCurrency(totalExp)}</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </CardContent>
+              </Card>
+            </div>
+
             {/* Alokasi Dana */}
             <div className="pt-2">
               <h2 className="text-base font-semibold mb-1">Pengelolaan Dana</h2>
@@ -2153,10 +2240,10 @@ export default function Admin() {
               const spentSantunan = expenses.filter(e => santunanCats.includes(e.category)).reduce((s, e) => s + e.amount, 0);
               const spentOps = expenses.filter(e => e.category === "Operasional").reduce((s, e) => s + e.amount, 0);
               const allocs = [
-                { label: "Santunan & Bantuan Sosial", pct: 65, spent: spentSantunan, bg: "bg-emerald-50 dark:bg-emerald-950/30", bar: "bg-emerald-500", tx: "text-emerald-700 dark:text-emerald-400" },
-                { label: "Pengembangan Dana / Ekonomi", pct: 15, spent: 0, bg: "bg-blue-50 dark:bg-blue-950/30", bar: "bg-blue-500", tx: "text-blue-700 dark:text-blue-400" },
-                { label: "Kas Cadangan", pct: 10, spent: 0, bg: "bg-amber-50 dark:bg-amber-950/30", bar: "bg-amber-500", tx: "text-amber-700 dark:text-amber-400" },
-                { label: "Operasional Lembaga", pct: 10, spent: spentOps, bg: "bg-purple-50 dark:bg-purple-950/30", bar: "bg-purple-500", tx: "text-purple-700 dark:text-purple-400" },
+                { label: "Santunan & Bantuan Sosial", pct: 65, spent: spentSantunan, bg: "bg-emerald-50 dark:bg-emerald-950/30", bar: "bg-emerald-500", tx: "text-emerald-700 dark:text-emerald-400", cats: santunanCats },
+                { label: "Pengembangan Dana / Ekonomi", pct: 15, spent: 0, bg: "bg-blue-50 dark:bg-blue-950/30", bar: "bg-blue-500", tx: "text-blue-700 dark:text-blue-400", cats: [] as string[] },
+                { label: "Kas Cadangan", pct: 10, spent: 0, bg: "bg-amber-50 dark:bg-amber-950/30", bar: "bg-amber-500", tx: "text-amber-700 dark:text-amber-400", cats: [] as string[] },
+                { label: "Operasional Lembaga", pct: 10, spent: spentOps, bg: "bg-purple-50 dark:bg-purple-950/30", bar: "bg-purple-500", tx: "text-purple-700 dark:text-purple-400", cats: ["Operasional"] },
               ];
               return (
                 <Card>
@@ -2170,6 +2257,13 @@ export default function Admin() {
                       {allocs.map((a, i) => {
                         const allocated = Math.round(totalIncome * a.pct / 100);
                         const remaining = allocated - a.spent;
+                        // Per-category breakdown within allocation
+                        const catBreakdown: Record<string, number> = {};
+                        if (a.cats.length > 0) {
+                          expenses.filter(e => a.cats.includes(e.category)).forEach(e => {
+                            catBreakdown[e.category] = (catBreakdown[e.category] || 0) + e.amount;
+                          });
+                        }
                         return (
                           <div key={i} className={`rounded-xl p-3 ${a.bg}`}>
                             <div className="flex items-center justify-between mb-1.5">
@@ -2190,6 +2284,16 @@ export default function Admin() {
                                 <p className={`text-[11px] font-bold ${remaining >= 0 ? a.tx : "text-destructive"}`}>{formatCurrency(remaining)}</p>
                               </div>
                             </div>
+                            {Object.keys(catBreakdown).length > 0 && (
+                              <div className="mt-2 pt-2 border-t border-border/30 space-y-1">
+                                {Object.entries(catBreakdown).sort(([,a],[,b]) => b - a).map(([cat, amt]) => (
+                                  <div key={cat} className="flex justify-between text-[10px]">
+                                    <span className="text-muted-foreground truncate mr-2">• {cat}</span>
+                                    <span className="font-semibold whitespace-nowrap">{formatCurrency(amt)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         );
                       })}
