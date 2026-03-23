@@ -2308,6 +2308,8 @@ export default function Admin() {
                 </Card>
               );
             })()}
+          </TabsContent>
+
         </Tabs>
       </main>
     </div>
