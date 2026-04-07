@@ -13,6 +13,7 @@ import { useDiscussions } from "@/hooks/useDiscussions";
 import { useAnalyticsStats } from "@/hooks/useAnalytics";
 import { useOrphanRegistrations } from "@/hooks/useOrphanRegistrations";
 import { useSantunanGallery } from "@/hooks/useSantunanGallery";
+import { useArchives } from "@/hooks/useArchives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,15 +37,15 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { 
   Loader2, LogOut, MapPin, Pencil, Trash2, Plus, 
-  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send, Users, Eye, Download, BarChart3, Heart, FileText, PieChart
+  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send, Users, Eye, Download, BarChart3, Heart, FileText, PieChart, Archive
 } from "lucide-react";
 
 // Role-tab access mapping
 const ROLE_TABS: Record<string, string[]> = {
-  admin: ["statistik", "program", "pemasukan", "pengeluaran", "regions", "berita", "kontak", "diskusi", "santunan", "laporan", "konfirmasi", "ai"],
+  admin: ["statistik", "program", "pemasukan", "pengeluaran", "regions", "berita", "kontak", "diskusi", "santunan", "laporan", "konfirmasi", "arsip", "ai"],
   ketua: ["statistik", "perintah", "konfirmasi", "laporan"],
   bendahara: ["statistik", "pemasukan", "pengeluaran", "konfirmasi", "laporan"],
-  sekretaris: ["regions", "kontak", "diskusi", "chat-koordinator"],
+  sekretaris: ["regions", "kontak", "diskusi", "chat-koordinator", "arsip"],
   dokumentasi: ["berita", "program", "ai"],
   koordinator: ["input-pemasukan", "chat-bendahara"],
   penyaluran: ["santunan"],
@@ -80,6 +81,12 @@ export default function Admin() {
   const [galleryCaption, setGalleryCaption] = useState("");
   const [galleryFile, setGalleryFile] = useState<File | null>(null);
   const [galleryUploading, setGalleryUploading] = useState(false);
+
+  // Archives
+  const { archives, isLoading: archivesLoading, addArchive, isAdding: isAddingArchive, deleteArchive } = useArchives();
+  const [archiveFile, setArchiveFile] = useState<File | null>(null);
+  const [archiveDesc, setArchiveDesc] = useState("");
+
   const navigate = useNavigate();
 
   const [contactForm, setContactForm] = useState<Record<string, string>>({});
@@ -582,6 +589,11 @@ export default function Admin() {
               {visibleTabs.has("konfirmasi") && (
                 <TabsTrigger value="konfirmasi" className="text-xs px-2.5 py-1.5 gap-1">
                   <Check className="h-3.5 w-3.5" /> Konfirmasi
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("arsip") && (
+                <TabsTrigger value="arsip" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Archive className="h-3.5 w-3.5" /> Arsip
                 </TabsTrigger>
               )}
             </TabsList>
@@ -2308,6 +2320,110 @@ export default function Admin() {
                 </Card>
               );
             })()}
+          </TabsContent>
+
+          {/* Arsip Tab */}
+          <TabsContent value="arsip" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Archive className="h-5 w-5" /> Arsip File</CardTitle>
+                <CardDescription>Upload dan kelola file arsip (ZIP)</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex flex-col gap-3 p-4 border border-border rounded-lg bg-muted/30">
+                  <Label>Upload File Arsip (.zip)</Label>
+                  <Input
+                    type="file"
+                    accept=".zip,application/zip,application/x-zip-compressed"
+                    onChange={(e) => setArchiveFile(e.target.files?.[0] || null)}
+                  />
+                  <Input
+                    placeholder="Deskripsi file (opsional)"
+                    value={archiveDesc}
+                    onChange={(e) => setArchiveDesc(e.target.value)}
+                  />
+                  <Button
+                    disabled={!archiveFile || isAddingArchive}
+                    onClick={async () => {
+                      if (!archiveFile) return;
+                      try {
+                        await addArchive({ file: archiveFile, description: archiveDesc });
+                        toast({ title: "Berhasil", description: "File arsip berhasil diupload" });
+                        setArchiveFile(null);
+                        setArchiveDesc("");
+                        // Reset file input
+                        const fileInput = document.querySelector('input[type="file"][accept*=".zip"]') as HTMLInputElement;
+                        if (fileInput) fileInput.value = "";
+                      } catch (err: any) {
+                        toast({ title: "Error", description: err.message, variant: "destructive" });
+                      }
+                    }}
+                  >
+                    {isAddingArchive ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Upload className="h-4 w-4 mr-2" />}
+                    Upload Arsip
+                  </Button>
+                </div>
+
+                {archivesLoading ? (
+                  <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
+                ) : archives.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">Belum ada file arsip</p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nama File</TableHead>
+                        <TableHead>Deskripsi</TableHead>
+                        <TableHead>Ukuran</TableHead>
+                        <TableHead>Tanggal</TableHead>
+                        <TableHead>Aksi</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {archives.map((arc) => (
+                        <TableRow key={arc.id}>
+                          <TableCell className="font-medium text-xs">{arc.file_name}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground">{arc.description || "-"}</TableCell>
+                          <TableCell className="text-xs">{(arc.file_size / 1024 / 1024).toFixed(2)} MB</TableCell>
+                          <TableCell className="text-xs">{new Date(arc.created_at).toLocaleDateString("id-ID")}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              <Button size="sm" variant="outline" asChild>
+                                <a href={arc.file_url} download={arc.file_name} target="_blank" rel="noopener noreferrer">
+                                  <Download className="h-3.5 w-3.5" />
+                                </a>
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button size="sm" variant="destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Hapus Arsip?</AlertDialogTitle>
+                                    <AlertDialogDescription>File "{arc.file_name}" akan dihapus permanen.</AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                                    <AlertDialogAction onClick={async () => {
+                                      try {
+                                        await deleteArchive(arc);
+                                        toast({ title: "Dihapus", description: "File arsip berhasil dihapus" });
+                                      } catch (err: any) {
+                                        toast({ title: "Error", description: err.message, variant: "destructive" });
+                                      }
+                                    }}>Hapus</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
         </Tabs>
