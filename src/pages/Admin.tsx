@@ -2320,6 +2320,8 @@ export default function Admin() {
                 </Card>
               );
             })()}
+          </TabsContent>
+
           {/* Arsip Tab */}
           <TabsContent value="arsip" className="space-y-4">
             <Card>
