@@ -749,6 +749,34 @@ export default function Admin() {
                 </Card>
               </>
             ) : null}
+
+            {/* PIN Staff Reference - Admin Only */}
+            {isAdmin && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center gap-2"><Shield className="h-4 w-4" /> PIN Akses Staff</CardTitle>
+                  <CardDescription className="text-xs">Daftar PIN login untuk setiap jabatan</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { role: "Admin", pin: "159357" },
+                      { role: "Ketua", pin: "112233" },
+                      { role: "Bendahara", pin: "321654" },
+                      { role: "Sekretaris", pin: "456123" },
+                      { role: "Dokumentasi", pin: "654321" },
+                      { role: "Koordinator", pin: "789456" },
+                      { role: "Penyaluran", pin: "000000" },
+                    ].map((item) => (
+                      <div key={item.role} className="flex items-center justify-between p-2 rounded-lg border border-border bg-muted/30">
+                        <span className="text-xs font-medium">{item.role}</span>
+                        <code className="text-xs font-mono bg-background px-2 py-0.5 rounded border border-border">{item.pin}</code>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Program Tab */}
