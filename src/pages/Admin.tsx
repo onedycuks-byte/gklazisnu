@@ -81,6 +81,12 @@ export default function Admin() {
   const [galleryCaption, setGalleryCaption] = useState("");
   const [galleryFile, setGalleryFile] = useState<File | null>(null);
   const [galleryUploading, setGalleryUploading] = useState(false);
+
+  // Archives
+  const { archives, isLoading: archivesLoading, addArchive, isAdding: isAddingArchive, deleteArchive } = useArchives();
+  const [archiveFile, setArchiveFile] = useState<File | null>(null);
+  const [archiveDesc, setArchiveDesc] = useState("");
+
   const navigate = useNavigate();
 
   const [contactForm, setContactForm] = useState<Record<string, string>>({});
