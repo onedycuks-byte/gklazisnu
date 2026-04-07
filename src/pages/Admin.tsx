@@ -13,6 +13,7 @@ import { useDiscussions } from "@/hooks/useDiscussions";
 import { useAnalyticsStats } from "@/hooks/useAnalytics";
 import { useOrphanRegistrations } from "@/hooks/useOrphanRegistrations";
 import { useSantunanGallery } from "@/hooks/useSantunanGallery";
+import { useArchives } from "@/hooks/useArchives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,15 +37,15 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { 
   Loader2, LogOut, MapPin, Pencil, Trash2, Plus, 
-  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send, Users, Eye, Download, BarChart3, Heart, FileText, PieChart
+  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send, Users, Eye, Download, BarChart3, Heart, FileText, PieChart, Archive
 } from "lucide-react";
 
 // Role-tab access mapping
 const ROLE_TABS: Record<string, string[]> = {
-  admin: ["statistik", "program", "pemasukan", "pengeluaran", "regions", "berita", "kontak", "diskusi", "santunan", "laporan", "konfirmasi", "ai"],
+  admin: ["statistik", "program", "pemasukan", "pengeluaran", "regions", "berita", "kontak", "diskusi", "santunan", "laporan", "konfirmasi", "arsip", "ai"],
   ketua: ["statistik", "perintah", "konfirmasi", "laporan"],
   bendahara: ["statistik", "pemasukan", "pengeluaran", "konfirmasi", "laporan"],
-  sekretaris: ["regions", "kontak", "diskusi", "chat-koordinator"],
+  sekretaris: ["regions", "kontak", "diskusi", "chat-koordinator", "arsip"],
   dokumentasi: ["berita", "program", "ai"],
   koordinator: ["input-pemasukan", "chat-bendahara"],
   penyaluran: ["santunan"],
