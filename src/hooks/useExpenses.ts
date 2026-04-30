@@ -7,6 +7,9 @@ export const EXPENSE_CATEGORIES = [
   "Bantuan untuk Masjid",
   "Bantuan Sosial",
   "Santunan Guru Ngaji TPQ",
+  "Kas Cadangan",
+  "Bantuan Pendidikan",
+  "Pengembangan Dana",
   "Operasional",
   "Lain",
 ] as const;
