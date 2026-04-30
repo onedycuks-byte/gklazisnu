@@ -1154,21 +1154,69 @@ export default function Admin() {
                           </a>
                         )}
                       </div>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive shrink-0"><Trash2 className="h-3.5 w-3.5" /></Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Hapus Pengeluaran?</AlertDialogTitle>
-                            <AlertDialogDescription>Data pengeluaran akan dihapus permanen.</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Batal</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDeleteExpense(expense.id)} className="bg-destructive">Hapus</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                      <div className="flex gap-0.5 shrink-0">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditingExpense(expense); setEditReceiptFile(null); }}>
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader><DialogTitle>Edit Pengeluaran</DialogTitle></DialogHeader>
+                            {editingExpense && (
+                              <div className="grid gap-4 py-4">
+                                <div className="grid gap-2">
+                                  <Label>Kategori</Label>
+                                  <Select value={editingExpense.category} onValueChange={(v) => setEditingExpense({ ...editingExpense, category: v })}>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                      {EXPENSE_CATEGORIES.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Nominal (Rp)</Label>
+                                  <Input value={formatAmount(editingExpense.amount.toString())} onChange={(e) => { const num = parseInt(e.target.value.replace(/[^\d]/g, "")) || 0; setEditingExpense({ ...editingExpense, amount: num }); }} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Tanggal</Label>
+                                  <Input type="date" value={editingExpense.date} onChange={(e) => setEditingExpense({ ...editingExpense, date: e.target.value })} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label>Keterangan</Label>
+                                  <Textarea value={editingExpense.description || ""} onChange={(e) => setEditingExpense({ ...editingExpense, description: e.target.value })} />
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label className="flex items-center gap-2"><Upload className="h-4 w-4" /> Ganti Bukti / Nota</Label>
+                                  <Input type="file" accept="image/*" onChange={(e) => setEditReceiptFile(e.target.files?.[0] || null)} />
+                                  {editReceiptFile && <p className="text-xs text-muted-foreground">📎 {editReceiptFile.name}</p>}
+                                </div>
+                              </div>
+                            )}
+                            <DialogFooter>
+                              <Button onClick={handleUpdateExpense} disabled={uploading}>
+                                {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Simpan
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Hapus Pengeluaran?</AlertDialogTitle>
+                              <AlertDialogDescription>Data pengeluaran akan dihapus permanen.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteExpense(expense.id)} className="bg-destructive">Hapus</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
