@@ -2276,14 +2276,19 @@ export default function Admin() {
 
             {(() => {
               const totalIncome = getTotalDonations();
-              const santunanCats = ["Santunan Kematian", "Santunan Yatim-Piatu", "Bantuan untuk Masjid", "Bantuan Sosial", "Santunan Guru Ngaji TPQ"];
+              const santunanCats = ["Santunan Kematian", "Santunan Yatim-Piatu", "Bantuan untuk Masjid", "Bantuan Sosial", "Santunan Guru Ngaji TPQ", "Bantuan Pendidikan"];
+              const pengembanganCats = ["Pengembangan Dana"];
+              const kasCadanganCats = ["Kas Cadangan"];
+              const operasionalCats = ["Operasional"];
               const spentSantunan = expenses.filter(e => santunanCats.includes(e.category)).reduce((s, e) => s + e.amount, 0);
-              const spentOps = expenses.filter(e => e.category === "Operasional").reduce((s, e) => s + e.amount, 0);
+              const spentPengembangan = expenses.filter(e => pengembanganCats.includes(e.category)).reduce((s, e) => s + e.amount, 0);
+              const spentKasCadangan = expenses.filter(e => kasCadanganCats.includes(e.category)).reduce((s, e) => s + e.amount, 0);
+              const spentOps = expenses.filter(e => operasionalCats.includes(e.category)).reduce((s, e) => s + e.amount, 0);
               const allocs = [
                 { label: "Santunan & Bantuan Sosial", pct: 65, spent: spentSantunan, bg: "bg-emerald-50 dark:bg-emerald-950/30", bar: "bg-emerald-500", tx: "text-emerald-700 dark:text-emerald-400", cats: santunanCats },
-                { label: "Pengembangan Dana / Ekonomi", pct: 15, spent: 0, bg: "bg-blue-50 dark:bg-blue-950/30", bar: "bg-blue-500", tx: "text-blue-700 dark:text-blue-400", cats: [] as string[] },
-                { label: "Kas Cadangan", pct: 10, spent: 0, bg: "bg-amber-50 dark:bg-amber-950/30", bar: "bg-amber-500", tx: "text-amber-700 dark:text-amber-400", cats: [] as string[] },
-                { label: "Operasional Lembaga", pct: 10, spent: spentOps, bg: "bg-purple-50 dark:bg-purple-950/30", bar: "bg-purple-500", tx: "text-purple-700 dark:text-purple-400", cats: ["Operasional"] },
+                { label: "Pengembangan Dana / Ekonomi", pct: 15, spent: spentPengembangan, bg: "bg-blue-50 dark:bg-blue-950/30", bar: "bg-blue-500", tx: "text-blue-700 dark:text-blue-400", cats: pengembanganCats },
+                { label: "Kas Cadangan", pct: 10, spent: spentKasCadangan, bg: "bg-amber-50 dark:bg-amber-950/30", bar: "bg-amber-500", tx: "text-amber-700 dark:text-amber-400", cats: kasCadanganCats },
+                { label: "Operasional Lembaga", pct: 10, spent: spentOps, bg: "bg-purple-50 dark:bg-purple-950/30", bar: "bg-purple-500", tx: "text-purple-700 dark:text-purple-400", cats: operasionalCats },
               ];
               return (
                 <Card>
