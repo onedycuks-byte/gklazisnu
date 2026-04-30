@@ -65,7 +65,7 @@ export default function Admin() {
   const { user, isAdmin, roles, hasAnyRole, isLoading: authLoading, signOut } = useAuth();
   const { regions, isLoading: regionsLoading, updateRegion, addRegion, deleteRegion } = useRegions();
   const { donations, isLoading: donationsLoading, addDonation, updateDonation, deleteDonation, getTotalDonations } = useSupabaseDonations();
-  const { expenses, isLoading: expensesLoading, addExpense, deleteExpense, uploadReceipt, getTotalExpenses } = useExpenses();
+  const { expenses, isLoading: expensesLoading, addExpense, updateExpense, deleteExpense, uploadReceipt, getTotalExpenses } = useExpenses();
   const { programs, isLoading: programsLoading, addProgram, updateProgram, deleteProgram, uploadProgramImage } = usePrograms();
   const { news, isLoading: newsLoading, addNews, updateNews, deleteNews, uploadNewsImage } = useNews();
   const { getSettingsMap, updateSetting, isLoading: settingsLoading } = useSiteSettings();
@@ -114,8 +114,10 @@ export default function Admin() {
   const [newExpense, setNewExpense] = useState({
     amount: "", date: new Date().toISOString().split("T")[0], description: "", category: "Operasional",
   });
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [editReceiptFile, setEditReceiptFile] = useState<File | null>(null);
 
   // Program state
   const [newProgram, setNewProgram] = useState({
@@ -271,6 +273,30 @@ export default function Admin() {
     const { error } = await deleteExpense(id);
     if (error) toast({ title: "Gagal", description: "Gagal menghapus pengeluaran", variant: "destructive" });
     else toast({ title: "Berhasil", description: "Pengeluaran berhasil dihapus" });
+  };
+
+  const handleUpdateExpense = async () => {
+    if (!editingExpense) return;
+    if (!editingExpense.amount || !editingExpense.date) {
+      toast({ title: "Error", description: "Lengkapi nominal dan tanggal", variant: "destructive" }); return;
+    }
+    setUploading(true);
+    let receipt_url = editingExpense.receipt_url || undefined;
+    if (editReceiptFile) {
+      const res = await uploadReceipt(editReceiptFile);
+      if (res.error) { toast({ title: "Gagal upload bukti", variant: "destructive" }); setUploading(false); return; }
+      receipt_url = res.url!;
+    }
+    const { error } = await updateExpense(editingExpense.id, {
+      amount: editingExpense.amount,
+      date: editingExpense.date,
+      description: editingExpense.description || undefined,
+      category: editingExpense.category,
+      receipt_url,
+    });
+    setUploading(false);
+    if (error) toast({ title: "Gagal", description: "Gagal mengupdate pengeluaran", variant: "destructive" });
+    else { toast({ title: "Berhasil", description: "Pengeluaran berhasil diupdate" }); setEditingExpense(null); setEditReceiptFile(null); }
   };
 
   // Program handlers
