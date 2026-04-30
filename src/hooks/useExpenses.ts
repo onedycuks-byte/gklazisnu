@@ -34,6 +34,8 @@ export interface ExpenseInput {
   receipt_url?: string;
 }
 
+export type ExpenseUpdate = Partial<ExpenseInput>;
+
 export function useExpenses() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -88,6 +90,20 @@ export function useExpenses() {
     return { error };
   };
 
+  const updateExpense = async (id: string, expense: ExpenseUpdate) => {
+    const { error } = await supabase
+      .from("expenses")
+      .update({
+        ...(expense.amount !== undefined ? { amount: expense.amount } : {}),
+        ...(expense.date !== undefined ? { date: expense.date } : {}),
+        ...(expense.description !== undefined ? { description: expense.description || null } : {}),
+        ...(expense.category !== undefined ? { category: expense.category } : {}),
+        ...(expense.receipt_url !== undefined ? { receipt_url: expense.receipt_url || null } : {}),
+      })
+      .eq("id", id);
+    return { error };
+  };
+
   const uploadReceipt = async (file: File) => {
     const fileExt = file.name.split(".").pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
@@ -112,6 +128,7 @@ export function useExpenses() {
     expenses,
     isLoading,
     addExpense,
+    updateExpense,
     deleteExpense,
     uploadReceipt,
     getTotalExpenses,
