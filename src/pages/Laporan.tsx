@@ -35,7 +35,7 @@ const Laporan = () => {
   const saldo = totalPemasukan - totalPengeluaran;
 
   const regionSummaries = regions.map((region) => {
-    const regionDonations = donations.filter((d) => d.region_id === region.id);
+    const regionDonations = donations.filter((d) => d.region_id === region.id && d.status === "confirmed");
     const totalDonations = regionDonations.reduce((sum, d) => sum + d.amount, 0);
     return { ...region, totalDonations, donationCount: regionDonations.length };
   });
