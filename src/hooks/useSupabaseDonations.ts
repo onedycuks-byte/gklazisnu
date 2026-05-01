@@ -99,7 +99,7 @@ export function useSupabaseDonations() {
   };
 
   const getDonationsByRegion = (regionId: string) => {
-    return donations.filter((d) => d.region_id === regionId);
+    return donations.filter((d) => d.region_id === regionId && d.status === "confirmed");
   };
 
   const getTotalDonations = () => {
