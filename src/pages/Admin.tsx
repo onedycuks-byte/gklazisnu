@@ -2146,7 +2146,7 @@ export default function Admin() {
           <TabsContent value="laporan" className="space-y-4">
             <div>
               <h2 className="text-base font-semibold">Download Laporan Keuangan</h2>
-              <p className="text-xs text-muted-foreground">Unduh laporan dalam format CSV</p>
+              <p className="text-xs text-muted-foreground">Unduh laporan dalam format CSV atau PDF</p>
             </div>
 
             <div className="grid gap-3">
