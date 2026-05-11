@@ -123,10 +123,17 @@ const Laporan = () => {
           <button onClick={() => navigate("/")} className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors">
             <ArrowLeft className="h-4 w-4" />
           </button>
-          <div>
+          <div className="flex-1">
             <h1 className="text-xl font-bold">Laporan Keuangan</h1>
             <p className="text-white/60 text-xs mt-0.5">Infaq Kaleng Koin LAZISNU</p>
           </div>
+          <button
+            onClick={handleExportPDF}
+            className="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-white/15 hover:bg-white/25 transition-colors text-xs font-semibold"
+          >
+            <FileDown className="h-3.5 w-3.5" />
+            PDF
+          </button>
         </div>
       </div>
 
