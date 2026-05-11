@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { exportLaporanPDF } from "@/lib/exportLaporanPDF";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRegions, Region } from "@/hooks/useRegions";
 import { useSupabaseDonations, Donation, INCOME_CATEGORIES } from "@/hooks/useSupabaseDonations";
@@ -37,7 +38,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { 
   Loader2, LogOut, MapPin, Pencil, Trash2, Plus, 
-  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send, Users, Eye, Download, BarChart3, Heart, FileText, PieChart, Archive
+  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send, Users, Eye, Download, BarChart3, Heart, FileText, PieChart, Archive, FileDown
 } from "lucide-react";
 
 // Role-tab access mapping
@@ -68,7 +69,7 @@ export default function Admin() {
   const { expenses, isLoading: expensesLoading, addExpense, updateExpense, deleteExpense, uploadReceipt, getTotalExpenses } = useExpenses();
   const { programs, isLoading: programsLoading, addProgram, updateProgram, deleteProgram, uploadProgramImage } = usePrograms();
   const { news, isLoading: newsLoading, addNews, updateNews, deleteNews, uploadNewsImage } = useNews();
-  const { getSettingsMap, updateSetting, isLoading: settingsLoading } = useSiteSettings();
+  const { getSettingsMap, updateSetting, isLoading: settingsLoading, getSetting } = useSiteSettings();
   const { discussions, isLoading: discussionsLoading, replyDiscussion, deleteDiscussion } = useDiscussions(true);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
@@ -153,6 +154,54 @@ export default function Admin() {
   const formatAmount = (value: string) => {
     const num = value.replace(/[^\d]/g, "");
     return num ? new Intl.NumberFormat("id-ID").format(parseInt(num)) : "";
+  };
+
+  const handleExportPDF = () => {
+    try {
+      const regionMap = new Map(regions.map((r) => [r.id, r.name]));
+      const confirmed = donations.filter((d) => d.status === "confirmed");
+      const totalIn = getTotalDonations();
+      const totalOut = getTotalExpenses();
+      exportLaporanPDF({
+        totalPemasukan: totalIn,
+        totalPengeluaran: totalOut,
+        saldo: totalIn - totalOut,
+        regions: regions.map((r) => {
+          const rd = confirmed.filter((d) => d.region_id === r.id);
+          return {
+            name: r.name,
+            coordinator: r.coordinator,
+            totalDonations: rd.reduce((s, d) => s + d.amount, 0),
+            donationCount: rd.length,
+          };
+        }),
+        donations: confirmed
+          .slice()
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+          .map((d) => ({
+            date: d.date,
+            region: regionMap.get(d.region_id || "") || "-",
+            amount: d.amount,
+            notes: d.notes || undefined,
+            category: d.category,
+          })),
+        expenses: expenses.map((e) => ({
+          date: e.date,
+          description: e.description || "",
+          category: e.category,
+          amount: e.amount,
+        })),
+        signers: {
+          ketuaLazis: getSetting("ketua_lazisnu") || undefined,
+          bendaharaLazis: getSetting("bendahara_lazisnu") || undefined,
+          ketuaPRNU: getSetting("ketua_prnu") || undefined,
+        },
+      });
+      toast({ title: "Berhasil", description: "Laporan PDF berhasil diunduh" });
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Gagal", description: "Gagal membuat PDF", variant: "destructive" });
+    }
   };
 
   // Region handlers
@@ -2097,7 +2146,7 @@ export default function Admin() {
           <TabsContent value="laporan" className="space-y-4">
             <div>
               <h2 className="text-base font-semibold">Download Laporan Keuangan</h2>
-              <p className="text-xs text-muted-foreground">Unduh laporan dalam format CSV</p>
+              <p className="text-xs text-muted-foreground">Unduh laporan dalam format CSV atau PDF</p>
             </div>
 
             <div className="grid gap-3">
@@ -2249,6 +2298,26 @@ export default function Admin() {
                       toast({ title: "Berhasil", description: "Laporan lengkap berhasil diunduh" });
                     }}>
                       <Download className="h-3.5 w-3.5" /> Download Lengkap
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Laporan PDF Profesional */}
+              <Card className="border-emerald-500/30 bg-emerald-50/30 dark:bg-emerald-950/10">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10">
+                        <FileDown className="h-5 w-5 text-emerald-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold">Laporan PDF Profesional</p>
+                        <p className="text-xs text-muted-foreground">Dengan kop surat & tanda tangan</p>
+                      </div>
+                    </div>
+                    <Button size="sm" className="gap-1.5 bg-emerald-600 hover:bg-emerald-700" onClick={handleExportPDF}>
+                      <FileDown className="h-3.5 w-3.5" /> Download PDF
                     </Button>
                   </div>
                 </CardContent>
