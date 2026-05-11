@@ -2302,6 +2302,26 @@ export default function Admin() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Laporan PDF Profesional */}
+              <Card className="border-emerald-500/30 bg-emerald-50/30 dark:bg-emerald-950/10">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10">
+                        <FileDown className="h-5 w-5 text-emerald-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold">Laporan PDF Profesional</p>
+                        <p className="text-xs text-muted-foreground">Dengan kop surat & tanda tangan</p>
+                      </div>
+                    </div>
+                    <Button size="sm" className="gap-1.5 bg-emerald-600 hover:bg-emerald-700" onClick={handleExportPDF}>
+                      <FileDown className="h-3.5 w-3.5" /> Download PDF
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Rincian Per Kategori */}
