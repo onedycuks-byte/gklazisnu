@@ -1,11 +1,20 @@
 import { BottomNav } from "@/components/BottomNav";
 import { useNews } from "@/hooks/useNews";
-import { Newspaper, Calendar, Loader2, ArrowLeft } from "lucide-react";
+import { Newspaper, Calendar, Loader2, ArrowLeft, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerClose,
+} from "@/components/ui/drawer";
 
 const Berita = () => {
   const { publishedNews, isLoading } = useNews();
   const navigate = useNavigate();
+  const [selectedNews, setSelectedNews] = useState<typeof publishedNews[0] | null>(null);
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("id-ID", {
@@ -48,7 +57,8 @@ const Berita = () => {
           publishedNews.map((item, index) => (
             <div
               key={item.id}
-              className="bg-card rounded-2xl overflow-hidden shadow-card animate-slide-up border border-border/30 hover:shadow-elevated transition-all duration-300"
+              onClick={() => setSelectedNews(item)}
+              className="bg-card rounded-2xl overflow-hidden shadow-card animate-slide-up border border-border/30 hover:shadow-elevated transition-all duration-300 cursor-pointer"
               style={{ animationDelay: `${index * 80}ms` }}
             >
               {item.image_url && (
@@ -78,6 +88,52 @@ const Berita = () => {
           ))
         )}
       </div>
+
+      {/* News Detail Drawer */}
+      <Drawer open={!!selectedNews} onOpenChange={(open) => !open && setSelectedNews(null)}>
+        <DrawerContent className="max-h-[90vh] overflow-y-auto">
+          {selectedNews && (
+            <>
+              <DrawerHeader className="relative pb-2">
+                <DrawerClose className="absolute right-4 top-4 rounded-full p-1.5 bg-muted/80 hover:bg-muted transition-colors">
+                  <X className="h-4 w-4" />
+                </DrawerClose>
+                <span className="inline-block self-start px-2.5 py-1 text-[10px] font-bold rounded-full bg-primary/10 text-primary mb-2 uppercase tracking-wide">
+                  {selectedNews.category}
+                </span>
+                <DrawerTitle className="text-left text-base leading-snug pr-8">
+                  {selectedNews.title}
+                </DrawerTitle>
+                <div className="flex items-center gap-1.5 mt-2 text-muted-foreground/70">
+                  <Calendar className="h-3 w-3" />
+                  <span className="text-[11px] font-medium">{formatDate(selectedNews.published_at)}</span>
+                </div>
+              </DrawerHeader>
+              <div className="px-4 pb-8 space-y-4">
+                {selectedNews.image_url && (
+                  <img
+                    src={selectedNews.image_url}
+                    alt={selectedNews.title}
+                    className="w-full rounded-xl object-cover max-h-60"
+                  />
+                )}
+                {selectedNews.excerpt && (
+                  <p className="text-sm text-muted-foreground leading-relaxed font-medium">
+                    {selectedNews.excerpt}
+                  </p>
+                )}
+                {selectedNews.content ? (
+                  <div className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+                    {selectedNews.content}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">Tidak ada konten lengkap.</p>
+                )}
+              </div>
+            </>
+          )}
+        </DrawerContent>
+      </Drawer>
 
       <BottomNav />
     </div>
