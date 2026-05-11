@@ -14,6 +14,7 @@ import {
 const Berita = () => {
   const { publishedNews, isLoading } = useNews();
   const navigate = useNavigate();
+  const [selectedNews, setSelectedNews] = useState<typeof publishedNews[0] | null>(null);
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("id-ID", {
