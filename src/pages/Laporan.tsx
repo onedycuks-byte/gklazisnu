@@ -7,16 +7,69 @@ import { MonthlyRecap } from "@/components/MonthlyRecap";
 import { useRegions } from "@/hooks/useRegions";
 import { useSupabaseDonations } from "@/hooks/useSupabaseDonations";
 import { useExpenses } from "@/hooks/useExpenses";
-import { Loader2, TrendingUp, TrendingDown, Wallet, Image, ArrowLeft, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { Loader2, TrendingUp, TrendingDown, Wallet, Image, ArrowLeft, ArrowUpRight, ArrowDownRight, FileDown } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { exportLaporanPDF } from "@/lib/exportLaporanPDF";
+import { toast } from "sonner";
 
 const Laporan = () => {
   const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null);
   const { regions, isLoading: regionsLoading } = useRegions();
   const { donations, isLoading: donationsLoading, getDonationsByRegion, getRecentDonations, getTotalDonations } = useSupabaseDonations();
   const { expenses, isLoading: expensesLoading, getTotalExpenses } = useExpenses();
+  const { getSetting } = useSiteSettings();
   const navigate = useNavigate();
+
+  const handleExportPDF = () => {
+    try {
+      const regionMap = new Map(regions.map((r) => [r.id, r.name]));
+      const confirmed = donations.filter((d) => d.status === "confirmed");
+      const totalIn = getTotalDonations();
+      const totalOut = getTotalExpenses();
+      exportLaporanPDF({
+        totalPemasukan: totalIn,
+        totalPengeluaran: totalOut,
+        saldo: totalIn - totalOut,
+        regions: regions.map((r) => {
+          const rd = confirmed.filter((d) => d.region_id === r.id);
+          return {
+            name: r.name,
+            coordinator: r.coordinator,
+            totalDonations: rd.reduce((s, d) => s + d.amount, 0),
+            donationCount: rd.length,
+          };
+        }),
+        donations: confirmed
+          .slice()
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+          .map((d) => ({
+            date: d.date,
+            region: regionMap.get(d.region_id || "") || "-",
+            amount: d.amount,
+            notes: d.notes || undefined,
+            category: d.category,
+          })),
+        expenses: expenses.map((e) => ({
+          date: e.date,
+          description: e.description || "",
+          category: e.category,
+          amount: e.amount,
+        })),
+        signers: {
+          ketuaLazis: getSetting("ketua_lazisnu") || undefined,
+          bendaharaLazis: getSetting("bendahara_lazisnu") || undefined,
+          ketuaPRNU: getSetting("ketua_prnu") || undefined,
+        },
+      });
+      toast.success("Laporan PDF berhasil diunduh");
+    } catch (e) {
+      console.error(e);
+      toast.error("Gagal membuat PDF");
+    }
+  };
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
@@ -70,10 +123,17 @@ const Laporan = () => {
           <button onClick={() => navigate("/")} className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors">
             <ArrowLeft className="h-4 w-4" />
           </button>
-          <div>
+          <div className="flex-1">
             <h1 className="text-xl font-bold">Laporan Keuangan</h1>
             <p className="text-white/60 text-xs mt-0.5">Infaq Kaleng Koin LAZISNU</p>
           </div>
+          <button
+            onClick={handleExportPDF}
+            className="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-white/15 hover:bg-white/25 transition-colors text-xs font-semibold"
+          >
+            <FileDown className="h-3.5 w-3.5" />
+            PDF
+          </button>
         </div>
       </div>
 
