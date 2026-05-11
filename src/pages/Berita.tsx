@@ -1,7 +1,15 @@
 import { BottomNav } from "@/components/BottomNav";
 import { useNews } from "@/hooks/useNews";
-import { Newspaper, Calendar, Loader2, ArrowLeft } from "lucide-react";
+import { Newspaper, Calendar, Loader2, ArrowLeft, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerClose,
+} from "@/components/ui/drawer";
 
 const Berita = () => {
   const { publishedNews, isLoading } = useNews();
