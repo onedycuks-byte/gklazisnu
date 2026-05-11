@@ -69,7 +69,7 @@ export default function Admin() {
   const { expenses, isLoading: expensesLoading, addExpense, updateExpense, deleteExpense, uploadReceipt, getTotalExpenses } = useExpenses();
   const { programs, isLoading: programsLoading, addProgram, updateProgram, deleteProgram, uploadProgramImage } = usePrograms();
   const { news, isLoading: newsLoading, addNews, updateNews, deleteNews, uploadNewsImage } = useNews();
-  const { getSettingsMap, updateSetting, isLoading: settingsLoading } = useSiteSettings();
+  const { getSettingsMap, updateSetting, isLoading: settingsLoading, getSetting } = useSiteSettings();
   const { discussions, isLoading: discussionsLoading, replyDiscussion, deleteDiscussion } = useDiscussions(true);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
