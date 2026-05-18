@@ -96,7 +96,7 @@ const Index = () => {
 
       {/* Quick Menu */}
       <div className="px-4 mt-6">
-        <div className="grid grid-cols-5 gap-2.5">
+        <div className="grid grid-cols-3 gap-2.5">
           {quickMenuItems.map((item, i) => (
             <button
               key={item.label}
