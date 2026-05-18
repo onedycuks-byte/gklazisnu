@@ -51,6 +51,7 @@ const Index = () => {
     { icon: FileText, label: "Laporan", gradient: "from-primary to-emerald-600", path: "/laporan" },
     { icon: Newspaper, label: "Berita", gradient: "from-amber-500 to-orange-500", path: "/berita" },
     { icon: Heart, label: "Santunan", gradient: "from-rose-500 to-pink-600", path: "/santunan" },
+    { icon: Calculator, label: "Edukasi", gradient: "from-teal-500 to-cyan-600", path: "/edukasi" },
     { icon: MessageCircle, label: "Diskusi", gradient: "from-blue-500 to-indigo-500", path: "/diskusi" },
     { icon: Sparkles, label: "Tanya AI", gradient: "from-violet-500 to-purple-600", path: "/ai-chat" },
   ];
