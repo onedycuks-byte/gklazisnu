@@ -16,6 +16,7 @@ import ProgramDetail from "./pages/ProgramDetail";
 import AiChat from "./pages/AiChat";
 import Diskusi from "./pages/Diskusi";
 import Santunan from "./pages/Santunan";
+import Edukasi from "./pages/Edukasi";
 import StaffLogin from "./pages/StaffLogin";
 import NotFound from "./pages/NotFound";
 
