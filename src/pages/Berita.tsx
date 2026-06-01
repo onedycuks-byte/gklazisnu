@@ -4,7 +4,7 @@ import { Newspaper, Calendar, ArrowLeft, X, Share2 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { shareContent } from "@/lib/share";
+import { shareContent, buildPublicUrl } from "@/lib/share";
 import {
   Drawer,
   DrawerContent,
@@ -42,7 +42,7 @@ const Berita = () => {
   };
 
   const handleShare = (item: typeof publishedNews[0]) => {
-    const url = `${window.location.origin}/berita?n=${item.id}`;
+    const url = buildPublicUrl(`/berita?n=${item.id}`);
     const text = `${item.title}${item.excerpt ? `\n\n${item.excerpt}` : ""}`;
     shareContent({ title: item.title, text, url, imageUrl: item.image_url });
   };
