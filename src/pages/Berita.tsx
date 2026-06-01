@@ -89,7 +89,7 @@ const Berita = () => {
           publishedNews.map((item, index) => (
             <div
               key={item.id}
-              onClick={() => setSelectedNews(item)}
+              onClick={() => openNews(item)}
               className="bg-card rounded-2xl overflow-hidden shadow-card animate-slide-up border border-border/30 hover:shadow-elevated transition-all duration-300 cursor-pointer"
               style={{ animationDelay: `${index * 80}ms` }}
             >
