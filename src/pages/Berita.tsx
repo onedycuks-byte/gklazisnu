@@ -111,9 +111,19 @@ const Berita = () => {
                     {item.excerpt}
                   </p>
                 )}
-                <div className="flex items-center gap-1.5 mt-3 text-muted-foreground/70">
-                  <Calendar className="h-3 w-3" />
-                  <span className="text-[11px] font-medium">{formatDate(item.published_at)}</span>
+                <div className="flex items-center justify-between gap-2 mt-3">
+                  <div className="flex items-center gap-1.5 text-muted-foreground/70">
+                    <Calendar className="h-3 w-3" />
+                    <span className="text-[11px] font-medium">{formatDate(item.published_at)}</span>
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleShare(item); }}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold hover:bg-primary/20 transition-colors"
+                    aria-label="Bagikan berita"
+                  >
+                    <Share2 className="h-3 w-3" />
+                    Bagikan
+                  </button>
                 </div>
               </div>
             </div>
