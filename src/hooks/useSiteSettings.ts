@@ -36,8 +36,10 @@ export function useSiteSettings() {
     mutationFn: async ({ key, value }: { key: string; value: string }) => {
       const { error } = await (supabase as any)
         .from("site_settings")
-        .update({ value, updated_at: new Date().toISOString() })
-        .eq("key", key);
+        .upsert(
+          { key, value, updated_at: new Date().toISOString() },
+          { onConflict: "key" }
+        );
       if (error) throw error;
     },
     onSuccess: () => {
