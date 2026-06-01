@@ -42,7 +42,7 @@ const Berita = () => {
   };
 
   const handleShare = (item: typeof publishedNews[0]) => {
-    const url = `${window.location.origin}/berita?n=${item.id}`;
+    const url = buildPublicUrl(`/berita?n=${item.id}`);
     const text = `${item.title}${item.excerpt ? `\n\n${item.excerpt}` : ""}`;
     shareContent({ title: item.title, text, url, imageUrl: item.image_url });
   };
