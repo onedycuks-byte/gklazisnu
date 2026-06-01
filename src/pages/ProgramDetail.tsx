@@ -29,6 +29,20 @@ export default function ProgramDetail() {
     window.open(`https://wa.me/62${WA_NUMBER.slice(1)}?text=${message}`, "_blank");
   };
 
+  const handleShare = () => {
+    if (!program) return;
+    const progressPct = program.target_amount > 0
+      ? Math.round((program.collected_amount / program.target_amount) * 100)
+      : 0;
+    const text = `${program.title}\n\n${program.description ?? ""}\n\nTerkumpul: ${formatCurrency(program.collected_amount)} dari ${formatCurrency(program.target_amount)} (${progressPct}%)\n\nMari bantu sebarkan donasi ini 🙏`;
+    shareContent({
+      title: program.title,
+      text,
+      url: `${window.location.origin}/program/${program.id}`,
+      imageUrl: program.image_url,
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
