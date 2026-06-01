@@ -171,6 +171,14 @@ const Berita = () => {
                 ) : (
                   <p className="text-sm text-muted-foreground italic">Tidak ada konten lengkap.</p>
                 )}
+                <Button
+                  onClick={() => handleShare(selectedNews)}
+                  variant="outline"
+                  className="w-full gap-2"
+                >
+                  <Share2 className="h-4 w-4" />
+                  Bagikan Berita
+                </Button>
               </div>
             </>
           )}
