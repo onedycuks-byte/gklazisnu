@@ -4,7 +4,7 @@ import { Newspaper, Calendar, ArrowLeft, X, Share2 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { shareContent } from "@/lib/share";
+import { shareContent, buildPublicUrl } from "@/lib/share";
 import {
   Drawer,
   DrawerContent,
