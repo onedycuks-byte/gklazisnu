@@ -1,5 +1,23 @@
 import { toast } from "@/hooks/use-toast";
 
+const PUBLIC_BASE_URL = "https://gklazisnu.lovable.app";
+
+/**
+ * Build a public, shareable URL. Preview URLs (id-preview--*.lovable.app)
+ * dan domain sandbox lainnya tidak bisa dibuka publik (404/proxy error),
+ * jadi kita paksa pakai domain publish untuk path yang dibagikan.
+ */
+export function buildPublicUrl(path: string): string {
+  const p = path.startsWith("/") ? path : `/${path}`;
+  if (typeof window === "undefined") return `${PUBLIC_BASE_URL}${p}`;
+  const host = window.location.hostname;
+  const isPublicHost =
+    host === "gklazisnu.lovable.app" ||
+    (!host.includes("lovable.app") && !host.includes("localhost") && host !== "127.0.0.1");
+  const base = isPublicHost ? window.location.origin : PUBLIC_BASE_URL;
+  return `${base}${p}`;
+}
+
 export interface ShareData {
   title: string;
   text?: string;
