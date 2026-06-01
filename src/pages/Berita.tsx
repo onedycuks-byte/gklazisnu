@@ -1,8 +1,10 @@
 import { BottomNav } from "@/components/BottomNav";
 import { useNews } from "@/hooks/useNews";
-import { Newspaper, Calendar, Loader2, ArrowLeft, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { Newspaper, Calendar, ArrowLeft, X, Share2 } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { shareContent } from "@/lib/share";
 import {
   Drawer,
   DrawerContent,
@@ -14,7 +16,37 @@ import {
 const Berita = () => {
   const { publishedNews, isLoading } = useNews();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedNews, setSelectedNews] = useState<typeof publishedNews[0] | null>(null);
+
+  // Deep-link: open drawer when ?n=<id> present
+  useEffect(() => {
+    const id = searchParams.get("n");
+    if (id && publishedNews.length) {
+      const item = publishedNews.find((n) => n.id === id);
+      if (item) setSelectedNews(item);
+    }
+  }, [searchParams, publishedNews]);
+
+  const openNews = (item: typeof publishedNews[0]) => {
+    setSelectedNews(item);
+    setSearchParams({ n: item.id }, { replace: true });
+  };
+
+  const closeNews = () => {
+    setSelectedNews(null);
+    if (searchParams.get("n")) {
+      searchParams.delete("n");
+      setSearchParams(searchParams, { replace: true });
+    }
+  };
+
+  const handleShare = (item: typeof publishedNews[0]) => {
+    const url = `${window.location.origin}/berita?n=${item.id}`;
+    const text = `${item.title}${item.excerpt ? `\n\n${item.excerpt}` : ""}`;
+    shareContent({ title: item.title, text, url, imageUrl: item.image_url });
+  };
+
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("id-ID", {
@@ -57,7 +89,7 @@ const Berita = () => {
           publishedNews.map((item, index) => (
             <div
               key={item.id}
-              onClick={() => setSelectedNews(item)}
+              onClick={() => openNews(item)}
               className="bg-card rounded-2xl overflow-hidden shadow-card animate-slide-up border border-border/30 hover:shadow-elevated transition-all duration-300 cursor-pointer"
               style={{ animationDelay: `${index * 80}ms` }}
             >
@@ -79,9 +111,19 @@ const Berita = () => {
                     {item.excerpt}
                   </p>
                 )}
-                <div className="flex items-center gap-1.5 mt-3 text-muted-foreground/70">
-                  <Calendar className="h-3 w-3" />
-                  <span className="text-[11px] font-medium">{formatDate(item.published_at)}</span>
+                <div className="flex items-center justify-between gap-2 mt-3">
+                  <div className="flex items-center gap-1.5 text-muted-foreground/70">
+                    <Calendar className="h-3 w-3" />
+                    <span className="text-[11px] font-medium">{formatDate(item.published_at)}</span>
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleShare(item); }}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold hover:bg-primary/20 transition-colors"
+                    aria-label="Bagikan berita"
+                  >
+                    <Share2 className="h-3 w-3" />
+                    Bagikan
+                  </button>
                 </div>
               </div>
             </div>
@@ -90,7 +132,7 @@ const Berita = () => {
       </div>
 
       {/* News Detail Drawer */}
-      <Drawer open={!!selectedNews} onOpenChange={(open) => !open && setSelectedNews(null)}>
+      <Drawer open={!!selectedNews} onOpenChange={(open) => !open && closeNews()}>
         <DrawerContent className="max-h-[90vh] overflow-y-auto">
           {selectedNews && (
             <>
@@ -129,6 +171,14 @@ const Berita = () => {
                 ) : (
                   <p className="text-sm text-muted-foreground italic">Tidak ada konten lengkap.</p>
                 )}
+                <Button
+                  onClick={() => handleShare(selectedNews)}
+                  variant="outline"
+                  className="w-full gap-2"
+                >
+                  <Share2 className="h-4 w-4" />
+                  Bagikan Berita
+                </Button>
               </div>
             </>
           )}

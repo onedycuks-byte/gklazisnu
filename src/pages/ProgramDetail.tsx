@@ -3,7 +3,8 @@ import { usePrograms } from "@/hooks/usePrograms";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Loader2, MessageCircle, Target, Coins } from "lucide-react";
+import { ArrowLeft, Loader2, MessageCircle, Target, Coins, Share2 } from "lucide-react";
+import { shareContent } from "@/lib/share";
 
 const WA_NUMBER = "08976315251";
 
@@ -26,6 +27,20 @@ export default function ProgramDetail() {
       `Assalamu'alaikum, saya ingin mengkonfirmasi donasi untuk program "${program?.title}". Mohon diverifikasi. Terima kasih.`
     );
     window.open(`https://wa.me/62${WA_NUMBER.slice(1)}?text=${message}`, "_blank");
+  };
+
+  const handleShare = () => {
+    if (!program) return;
+    const progressPct = program.target_amount > 0
+      ? Math.round((program.collected_amount / program.target_amount) * 100)
+      : 0;
+    const text = `${program.title}\n\n${program.description ?? ""}\n\nTerkumpul: ${formatCurrency(program.collected_amount)} dari ${formatCurrency(program.target_amount)} (${progressPct}%)\n\nMari bantu sebarkan donasi ini 🙏`;
+    shareContent({
+      title: program.title,
+      text,
+      url: `${window.location.origin}/program/${program.id}`,
+      imageUrl: program.image_url,
+    });
   };
 
   if (isLoading) {
@@ -115,11 +130,15 @@ export default function ProgramDetail() {
           </div>
         )}
 
-        {/* WA Confirmation */}
-        <div className="mt-6 animate-slide-up" style={{ animationDelay: "240ms" }}>
+        {/* Actions */}
+        <div className="mt-6 space-y-2 animate-slide-up" style={{ animationDelay: "240ms" }}>
           <Button onClick={handleConfirmWA} className="w-full h-12 gap-2 text-base" variant="success">
             <MessageCircle className="h-5 w-5" />
             Konfirmasi via WhatsApp
+          </Button>
+          <Button onClick={handleShare} variant="outline" className="w-full h-12 gap-2 text-base">
+            <Share2 className="h-5 w-5" />
+            Bagikan Program
           </Button>
           <p className="text-center text-xs text-muted-foreground mt-2">
             Setelah transfer, konfirmasi pembayaran Anda ke WhatsApp {WA_NUMBER}
