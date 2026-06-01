@@ -38,7 +38,7 @@ export default function ProgramDetail() {
     shareContent({
       title: program.title,
       text,
-      url: `${window.location.origin}/program/${program.id}`,
+      url: buildPublicUrl(`/program/${program.id}`),
       imageUrl: program.image_url,
     });
   };
