@@ -132,7 +132,7 @@ const Berita = () => {
       </div>
 
       {/* News Detail Drawer */}
-      <Drawer open={!!selectedNews} onOpenChange={(open) => !open && setSelectedNews(null)}>
+      <Drawer open={!!selectedNews} onOpenChange={(open) => !open && closeNews()}>
         <DrawerContent className="max-h-[90vh] overflow-y-auto">
           {selectedNews && (
             <>
