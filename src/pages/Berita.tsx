@@ -1,8 +1,10 @@
 import { BottomNav } from "@/components/BottomNav";
 import { useNews } from "@/hooks/useNews";
-import { Newspaper, Calendar, Loader2, ArrowLeft, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { Newspaper, Calendar, ArrowLeft, X, Share2 } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { shareContent } from "@/lib/share";
 import {
   Drawer,
   DrawerContent,
@@ -14,7 +16,37 @@ import {
 const Berita = () => {
   const { publishedNews, isLoading } = useNews();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedNews, setSelectedNews] = useState<typeof publishedNews[0] | null>(null);
+
+  // Deep-link: open drawer when ?n=<id> present
+  useEffect(() => {
+    const id = searchParams.get("n");
+    if (id && publishedNews.length) {
+      const item = publishedNews.find((n) => n.id === id);
+      if (item) setSelectedNews(item);
+    }
+  }, [searchParams, publishedNews]);
+
+  const openNews = (item: typeof publishedNews[0]) => {
+    setSelectedNews(item);
+    setSearchParams({ n: item.id }, { replace: true });
+  };
+
+  const closeNews = () => {
+    setSelectedNews(null);
+    if (searchParams.get("n")) {
+      searchParams.delete("n");
+      setSearchParams(searchParams, { replace: true });
+    }
+  };
+
+  const handleShare = (item: typeof publishedNews[0]) => {
+    const url = `${window.location.origin}/berita?n=${item.id}`;
+    const text = `${item.title}${item.excerpt ? `\n\n${item.excerpt}` : ""}`;
+    shareContent({ title: item.title, text, url, imageUrl: item.image_url });
+  };
+
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("id-ID", {
