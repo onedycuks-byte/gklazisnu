@@ -130,11 +130,15 @@ export default function ProgramDetail() {
           </div>
         )}
 
-        {/* WA Confirmation */}
-        <div className="mt-6 animate-slide-up" style={{ animationDelay: "240ms" }}>
+        {/* Actions */}
+        <div className="mt-6 space-y-2 animate-slide-up" style={{ animationDelay: "240ms" }}>
           <Button onClick={handleConfirmWA} className="w-full h-12 gap-2 text-base" variant="success">
             <MessageCircle className="h-5 w-5" />
             Konfirmasi via WhatsApp
+          </Button>
+          <Button onClick={handleShare} variant="outline" className="w-full h-12 gap-2 text-base">
+            <Share2 className="h-5 w-5" />
+            Bagikan Program
           </Button>
           <p className="text-center text-xs text-muted-foreground mt-2">
             Setelah transfer, konfirmasi pembayaran Anda ke WhatsApp {WA_NUMBER}
