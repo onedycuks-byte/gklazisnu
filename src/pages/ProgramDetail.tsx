@@ -3,7 +3,8 @@ import { usePrograms } from "@/hooks/usePrograms";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Loader2, MessageCircle, Target, Coins } from "lucide-react";
+import { ArrowLeft, Loader2, MessageCircle, Target, Coins, Share2 } from "lucide-react";
+import { shareContent } from "@/lib/share";
 
 const WA_NUMBER = "08976315251";
 
