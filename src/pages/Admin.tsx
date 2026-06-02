@@ -1613,6 +1613,27 @@ export default function Admin() {
                     </div>
                   </div>
                 </div>
+
+                {/* Tampilan Slideshow */}
+                <div className="border-t pt-4 mt-4">
+                  <h3 className="font-semibold text-base mb-3">Tampilan Halaman Utama</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Switch
+                        checked={contactForm.news_slideshow_enabled !== "false"}
+                        onCheckedChange={(checked) => setContactForm(p => ({ ...p, news_slideshow_enabled: checked ? "true" : "false" }))}
+                      />
+                      <Label>Tampilkan Berita sebagai Slideshow (jika nonaktif: ditampilkan berurutan tanpa geser)</Label>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Switch
+                        checked={contactForm.programs_slideshow_enabled !== "false"}
+                        onCheckedChange={(checked) => setContactForm(p => ({ ...p, programs_slideshow_enabled: checked ? "true" : "false" }))}
+                      />
+                      <Label>Tampilkan Program Donasi sebagai Slideshow (jika nonaktif: ditampilkan berurutan tanpa geser)</Label>
+                    </div>
+                  </div>
+                </div>
                 <Button
                   className="gap-2"
                   disabled={savingContact}
