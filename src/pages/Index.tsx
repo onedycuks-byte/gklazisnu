@@ -22,8 +22,6 @@ const Index = () => {
   const { donations, isLoading: donationsLoading, getTotalDonations } = useSupabaseDonations();
   const { expenses, isLoading: expensesLoading, getTotalExpenses } = useExpenses();
   const { activePrograms, isLoading: programsLoading } = usePrograms();
-  const { user, isAdmin } = useAuth();
-  const { activePrograms, isLoading: programsLoading } = usePrograms();
   const { publishedNews, isLoading: newsLoading } = useNews();
   const { user, isAdmin } = useAuth();
   const { getSettingsMap, isLoading: settingsLoading } = useSiteSettings();
