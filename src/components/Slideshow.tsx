@@ -6,17 +6,18 @@ interface SlideshowProps {
   interval?: number;
   className?: string;
   showArrows?: boolean;
+  autoPlay?: boolean;
 }
 
-export const Slideshow = ({ children, interval = 4500, className = "", showArrows = false }: SlideshowProps) => {
+export const Slideshow = ({ children, interval = 4500, className = "", showArrows = false, autoPlay = true }: SlideshowProps) => {
   const slides = Children.toArray(children);
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    if (slides.length <= 1) return;
+    if (!autoPlay || slides.length <= 1) return;
     const id = setInterval(() => setIndex((i) => (i + 1) % slides.length), interval);
     return () => clearInterval(id);
-  }, [slides.length, interval]);
+  }, [slides.length, interval, autoPlay]);
 
   if (slides.length === 0) return null;
 
