@@ -133,17 +133,18 @@ const Index = () => {
               Semua <ChevronRight className="h-3 w-3" />
             </button>
           </div>
-          <Slideshow className="shadow-card border border-border/30" interval={5000}>
-            {publishedNews.slice(0, 6).map((n) => (
+          {(() => {
+            const items = publishedNews.slice(0, 6);
+            const renderNews = (n: typeof publishedNews[number]) => (
               <button
                 key={n.id}
                 onClick={() => navigate(`/berita?n=${n.id}`)}
                 className="block w-full text-left bg-card"
               >
                 {n.image_url ? (
-                  <div className="relative h-52">
-                    <img src={n.image_url} alt={n.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                  <div className="relative w-full aspect-[16/10] bg-black">
+                    <img src={n.image_url} alt={n.title} className="absolute inset-0 w-full h-full object-contain" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
                     <div className="absolute top-3 left-3">
                       <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
                         {n.category}
@@ -178,8 +179,24 @@ const Index = () => {
                   </div>
                 )}
               </button>
-            ))}
-          </Slideshow>
+            );
+            if (newsSlideshow) {
+              return (
+                <Slideshow className="shadow-card border border-border/30" autoPlay={false} showArrows>
+                  {items.map(renderNews)}
+                </Slideshow>
+              );
+            }
+            return (
+              <div className="space-y-3">
+                {items.map((n) => (
+                  <div key={n.id} className="rounded-2xl overflow-hidden shadow-card border border-border/30">
+                    {renderNews(n)}
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
         </div>
       )}
 
