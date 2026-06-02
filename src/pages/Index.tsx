@@ -5,11 +5,13 @@ import { useRegions } from "@/hooks/useRegions";
 import { useSupabaseDonations } from "@/hooks/useSupabaseDonations";
 import { useExpenses } from "@/hooks/useExpenses";
 import { usePrograms } from "@/hooks/usePrograms";
+import { useNews } from "@/hooks/useNews";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator } from "lucide-react";
+import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Slideshow } from "@/components/Slideshow";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { useState } from "react";
 import { useTrackPageView } from "@/hooks/useAnalytics";
@@ -20,6 +22,7 @@ const Index = () => {
   const { donations, isLoading: donationsLoading, getTotalDonations } = useSupabaseDonations();
   const { expenses, isLoading: expensesLoading, getTotalExpenses } = useExpenses();
   const { activePrograms, isLoading: programsLoading } = usePrograms();
+  const { publishedNews, isLoading: newsLoading } = useNews();
   const { user, isAdmin } = useAuth();
   const { getSettingsMap, isLoading: settingsLoading } = useSiteSettings();
   const navigate = useNavigate();
@@ -113,6 +116,71 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Berita Terbaru - Slideshow */}
+      {!newsLoading && publishedNews.length > 0 && (
+        <div className="px-4 mt-7">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="text-base font-bold text-foreground">Berita Terbaru</h2>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Update terkini dari kami</p>
+            </div>
+            <button
+              onClick={() => navigate("/berita")}
+              className="text-xs font-semibold text-primary flex items-center gap-0.5"
+            >
+              Semua <ChevronRight className="h-3 w-3" />
+            </button>
+          </div>
+          <Slideshow className="shadow-card border border-border/30" interval={5000}>
+            {publishedNews.slice(0, 6).map((n) => (
+              <button
+                key={n.id}
+                onClick={() => navigate(`/berita?n=${n.id}`)}
+                className="block w-full text-left bg-card"
+              >
+                {n.image_url ? (
+                  <div className="relative h-52">
+                    <img src={n.image_url} alt={n.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                    <div className="absolute top-3 left-3">
+                      <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
+                        {n.category}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-4 pb-8 text-white">
+                      <h3 className="font-bold text-sm leading-snug line-clamp-2 mb-1">{n.title}</h3>
+                      {n.excerpt && (
+                        <p className="text-[11px] text-white/85 line-clamp-2 leading-relaxed">{n.excerpt}</p>
+                      )}
+                      <p className="text-[10px] text-white/70 mt-1.5 flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {new Date(n.published_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-5 bg-gradient-to-br from-primary/10 to-emerald-100/40 min-h-[13rem] flex flex-col justify-between">
+                    <span className="self-start bg-primary text-primary-foreground text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
+                      {n.category}
+                    </span>
+                    <div>
+                      <h3 className="font-bold text-sm leading-snug line-clamp-2 mb-1 text-foreground">{n.title}</h3>
+                      {n.excerpt && (
+                        <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">{n.excerpt}</p>
+                      )}
+                      <p className="text-[10px] text-muted-foreground mt-2 flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {new Date(n.published_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </button>
+            ))}
+          </Slideshow>
+        </div>
+      )}
+
       {/* Program Donasi */}
       <div className="px-4 mt-7">
         <div className="flex items-center justify-between mb-4">
@@ -135,53 +203,108 @@ const Index = () => {
             <p className="text-xs text-muted-foreground/70 mt-1">Program donasi akan muncul di sini</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {activePrograms.map((program, index) => {
+          (() => {
+            const featured = activePrograms.slice(0, 3);
+            const rest = activePrograms.slice(3);
+            const renderCard = (program: typeof activePrograms[number], index: number, variant: "full" | "compact") => {
               const progress = program.target_amount > 0
                 ? Math.min((program.collected_amount / program.target_amount) * 100, 100)
                 : 0;
+              if (variant === "full") {
+                return (
+                  <div
+                    onClick={() => navigate(`/program/${program.id}`)}
+                    className="bg-card cursor-pointer"
+                  >
+                    {program.image_url ? (
+                      <div className="relative">
+                        <img src={program.image_url} alt={program.title} className="w-full h-44 object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                        <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
+                          {Math.round(progress)}%
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="h-32 bg-gradient-to-br from-primary/20 to-emerald-200/40 flex items-center justify-center">
+                        <Target className="h-10 w-10 text-primary/40" />
+                      </div>
+                    )}
+                    <div className="p-4 pb-8">
+                      <h3 className="font-bold text-sm text-foreground mb-1.5 leading-snug">{program.title}</h3>
+                      {program.description && (
+                        <p className="text-xs text-muted-foreground mb-3 line-clamp-2 leading-relaxed">{program.description}</p>
+                      )}
+                      <div className="relative h-2 rounded-full bg-muted overflow-hidden mb-3">
+                        <div
+                          className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary to-emerald-400 transition-all duration-500"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                      <div className="flex items-end justify-between">
+                        <div>
+                          <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Terkumpul</p>
+                          <p className="text-sm font-bold text-primary">{formatCurrency(program.collected_amount)}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Target</p>
+                          <p className="text-sm font-semibold text-foreground">{formatCurrency(program.target_amount)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
               return (
                 <div
                   key={program.id}
                   onClick={() => navigate(`/program/${program.id}`)}
-                  className="bg-card rounded-2xl overflow-hidden shadow-card cursor-pointer hover:shadow-elevated transition-all duration-300 hover:-translate-y-0.5 animate-slide-up border border-border/30"
-                  style={{ animationDelay: `${index * 80}ms` }}
+                  className="bg-card rounded-2xl shadow-card cursor-pointer hover:shadow-elevated transition-all duration-300 border border-border/30 p-3 flex gap-3 items-center animate-slide-up"
+                  style={{ animationDelay: `${index * 60}ms` }}
                 >
-                  {program.image_url && (
-                    <div className="relative">
-                      <img src={program.image_url} alt={program.title} className="w-full h-44 object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                      <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
-                        {Math.round(progress)}%
-                      </div>
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <h3 className="font-bold text-sm text-foreground mb-1.5 leading-snug">{program.title}</h3>
-                    {program.description && (
-                      <p className="text-xs text-muted-foreground mb-3 line-clamp-2 leading-relaxed">{program.description}</p>
+                  <div className="h-14 w-14 rounded-xl overflow-hidden shrink-0 bg-muted flex items-center justify-center">
+                    {program.image_url ? (
+                      <img src={program.image_url} alt={program.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <Target className="h-6 w-6 text-muted-foreground/50" />
                     )}
-                    <div className="relative h-2 rounded-full bg-muted overflow-hidden mb-3">
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-xs text-foreground line-clamp-1">{program.title}</h3>
+                    <div className="relative h-1.5 rounded-full bg-muted overflow-hidden my-1.5">
                       <div
-                        className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary to-emerald-400 transition-all duration-500"
+                        className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary to-emerald-400"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
-                    <div className="flex items-end justify-between">
-                      <div>
-                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Terkumpul</p>
-                        <p className="text-sm font-bold text-primary">{formatCurrency(program.collected_amount)}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Target</p>
-                        <p className="text-sm font-semibold text-foreground">{formatCurrency(program.target_amount)}</p>
-                      </div>
-                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      <span className="font-bold text-primary">{formatCurrency(program.collected_amount)}</span>
+                      {" / "}{formatCurrency(program.target_amount)}
+                    </p>
                   </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
                 </div>
               );
-            })}
-          </div>
+            };
+            return (
+              <>
+                {featured.length > 0 && (
+                  <Slideshow className="shadow-card border border-border/30 mb-3" interval={6000}>
+                    {featured.map((p, i) => (
+                      <div key={p.id}>{renderCard(p, i, "full")}</div>
+                    ))}
+                  </Slideshow>
+                )}
+                {rest.length > 0 && (
+                  <div className="space-y-2.5">
+                    <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide px-1">
+                      Program Lainnya
+                    </p>
+                    {rest.map((p, i) => renderCard(p, i, "compact"))}
+                  </div>
+                )}
+              </>
+            );
+          })()
         )}
       </div>
 
