@@ -116,6 +116,71 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Berita Terbaru - Slideshow */}
+      {!newsLoading && publishedNews.length > 0 && (
+        <div className="px-4 mt-7">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="text-base font-bold text-foreground">Berita Terbaru</h2>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Update terkini dari kami</p>
+            </div>
+            <button
+              onClick={() => navigate("/berita")}
+              className="text-xs font-semibold text-primary flex items-center gap-0.5"
+            >
+              Semua <ChevronRight className="h-3 w-3" />
+            </button>
+          </div>
+          <Slideshow className="shadow-card border border-border/30" interval={5000}>
+            {publishedNews.slice(0, 6).map((n) => (
+              <button
+                key={n.id}
+                onClick={() => navigate(`/berita?n=${n.id}`)}
+                className="block w-full text-left bg-card"
+              >
+                {n.image_url ? (
+                  <div className="relative h-52">
+                    <img src={n.image_url} alt={n.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                    <div className="absolute top-3 left-3">
+                      <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
+                        {n.category}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-4 pb-8 text-white">
+                      <h3 className="font-bold text-sm leading-snug line-clamp-2 mb-1">{n.title}</h3>
+                      {n.excerpt && (
+                        <p className="text-[11px] text-white/85 line-clamp-2 leading-relaxed">{n.excerpt}</p>
+                      )}
+                      <p className="text-[10px] text-white/70 mt-1.5 flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {new Date(n.published_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-5 bg-gradient-to-br from-primary/10 to-emerald-100/40 min-h-[13rem] flex flex-col justify-between">
+                    <span className="self-start bg-primary text-primary-foreground text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
+                      {n.category}
+                    </span>
+                    <div>
+                      <h3 className="font-bold text-sm leading-snug line-clamp-2 mb-1 text-foreground">{n.title}</h3>
+                      {n.excerpt && (
+                        <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">{n.excerpt}</p>
+                      )}
+                      <p className="text-[10px] text-muted-foreground mt-2 flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {new Date(n.published_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </button>
+            ))}
+          </Slideshow>
+        </div>
+      )}
+
       {/* Program Donasi */}
       <div className="px-4 mt-7">
         <div className="flex items-center justify-between mb-4">
