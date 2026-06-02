@@ -1610,6 +1610,7 @@ export default function Admin() {
                         placeholder="Contoh: Pendaftaran relawan baru telah dibuka!"
                         rows={2}
                       />
+                    </div>
                   </div>
                 </div>
 
