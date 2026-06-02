@@ -304,10 +304,21 @@ const Index = () => {
                 </div>
               );
             };
+            if (!programsSlideshow) {
+              return (
+                <div className="space-y-3">
+                  {activePrograms.map((p, i) => (
+                    <div key={p.id} className="rounded-2xl overflow-hidden shadow-card border border-border/30">
+                      {renderCard(p, i, "full")}
+                    </div>
+                  ))}
+                </div>
+              );
+            }
             return (
               <>
                 {featured.length > 0 && (
-                  <Slideshow className="shadow-card border border-border/30 mb-3" interval={6000}>
+                  <Slideshow className="shadow-card border border-border/30 mb-3" autoPlay={false} showArrows>
                     {featured.map((p, i) => (
                       <div key={p.id}>{renderCard(p, i, "full")}</div>
                     ))}
