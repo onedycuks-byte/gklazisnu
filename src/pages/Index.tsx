@@ -49,6 +49,8 @@ const Index = () => {
   const s = getSettingsMap();
   const announcementActive = s.announcement_active === "true";
   const announcementText = s.announcement_text || "";
+  const newsSlideshow = s.news_slideshow_enabled !== "false"; // default ON
+  const programsSlideshow = s.programs_slideshow_enabled !== "false"; // default ON
 
   const quickMenuItems = [
     { icon: FileText, label: "Laporan", gradient: "from-primary to-emerald-600", path: "/laporan" },
