@@ -8,7 +8,7 @@ import { usePrograms } from "@/hooks/usePrograms";
 import { useNews } from "@/hooks/useNews";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock } from "lucide-react";
+import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Slideshow } from "@/components/Slideshow";
@@ -56,6 +56,7 @@ const Index = () => {
     { icon: FileText, label: "Laporan", gradient: "from-primary to-emerald-600", path: "/laporan" },
     { icon: Newspaper, label: "Berita", gradient: "from-amber-500 to-orange-500", path: "/berita" },
     { icon: Heart, label: "Santunan", gradient: "from-rose-500 to-pink-600", path: "/santunan" },
+    { icon: BookOpen, label: "Maulid", gradient: "from-emerald-600 to-teal-700", path: "/maulid" },
     { icon: Calculator, label: "Edukasi", gradient: "from-teal-500 to-cyan-600", path: "/edukasi" },
     { icon: MessageCircle, label: "Diskusi", gradient: "from-blue-500 to-indigo-500", path: "/diskusi" },
     { icon: Sparkles, label: "Tanya AI", gradient: "from-violet-500 to-purple-600", path: "/ai-chat" },

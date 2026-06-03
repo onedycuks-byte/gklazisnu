@@ -17,6 +17,7 @@ import AiChat from "./pages/AiChat";
 import Diskusi from "./pages/Diskusi";
 import Santunan from "./pages/Santunan";
 import Edukasi from "./pages/Edukasi";
+import Maulid from "./pages/Maulid";
 import StaffLogin from "./pages/StaffLogin";
 import NotFound from "./pages/NotFound";
 
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/diskusi" element={<Diskusi />} />
             <Route path="/santunan" element={<Santunan />} />
             <Route path="/edukasi" element={<Edukasi />} />
+            <Route path="/maulid" element={<Maulid />} />
             <Route path="/staff-login" element={<StaffLogin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
