@@ -1,15 +1,40 @@
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Download, BookOpen, Share2 } from "lucide-react";
+import { ArrowLeft, Download, BookOpen, Share2, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useTrackPageView } from "@/hooks/useAnalytics";
 import { toast } from "sonner";
 import maulidPdf from "@/assets/maulid-diba.pdf.asset.json";
+
+// Use bundled worker (works on all mobile browsers, no CDN/CORS issues)
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
 
 export default function Maulid() {
   useTrackPageView("/maulid");
   const navigate = useNavigate();
   const pdfUrl = maulidPdf.url;
+
+  const [numPages, setNumPages] = useState(0);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageWidth, setPageWidth] = useState(360);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const update = () => {
+      const w = containerRef.current?.clientWidth ?? 360;
+      setPageWidth(Math.min(w - 8, 900));
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   const handleShare = async () => {
     const shareUrl = window.location.origin + "/maulid";
@@ -25,8 +50,13 @@ export default function Maulid() {
         toast.success("Tautan disalin");
       }
     } catch {
-      /* user dismissed */
+      /* dismissed */
     }
+  };
+
+  const go = (delta: number) => {
+    setPageNumber((p) => Math.min(Math.max(1, p + delta), numPages || 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -46,7 +76,9 @@ export default function Maulid() {
             </div>
             <div className="min-w-0">
               <h1 className="text-sm font-bold leading-tight truncate">Maulid Diba'i</h1>
-              <p className="text-[10px] text-muted-foreground">Kitab maulid lengkap</p>
+              <p className="text-[10px] text-muted-foreground">
+                {numPages ? `Halaman ${pageNumber} / ${numPages}` : "Memuat kitab..."}
+              </p>
             </div>
           </div>
           <button
@@ -75,35 +107,75 @@ export default function Maulid() {
             </a>
             <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
               <Button size="sm" variant="outline" className="w-full h-9 gap-1.5 text-xs font-semibold bg-white/10 text-white border-white/30 hover:bg-white/20 hover:text-white">
-                <BookOpen className="h-3.5 w-3.5" /> Buka Penuh
+                <BookOpen className="h-3.5 w-3.5" /> Buka Asli
               </Button>
             </a>
           </div>
         </div>
 
-        <div className="rounded-2xl overflow-hidden border border-border/50 shadow-card bg-muted/30 flex-1 min-h-[70vh]">
-          <object
-            data={`${pdfUrl}#view=FitH&toolbar=1`}
-            type="application/pdf"
-            className="w-full h-full min-h-[70vh]"
-            aria-label="Buku Maulid Diba'i"
+        <div
+          ref={containerRef}
+          className="rounded-2xl overflow-hidden border border-border/50 shadow-card bg-muted/40 flex-1 min-h-[60vh] flex items-start justify-center p-1"
+        >
+          <Document
+            file={pdfUrl}
+            onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+            onLoadError={(e) => {
+              console.error("PDF load error", e);
+              toast.error("Gagal memuat PDF");
+            }}
+            loading={
+              <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                <Loader2 className="h-6 w-6 animate-spin mb-2" />
+                <p className="text-xs">Memuat kitab...</p>
+              </div>
+            }
+            error={
+              <div className="p-6 text-center text-sm text-muted-foreground">
+                Gagal memuat PDF.{" "}
+                <a href={pdfUrl} className="text-primary underline" target="_blank" rel="noopener noreferrer">
+                  Buka langsung
+                </a>
+              </div>
+            }
           >
-            <iframe
-              src={`https://docs.google.com/viewer?url=${encodeURIComponent(window.location.origin + pdfUrl)}&embedded=true`}
-              className="w-full h-full min-h-[70vh] border-0"
-              title="Maulid Diba'i"
+            <Page
+              pageNumber={pageNumber}
+              width={pageWidth}
+              renderTextLayer={false}
+              renderAnnotationLayer={false}
+              className="!bg-transparent"
             />
-            <div className="p-6 text-center text-sm text-muted-foreground">
-              Browser Anda tidak dapat menampilkan PDF.{" "}
-              <a href={pdfUrl} className="text-primary underline" target="_blank" rel="noopener noreferrer">
-                Klik di sini untuk membuka
-              </a>
-              .
-            </div>
-          </object>
+          </Document>
         </div>
 
-        <p className="text-[10px] text-muted-foreground text-center mt-2 mb-1">
+        {numPages > 0 && (
+          <div className="flex items-center justify-between gap-2 mt-3 sticky bottom-20 z-30">
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => go(-1)}
+              disabled={pageNumber <= 1}
+              className="flex-1 h-10 gap-1 shadow-elevated"
+            >
+              <ChevronLeft className="h-4 w-4" /> Sebelumnya
+            </Button>
+            <div className="text-xs font-semibold bg-card border border-border rounded-lg px-3 h-10 flex items-center shadow-card">
+              {pageNumber} / {numPages}
+            </div>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => go(1)}
+              disabled={pageNumber >= numPages}
+              className="flex-1 h-10 gap-1 shadow-elevated"
+            >
+              Berikutnya <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
+        <p className="text-[10px] text-muted-foreground text-center mt-3 mb-1">
           صلى الله على محمد ﷺ
         </p>
       </main>
