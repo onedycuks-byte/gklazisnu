@@ -133,15 +133,20 @@ interface Props {
   targets: WhatsAppTarget[];
   initialMessage?: string;
   onMessageConsumed?: () => void;
+  customTemplates?: MessageTemplate[];
 }
 
-export function WhatsAppChat({ role, targets, initialMessage, onMessageConsumed }: Props) {
+export function WhatsAppChat({ role, targets, initialMessage, onMessageConsumed, customTemplates }: Props) {
   const [selectedTarget, setSelectedTarget] = useState<WhatsAppTarget>(targets[0]);
   const [selectedTemplate, setSelectedTemplate] = useState<MessageTemplate | null>(null);
   const [message, setMessage] = useState("");
   const [includeDate, setIncludeDate] = useState(false);
   const [customDate, setCustomDate] = useState(new Date().toISOString().split("T")[0]);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    setSelectedTarget(targets[0]);
+  }, [targets]);
 
   // Auto-fill message from submission
   useEffect(() => {
@@ -151,7 +156,9 @@ export function WhatsAppChat({ role, targets, initialMessage, onMessageConsumed 
     }
   }, [initialMessage]);
 
-  const templates = role === "koordinator"
+  const templates = customTemplates
+    ? customTemplates
+    : role === "koordinator"
     ? KOORDINATOR_TEMPLATES
     : role === "sekretaris"
     ? SEKRETARIS_KOORDINATOR_TEMPLATES
