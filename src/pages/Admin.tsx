@@ -2126,7 +2126,7 @@ export default function Admin() {
           </TabsContent>
 
           {/* Chat Koordinator Tab - for Sekretaris */}
-          <TabsContent value="chat-koordinator" className="space-y-4">
+          <TabsContent value="chat-koordinator" className="space-y-6">
             <div>
               <h2 className="text-base font-semibold">Chat Koordinator Wilayah</h2>
               <p className="text-xs text-muted-foreground">Kirim pesan ke koordinator wilayah via WhatsApp</p>
@@ -2146,7 +2146,26 @@ export default function Admin() {
                 </CardContent>
               </Card>
             )}
+
+            <KoordinatorKhususChat
+              title="Chat Koordinator Santunan Yatim-Piatu"
+              settingKey="wa_koord_santunan"
+              targetLabel="Koordinator Santunan Yatim-Piatu"
+              templates={SANTUNAN_TEMPLATES}
+              currentPhone={getSetting("wa_koord_santunan") || ""}
+              onSavePhone={(v) => updateSetting.mutateAsync({ key: "wa_koord_santunan", value: v })}
+            />
+
+            <KoordinatorKhususChat
+              title="Chat Koordinator Bantuan Pendidikan"
+              settingKey="wa_koord_pendidikan"
+              targetLabel="Koordinator Bantuan Pendidikan"
+              templates={PENDIDIKAN_TEMPLATES}
+              currentPhone={getSetting("wa_koord_pendidikan") || ""}
+              onSavePhone={(v) => updateSetting.mutateAsync({ key: "wa_koord_pendidikan", value: v })}
+            />
           </TabsContent>
+
 
           {/* Perintah Tab - for Ketua */}
           <TabsContent value="perintah" className="space-y-4">
