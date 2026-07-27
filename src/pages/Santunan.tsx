@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { useOrphanRegistrations } from "@/hooks/useOrphanRegistrations";
 import { useSantunanGallery } from "@/hooks/useSantunanGallery";
+import { useSantunanDisbursements } from "@/hooks/useSantunanDisbursements";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { useTrackPageView } from "@/hooks/useAnalytics";
 import {
-  Heart, ArrowLeft, UserPlus, ChevronLeft, ChevronRight, ImageIcon,
+  Heart, ArrowLeft, UserPlus, ChevronLeft, ChevronRight, ImageIcon, HandCoins,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { SantunanRegisterForm, emptyForm } from "@/components/santunan/SantunanRegisterForm";
