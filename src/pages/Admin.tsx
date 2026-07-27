@@ -84,6 +84,19 @@ export default function Admin() {
   const [galleryFile, setGalleryFile] = useState<File | null>(null);
   const [galleryUploading, setGalleryUploading] = useState(false);
 
+  // Santunan disbursements (dana tersalurkan)
+  const {
+    disbursements,
+    totalDisbursed,
+    addDisbursement,
+    deleteDisbursement,
+    uploadImage: uploadDisbursementImage,
+    isAdding: isAddingDisbursement,
+  } = useSantunanDisbursements();
+  const [disbForm, setDisbForm] = useState({ recipient_name: "", amount: "", date: new Date().toISOString().split("T")[0], description: "" });
+  const [disbFile, setDisbFile] = useState<File | null>(null);
+  const [disbUploading, setDisbUploading] = useState(false);
+
   // Archives
   const { archives, isLoading: archivesLoading, addArchive, isAdding: isAddingArchive, deleteArchive } = useArchives();
   const [archiveFile, setArchiveFile] = useState<File | null>(null);
