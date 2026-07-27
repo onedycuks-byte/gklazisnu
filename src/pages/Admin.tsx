@@ -1875,6 +1875,120 @@ export default function Admin() {
               </CardContent>
             </Card>
 
+            {/* Dana Tersalurkan */}
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-sm">Dana Santunan Tersalurkan</CardTitle>
+                    <CardDescription className="text-xs">Catat nominal santunan yang telah disalurkan (tampil publik)</CardDescription>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] text-muted-foreground uppercase font-semibold">Total</p>
+                    <p className="text-sm font-bold text-emerald-600">{formatCurrency(totalDisbursed)}</p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    placeholder="Nama penerima"
+                    value={disbForm.recipient_name}
+                    onChange={e => setDisbForm(f => ({ ...f, recipient_name: e.target.value }))}
+                    className="text-xs h-8 col-span-2"
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Nominal (Rp)"
+                    value={disbForm.amount}
+                    onChange={e => setDisbForm(f => ({ ...f, amount: e.target.value }))}
+                    className="text-xs h-8"
+                  />
+                  <Input
+                    type="date"
+                    value={disbForm.date}
+                    onChange={e => setDisbForm(f => ({ ...f, date: e.target.value }))}
+                    className="text-xs h-8"
+                  />
+                  <Textarea
+                    placeholder="Keterangan (opsional)"
+                    value={disbForm.description}
+                    onChange={e => setDisbForm(f => ({ ...f, description: e.target.value }))}
+                    className="text-xs col-span-2 min-h-[60px]"
+                  />
+                  <label className="cursor-pointer col-span-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={e => setDisbFile(e.target.files?.[0] || null)}
+                    />
+                    <Button size="sm" variant="outline" className="h-8 text-xs gap-1 w-full" asChild>
+                      <span><Upload className="h-3 w-3" /> {disbFile ? disbFile.name.slice(0, 25) : "Foto Dokumentasi (opsional)"}</span>
+                    </Button>
+                  </label>
+                </div>
+                <Button
+                  size="sm"
+                  className="w-full h-8 text-xs gap-1"
+                  disabled={!disbForm.recipient_name || !disbForm.amount || isAddingDisbursement || disbUploading}
+                  onClick={async () => {
+                    setDisbUploading(true);
+                    try {
+                      let image_url: string | undefined;
+                      if (disbFile) image_url = await uploadDisbursementImage(disbFile);
+                      await addDisbursement({
+                        recipient_name: disbForm.recipient_name,
+                        amount: parseInt(disbForm.amount) || 0,
+                        date: disbForm.date,
+                        description: disbForm.description || null,
+                        image_url: image_url || null,
+                      });
+                      toast({ title: "Berhasil", description: "Data penyaluran ditambahkan" });
+                      setDisbForm({ recipient_name: "", amount: "", date: new Date().toISOString().split("T")[0], description: "" });
+                      setDisbFile(null);
+                    } catch {
+                      toast({ title: "Gagal", description: "Gagal menambahkan data", variant: "destructive" });
+                    }
+                    setDisbUploading(false);
+                  }}
+                >
+                  {(isAddingDisbursement || disbUploading) ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                  Tambah Penyaluran
+                </Button>
+
+                {disbursements.length > 0 && (
+                  <div className="space-y-2 pt-2 max-h-72 overflow-y-auto">
+                    {disbursements.map(d => (
+                      <div key={d.id} className="flex items-start gap-2 p-2 rounded-lg border border-border/40 bg-muted/30">
+                        {d.image_url && (
+                          <img src={d.image_url} alt="" className="h-12 w-12 rounded-lg object-cover shrink-0" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-xs font-semibold truncate">{d.recipient_name}</p>
+                            <p className="text-xs font-bold text-emerald-600 shrink-0">{formatCurrency(d.amount)}</p>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground">{formatDate(d.date)}</p>
+                          {d.description && <p className="text-[10px] text-muted-foreground line-clamp-2 mt-0.5">{d.description}</p>}
+                        </div>
+                        <button
+                          onClick={async () => {
+                            if (!confirm("Hapus data penyaluran ini?")) return;
+                            await deleteDisbursement(d.id);
+                            toast({ title: "Dihapus", description: "Data penyaluran dihapus" });
+                          }}
+                          className="text-destructive hover:text-destructive/80 shrink-0"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Registration list */}
             {orphansLoading ? (
               <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
