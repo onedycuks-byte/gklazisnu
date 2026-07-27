@@ -67,25 +67,93 @@ export default function Santunan() {
       </div>
 
       <div className="px-4 mt-5 space-y-5">
+        {/* Total Tersalurkan Highlight */}
+        <div className="rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-4 shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm shrink-0">
+              <HandCoins className="h-5 w-5" />
+            </div>
+            <div className="flex-1">
+              <p className="text-[10px] uppercase font-semibold tracking-wide text-white/70">Dana Tersalurkan</p>
+              <p className="text-xl font-bold">
+                {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(totalDisbursed)}
+              </p>
+              <p className="text-[11px] text-white/80 mt-0.5">{disbursements.length} penerima santunan</p>
+            </div>
+          </div>
+        </div>
+
         {/* Tab Selector */}
-        <div className="flex gap-2 bg-muted rounded-2xl p-1">
+        <div className="flex gap-1.5 bg-muted rounded-2xl p-1">
           <button
             onClick={() => setTab("galeri")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
               tab === "galeri" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"
             }`}
           >
             <ImageIcon className="h-4 w-4" /> Galeri
           </button>
           <button
+            onClick={() => setTab("tersalurkan")}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+              tab === "tersalurkan" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"
+            }`}
+          >
+            <HandCoins className="h-4 w-4" /> Tersalurkan
+          </button>
+          <button
             onClick={() => { setTab("daftar"); setRegistered(false); }}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
               tab === "daftar" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"
             }`}
           >
-            <UserPlus className="h-4 w-4" /> Daftar Baru
+            <UserPlus className="h-4 w-4" /> Daftar
           </button>
         </div>
+
+        {/* Tersalurkan Tab */}
+        {tab === "tersalurkan" && (
+          <div className="space-y-3 animate-fade-in">
+            {disbursements.length === 0 ? (
+              <div className="rounded-2xl bg-muted/50 border border-border/30 p-12 text-center">
+                <HandCoins className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">Belum ada data penyaluran</p>
+              </div>
+            ) : (
+              disbursements.map((d, i) => (
+                <div
+                  key={d.id}
+                  className="bg-card rounded-2xl p-4 shadow-card border border-border/30 animate-slide-up"
+                  style={{ animationDelay: `${i * 40}ms` }}
+                >
+                  <div className="flex items-start gap-3">
+                    {d.image_url ? (
+                      <img src={d.image_url} alt="" className="h-14 w-14 rounded-xl object-cover shrink-0" />
+                    ) : (
+                      <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-950 dark:to-teal-950 flex items-center justify-center shrink-0">
+                        <Heart className="h-6 w-6 text-emerald-600" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-bold text-foreground truncate">{d.recipient_name}</p>
+                        <p className="text-sm font-bold text-emerald-600 shrink-0">
+                          {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(d.amount)}
+                        </p>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                        {new Date(d.date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+                      </p>
+                      {d.description && (
+                        <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">{d.description}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
 
         {/* Gallery Tab */}
         {tab === "galeri" && (
