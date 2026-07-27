@@ -322,6 +322,39 @@ export type Database = {
         }
         Relationships: []
       }
+      santunan_disbursements: {
+        Row: {
+          amount: number
+          created_at: string
+          date: string
+          description: string | null
+          id: string
+          image_url: string | null
+          recipient_name: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          recipient_name: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          recipient_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       santunan_gallery: {
         Row: {
           caption: string | null
