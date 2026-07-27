@@ -15,6 +15,7 @@ import { useDiscussions } from "@/hooks/useDiscussions";
 import { useAnalyticsStats } from "@/hooks/useAnalytics";
 import { useOrphanRegistrations } from "@/hooks/useOrphanRegistrations";
 import { useSantunanGallery } from "@/hooks/useSantunanGallery";
+import { useSantunanDisbursements } from "@/hooks/useSantunanDisbursements";
 import { useArchives } from "@/hooks/useArchives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
