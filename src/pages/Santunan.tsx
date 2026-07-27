@@ -17,8 +17,9 @@ export default function Santunan() {
   const navigate = useNavigate();
   const { register, isRegistering } = useOrphanRegistrations();
   const { images } = useSantunanGallery();
+  const { disbursements, totalDisbursed } = useSantunanDisbursements();
 
-  const [tab, setTab] = useState<"galeri" | "daftar">("galeri");
+  const [tab, setTab] = useState<"galeri" | "tersalurkan" | "daftar">("galeri");
   const [form, setForm] = useState(emptyForm);
   const [registered, setRegistered] = useState(false);
   const [slideIndex, setSlideIndex] = useState(0);
