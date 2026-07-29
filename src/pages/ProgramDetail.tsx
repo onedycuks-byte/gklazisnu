@@ -132,6 +132,43 @@ export default function ProgramDetail() {
           </div>
         )}
 
+        {/* Laporan Penyaluran */}
+        <div className="bg-card rounded-xl p-5 shadow-card mt-4 animate-slide-up" style={{ animationDelay: "200ms" }}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <HandCoins className="h-4 w-4 text-primary" />
+              <h2 className="text-sm font-bold text-foreground">Laporan Penyaluran</h2>
+            </div>
+            <span className="text-xs font-semibold text-primary">{disbursements.length} kegiatan</span>
+          </div>
+          <div className="bg-primary/5 rounded-lg p-3 mb-3">
+            <p className="text-xs text-muted-foreground">Total Tersalurkan</p>
+            <p className="text-lg font-bold text-primary">{formatCurrency(totalDisbursed)}</p>
+          </div>
+          {disbursements.length === 0 ? (
+            <p className="text-xs text-muted-foreground text-center py-4">Belum ada laporan penyaluran</p>
+          ) : (
+            <div className="space-y-2">
+              {disbursements.map((d) => (
+                <div key={d.id} className="border border-border rounded-lg p-3">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <p className="text-sm font-semibold text-foreground">{d.recipient_name}</p>
+                    <p className="text-sm font-bold text-primary whitespace-nowrap">{formatCurrency(d.amount)}</p>
+                  </div>
+                  <div className="flex items-center gap-1 text-[11px] text-muted-foreground mb-1">
+                    <Calendar className="h-3 w-3" />
+                    <span>{new Date(d.date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</span>
+                  </div>
+                  {d.description && <p className="text-xs text-muted-foreground">{d.description}</p>}
+                  {d.image_url && (
+                    <img src={d.image_url} alt={d.recipient_name} className="mt-2 w-full rounded-md max-h-48 object-cover" />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Actions */}
         <div className="mt-6 space-y-2 animate-slide-up" style={{ animationDelay: "240ms" }}>
           <Button onClick={handleConfirmWA} className="w-full h-12 gap-2 text-base" variant="success">
