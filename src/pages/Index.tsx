@@ -5,10 +5,11 @@ import { useRegions } from "@/hooks/useRegions";
 import { useSupabaseDonations } from "@/hooks/useSupabaseDonations";
 import { useExpenses } from "@/hooks/useExpenses";
 import { usePrograms } from "@/hooks/usePrograms";
+import { useProgramDisbursements } from "@/hooks/useProgramDisbursements";
 import { useNews } from "@/hooks/useNews";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock, BookOpen } from "lucide-react";
+import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock, BookOpen, HandCoins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Slideshow } from "@/components/Slideshow";
@@ -22,6 +23,7 @@ const Index = () => {
   const { donations, isLoading: donationsLoading, getTotalDonations } = useSupabaseDonations();
   const { expenses, isLoading: expensesLoading, getTotalExpenses } = useExpenses();
   const { activePrograms, isLoading: programsLoading } = usePrograms();
+  const { disbursements: programDisbursements, isLoading: programDisbursementsLoading } = useProgramDisbursements();
   const { publishedNews, isLoading: newsLoading } = useNews();
   const { user, isAdmin } = useAuth();
   const { getSettingsMap, isLoading: settingsLoading } = useSiteSettings();
@@ -31,7 +33,7 @@ const Index = () => {
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
 
-  if (regionsLoading || donationsLoading || expensesLoading || programsLoading || settingsLoading) {
+  if (regionsLoading || donationsLoading || expensesLoading || programsLoading || settingsLoading || programDisbursementsLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
         <div className="relative">
@@ -51,6 +53,11 @@ const Index = () => {
   const announcementText = s.announcement_text || "";
   const newsSlideshow = s.news_slideshow_enabled !== "false"; // default ON
   const programsSlideshow = s.programs_slideshow_enabled !== "false"; // default ON
+
+  const totalDisbursedByProgram = programDisbursements.reduce((acc, d) => {
+    acc.set(d.program_id, (acc.get(d.program_id) || 0) + d.amount);
+    return acc;
+  }, new Map<string, number>());
 
   const quickMenuItems = [
     { icon: FileText, label: "Laporan", gradient: "from-primary to-emerald-600", path: "/laporan" },
@@ -230,6 +237,7 @@ const Index = () => {
               const progress = program.target_amount > 0
                 ? Math.min((program.collected_amount / program.target_amount) * 100, 100)
                 : 0;
+              const disbursed = totalDisbursedByProgram.get(program.id) || 0;
               if (variant === "full") {
                 return (
                   <div
@@ -260,7 +268,7 @@ const Index = () => {
                           style={{ width: `${progress}%` }}
                         />
                       </div>
-                      <div className="flex items-end justify-between">
+                      <div className="flex items-end justify-between mb-3">
                         <div>
                           <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Terkumpul</p>
                           <p className="text-sm font-bold text-primary">{formatCurrency(program.collected_amount)}</p>
@@ -269,6 +277,13 @@ const Index = () => {
                           <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Target</p>
                           <p className="text-sm font-semibold text-foreground">{formatCurrency(program.target_amount)}</p>
                         </div>
+                      </div>
+                      <div className="flex items-center justify-between bg-emerald-50/60 dark:bg-emerald-950/20 rounded-lg px-3 py-2">
+                        <div className="flex items-center gap-1.5">
+                          <HandCoins className="h-3.5 w-3.5 text-emerald-600" />
+                          <span className="text-[10px] text-muted-foreground font-medium">Tersalurkan</span>
+                        </div>
+                        <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(disbursed)}</p>
                       </div>
                     </div>
                   </div>
@@ -299,6 +314,10 @@ const Index = () => {
                     <p className="text-[10px] text-muted-foreground">
                       <span className="font-bold text-primary">{formatCurrency(program.collected_amount)}</span>
                       {" / "}{formatCurrency(program.target_amount)}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
+                      <HandCoins className="h-3 w-3 text-emerald-600" />
+                      Tersalurkan: <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(disbursed)}</span>
                     </p>
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
