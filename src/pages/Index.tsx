@@ -268,7 +268,7 @@ const Index = () => {
                           style={{ width: `${progress}%` }}
                         />
                       </div>
-                      <div className="flex items-end justify-between">
+                      <div className="flex items-end justify-between mb-3">
                         <div>
                           <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Terkumpul</p>
                           <p className="text-sm font-bold text-primary">{formatCurrency(program.collected_amount)}</p>
@@ -277,6 +277,13 @@ const Index = () => {
                           <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Target</p>
                           <p className="text-sm font-semibold text-foreground">{formatCurrency(program.target_amount)}</p>
                         </div>
+                      </div>
+                      <div className="flex items-center justify-between bg-emerald-50/60 dark:bg-emerald-950/20 rounded-lg px-3 py-2">
+                        <div className="flex items-center gap-1.5">
+                          <HandCoins className="h-3.5 w-3.5 text-emerald-600" />
+                          <span className="text-[10px] text-muted-foreground font-medium">Tersalurkan</span>
+                        </div>
+                        <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(disbursed)}</p>
                       </div>
                     </div>
                   </div>
