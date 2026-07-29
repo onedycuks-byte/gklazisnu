@@ -237,6 +237,7 @@ const Index = () => {
               const progress = program.target_amount > 0
                 ? Math.min((program.collected_amount / program.target_amount) * 100, 100)
                 : 0;
+              const disbursed = totalDisbursedByProgram.get(program.id) || 0;
               if (variant === "full") {
                 return (
                   <div
