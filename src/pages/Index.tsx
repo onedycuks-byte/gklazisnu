@@ -33,7 +33,7 @@ const Index = () => {
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
 
-  if (regionsLoading || donationsLoading || expensesLoading || programsLoading || settingsLoading) {
+  if (regionsLoading || donationsLoading || expensesLoading || programsLoading || settingsLoading || programDisbursementsLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
         <div className="relative">
@@ -53,6 +53,11 @@ const Index = () => {
   const announcementText = s.announcement_text || "";
   const newsSlideshow = s.news_slideshow_enabled !== "false"; // default ON
   const programsSlideshow = s.programs_slideshow_enabled !== "false"; // default ON
+
+  const totalDisbursedByProgram = programDisbursements.reduce((acc, d) => {
+    acc.set(d.program_id, (acc.get(d.program_id) || 0) + d.amount);
+    return acc;
+  }, new Map<string, number>());
 
   const quickMenuItems = [
     { icon: FileText, label: "Laporan", gradient: "from-primary to-emerald-600", path: "/laporan" },
