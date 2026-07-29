@@ -11,6 +11,7 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { AdminAiChat } from "@/components/AdminAiChat";
 import { WhatsAppChat } from "@/components/WhatsAppChat";
 import { KoordinatorKhususChat, SANTUNAN_TEMPLATES, PENDIDIKAN_TEMPLATES } from "@/components/KoordinatorKhususChat";
+import { ProgramDisbursementManager } from "@/components/ProgramDisbursementManager";
 import { useDiscussions } from "@/hooks/useDiscussions";
 import { useAnalyticsStats } from "@/hooks/useAnalytics";
 import { useOrphanRegistrations } from "@/hooks/useOrphanRegistrations";
@@ -940,6 +941,7 @@ export default function Admin() {
                         </div>
                       </div>
                       <div className="flex gap-0.5 shrink-0 ml-2">
+                        <ProgramDisbursementManager programId={program.id} programTitle={program.title} />
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingProgram(program)}>
