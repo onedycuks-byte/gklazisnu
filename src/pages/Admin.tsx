@@ -941,6 +941,7 @@ export default function Admin() {
                         </div>
                       </div>
                       <div className="flex gap-0.5 shrink-0 ml-2">
+                        <ProgramDisbursementManager programId={program.id} programTitle={program.title} />
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingProgram(program)}>
