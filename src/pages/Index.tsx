@@ -315,6 +315,10 @@ const Index = () => {
                       <span className="font-bold text-primary">{formatCurrency(program.collected_amount)}</span>
                       {" / "}{formatCurrency(program.target_amount)}
                     </p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
+                      <HandCoins className="h-3 w-3 text-emerald-600" />
+                      Tersalurkan: <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(disbursed)}</span>
+                    </p>
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
                 </div>
