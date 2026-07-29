@@ -11,6 +11,7 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { AdminAiChat } from "@/components/AdminAiChat";
 import { WhatsAppChat } from "@/components/WhatsAppChat";
 import { KoordinatorKhususChat, SANTUNAN_TEMPLATES, PENDIDIKAN_TEMPLATES } from "@/components/KoordinatorKhususChat";
+import { ProgramDisbursementManager } from "@/components/ProgramDisbursementManager";
 import { useDiscussions } from "@/hooks/useDiscussions";
 import { useAnalyticsStats } from "@/hooks/useAnalytics";
 import { useOrphanRegistrations } from "@/hooks/useOrphanRegistrations";
