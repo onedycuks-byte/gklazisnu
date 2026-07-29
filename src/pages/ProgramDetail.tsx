@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { usePrograms } from "@/hooks/usePrograms";
+import { useProgramDisbursements } from "@/hooks/useProgramDisbursements";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Loader2, MessageCircle, Target, Coins, Share2 } from "lucide-react";
+import { ArrowLeft, Loader2, MessageCircle, Target, Coins, Share2, HandCoins, Calendar } from "lucide-react";
 import { shareContent, buildPublicUrl } from "@/lib/share";
 
 const WA_NUMBER = "08976315251";
@@ -12,6 +13,7 @@ export default function ProgramDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { programs, isLoading } = usePrograms();
+  const { disbursements, totalDisbursed } = useProgramDisbursements(id);
 
   const program = programs.find((p) => p.id === id);
 
