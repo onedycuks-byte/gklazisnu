@@ -2560,7 +2560,38 @@ export default function Admin() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Rekap Bulanan PDF */}
+              <Card className="border-primary/30 bg-primary/5">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                      <BarChart3 className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold">Rekap Bulanan PDF</p>
+                      <p className="text-xs text-muted-foreground">Saldo awal, rekap kategori, wilayah & rincian</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Select value={rekapPeriod} onValueChange={setRekapPeriod}>
+                      <SelectTrigger className="h-9 text-xs flex-1">
+                        <SelectValue placeholder="Pilih bulan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availablePeriods.map((p) => (
+                          <SelectItem key={p} value={p} className="text-xs">{monthLabel(p)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button size="sm" className="gap-1.5 h-9" onClick={handleExportRekapBulanan}>
+                      <FileDown className="h-3.5 w-3.5" /> Download
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
+
 
             {/* Rincian Per Kategori */}
             <div className="pt-2">
