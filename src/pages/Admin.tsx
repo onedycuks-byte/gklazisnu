@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { exportLaporanPDF } from "@/lib/exportLaporanPDF";
+import { exportRekapBulananPDF, monthLabel } from "@/lib/exportRekapBulananPDF";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRegions, Region } from "@/hooks/useRegions";
 import { useSupabaseDonations, Donation, INCOME_CATEGORIES } from "@/hooks/useSupabaseDonations";
@@ -219,6 +220,72 @@ export default function Admin() {
       toast({ title: "Gagal", description: "Gagal membuat PDF", variant: "destructive" });
     }
   };
+
+  // ===== Rekap bulanan =====
+  const [rekapPeriod, setRekapPeriod] = useState(() => new Date().toISOString().slice(0, 7));
+
+  const availablePeriods = (() => {
+    const set = new Set<string>();
+    donations.filter((d) => d.status === "confirmed").forEach((d) => set.add(d.date.slice(0, 7)));
+    expenses.forEach((e) => set.add(e.date.slice(0, 7)));
+    set.add(new Date().toISOString().slice(0, 7));
+    return Array.from(set).sort((a, b) => b.localeCompare(a));
+  })();
+
+  const handleExportRekapBulanan = () => {
+    try {
+      const regionMap = new Map(regions.map((r) => [r.id, r.name]));
+      const confirmed = donations.filter((d) => d.status === "confirmed");
+      const inMonth = confirmed
+        .filter((d) => d.date.slice(0, 7) === rekapPeriod)
+        .sort((a, b) => a.date.localeCompare(b.date));
+      const outMonth = expenses
+        .filter((e) => e.date.slice(0, 7) === rekapPeriod)
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+      const saldoAwal =
+        confirmed.filter((d) => d.date.slice(0, 7) < rekapPeriod).reduce((s, d) => s + d.amount, 0) -
+        expenses.filter((e) => e.date.slice(0, 7) < rekapPeriod).reduce((s, e) => s + e.amount, 0);
+
+      exportRekapBulananPDF({
+        period: rekapPeriod,
+        saldoAwal,
+        donations: inMonth.map((d) => ({
+          date: d.date,
+          region: regionMap.get(d.region_id || "") || "-",
+          category: d.category,
+          notes: d.notes || undefined,
+          amount: d.amount,
+        })),
+        expenses: outMonth.map((e) => ({
+          date: e.date,
+          description: e.description || "",
+          category: e.category,
+          amount: e.amount,
+        })),
+        regions: regions.map((r) => {
+          const rd = inMonth.filter((d) => d.region_id === r.id);
+          return {
+            name: r.name,
+            coordinator: r.coordinator,
+            totalDonations: rd.reduce((s, d) => s + d.amount, 0),
+            donationCount: rd.length,
+          };
+        }),
+        signers: {
+          ketuaLazis: getSetting("ketua_lazisnu") || undefined,
+          bendaharaLazis: getSetting("bendahara_lazisnu") || undefined,
+          ketuaPRNU: getSetting("ketua_prnu") || undefined,
+        },
+      });
+      toast({ title: "Berhasil", description: `Rekap ${monthLabel(rekapPeriod)} berhasil diunduh` });
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Gagal", description: "Gagal membuat rekap bulanan", variant: "destructive" });
+    }
+  };
+
+
 
   // Region handlers
   const handleUpdateRegion = async () => {
@@ -2493,7 +2560,38 @@ export default function Admin() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Rekap Bulanan PDF */}
+              <Card className="border-primary/30 bg-primary/5">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                      <BarChart3 className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold">Rekap Bulanan PDF</p>
+                      <p className="text-xs text-muted-foreground">Saldo awal, rekap kategori, wilayah & rincian</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Select value={rekapPeriod} onValueChange={setRekapPeriod}>
+                      <SelectTrigger className="h-9 text-xs flex-1">
+                        <SelectValue placeholder="Pilih bulan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availablePeriods.map((p) => (
+                          <SelectItem key={p} value={p} className="text-xs">{monthLabel(p)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button size="sm" className="gap-1.5 h-9" onClick={handleExportRekapBulanan}>
+                      <FileDown className="h-3.5 w-3.5" /> Download
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
+
 
             {/* Rincian Per Kategori */}
             <div className="pt-2">
