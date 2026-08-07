@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Slideshow } from "@/components/Slideshow";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { PWAInstallButton } from "@/components/PWAInstallButton";
 import { useState } from "react";
 import { useTrackPageView } from "@/hooks/useAnalytics";
 
@@ -84,8 +85,9 @@ const Index = () => {
         </div>
       )}
 
-      {/* Admin Button */}
-      <div className="flex justify-end px-4 pt-3">
+      {/* Admin + Install Buttons */}
+      <div className="flex items-center justify-between px-4 pt-3 gap-2">
+        <PWAInstallButton />
         {user && isAdmin ? (
           <Button size="sm" onClick={() => navigate("/admin")} className="gap-1.5 text-xs bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 shadow-md border-0">
             <Shield className="h-3.5 w-3.5" />
