@@ -221,6 +221,72 @@ export default function Admin() {
     }
   };
 
+  // ===== Rekap bulanan =====
+  const [rekapPeriod, setRekapPeriod] = useState(() => new Date().toISOString().slice(0, 7));
+
+  const availablePeriods = (() => {
+    const set = new Set<string>();
+    donations.filter((d) => d.status === "confirmed").forEach((d) => set.add(d.date.slice(0, 7)));
+    expenses.forEach((e) => set.add(e.date.slice(0, 7)));
+    set.add(new Date().toISOString().slice(0, 7));
+    return Array.from(set).sort((a, b) => b.localeCompare(a));
+  })();
+
+  const handleExportRekapBulanan = () => {
+    try {
+      const regionMap = new Map(regions.map((r) => [r.id, r.name]));
+      const confirmed = donations.filter((d) => d.status === "confirmed");
+      const inMonth = confirmed
+        .filter((d) => d.date.slice(0, 7) === rekapPeriod)
+        .sort((a, b) => a.date.localeCompare(b.date));
+      const outMonth = expenses
+        .filter((e) => e.date.slice(0, 7) === rekapPeriod)
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+      const saldoAwal =
+        confirmed.filter((d) => d.date.slice(0, 7) < rekapPeriod).reduce((s, d) => s + d.amount, 0) -
+        expenses.filter((e) => e.date.slice(0, 7) < rekapPeriod).reduce((s, e) => s + e.amount, 0);
+
+      exportRekapBulananPDF({
+        period: rekapPeriod,
+        saldoAwal,
+        donations: inMonth.map((d) => ({
+          date: d.date,
+          region: regionMap.get(d.region_id || "") || "-",
+          category: d.category,
+          notes: d.notes || undefined,
+          amount: d.amount,
+        })),
+        expenses: outMonth.map((e) => ({
+          date: e.date,
+          description: e.description || "",
+          category: e.category,
+          amount: e.amount,
+        })),
+        regions: regions.map((r) => {
+          const rd = inMonth.filter((d) => d.region_id === r.id);
+          return {
+            name: r.name,
+            coordinator: r.coordinator,
+            totalDonations: rd.reduce((s, d) => s + d.amount, 0),
+            donationCount: rd.length,
+          };
+        }),
+        signers: {
+          ketuaLazis: getSetting("ketua_lazisnu") || undefined,
+          bendaharaLazis: getSetting("bendahara_lazisnu") || undefined,
+          ketuaPRNU: getSetting("ketua_prnu") || undefined,
+        },
+      });
+      toast({ title: "Berhasil", description: `Rekap ${monthLabel(rekapPeriod)} berhasil diunduh` });
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Gagal", description: "Gagal membuat rekap bulanan", variant: "destructive" });
+    }
+  };
+
+
+
   // Region handlers
   const handleUpdateRegion = async () => {
     if (!editingRegion) return;
