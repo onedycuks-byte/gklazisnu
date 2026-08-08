@@ -12,6 +12,7 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock, BookOpen, HandCoins, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Slideshow } from "@/components/Slideshow";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { usePWAInstall } from "@/components/PWAInstallButton";
@@ -31,6 +32,15 @@ const Index = () => {
   const { getSettingsMap, isLoading: settingsLoading } = useSiteSettings();
   const navigate = useNavigate();
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
+
+  const handleInstallClick = () => {
+    if (canInstall) {
+      install();
+    } else {
+      setShowInstallHelp(true);
+    }
+  };
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
@@ -69,7 +79,7 @@ const Index = () => {
     { icon: Calculator, label: "Edukasi", gradient: "from-teal-500 to-cyan-600", path: "/edukasi" },
     { icon: MessageCircle, label: "Diskusi", gradient: "from-blue-500 to-indigo-500", path: "/diskusi" },
     { icon: Sparkles, label: "Tanya AI", gradient: "from-violet-500 to-purple-600", path: "/ai-chat" },
-    ...(canInstall && !isStandalone ? [{ icon: Download, label: "Install", gradient: "from-sky-500 to-blue-600", path: "__install__", onClick: install }] : []),
+    ...(isStandalone ? [] : [{ icon: Download, label: "Install App", gradient: "from-sky-500 to-blue-600", path: "__install__" }]),
   ];
 
   return (
@@ -116,7 +126,7 @@ const Index = () => {
           {quickMenuItems.map((item, i) => (
             <button
               key={item.label}
-              onClick={() => (item.path === "__install__" && item.onClick ? item.onClick() : navigate(item.path))}
+              onClick={() => (item.path === "__install__" ? handleInstallClick() : navigate(item.path))}
               className="group flex flex-col items-center gap-2.5 p-3.5 bg-card rounded-2xl shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-0.5 animate-scale-in"
               style={{ animationDelay: `${i * 80}ms` }}
             >
@@ -436,6 +446,36 @@ const Index = () => {
 
       <BottomNav />
       <PWAInstallPrompt />
+
+      <Dialog open={showInstallHelp} onOpenChange={setShowInstallHelp}>
+        <DialogContent className="max-w-sm rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <Download className="h-4 w-4 text-primary" />
+              Install Aplikasi LAZISNU
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 text-sm text-muted-foreground">
+            <div>
+              <p className="font-semibold text-foreground mb-1">Android (Chrome)</p>
+              <ol className="list-decimal list-inside space-y-0.5">
+                <li>Ketuk menu ⋮ di pojok kanan atas browser</li>
+                <li>Pilih <strong>Install app</strong> / <strong>Tambahkan ke layar utama</strong></li>
+                <li>Ketuk <strong>Install</strong></li>
+              </ol>
+            </div>
+            <div>
+              <p className="font-semibold text-foreground mb-1">iPhone / iPad (Safari)</p>
+              <ol className="list-decimal list-inside space-y-0.5">
+                <li>Ketuk ikon <strong>Share</strong> (kotak dengan panah)</li>
+                <li>Pilih <strong>Add to Home Screen</strong></li>
+                <li>Ketuk <strong>Add</strong></li>
+              </ol>
+            </div>
+            <p className="text-[11px]">Catatan: install hanya tersedia saat membuka situs langsung di browser (bukan di dalam pratinjau).</p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
