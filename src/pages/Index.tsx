@@ -9,12 +9,12 @@ import { useProgramDisbursements } from "@/hooks/useProgramDisbursements";
 import { useNews } from "@/hooks/useNews";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock, BookOpen, HandCoins } from "lucide-react";
+import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock, BookOpen, HandCoins, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Slideshow } from "@/components/Slideshow";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
-import { PWAInstallButton } from "@/components/PWAInstallButton";
+import { usePWAInstall } from "@/components/PWAInstallButton";
 import { useState } from "react";
 import { useTrackPageView } from "@/hooks/useAnalytics";
 
@@ -27,6 +27,7 @@ const Index = () => {
   const { disbursements: programDisbursements, isLoading: programDisbursementsLoading } = useProgramDisbursements();
   const { publishedNews, isLoading: newsLoading } = useNews();
   const { user, isAdmin } = useAuth();
+  const { canInstall, isStandalone, install } = usePWAInstall();
   const { getSettingsMap, isLoading: settingsLoading } = useSiteSettings();
   const navigate = useNavigate();
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
@@ -68,6 +69,7 @@ const Index = () => {
     { icon: Calculator, label: "Edukasi", gradient: "from-teal-500 to-cyan-600", path: "/edukasi" },
     { icon: MessageCircle, label: "Diskusi", gradient: "from-blue-500 to-indigo-500", path: "/diskusi" },
     { icon: Sparkles, label: "Tanya AI", gradient: "from-violet-500 to-purple-600", path: "/ai-chat" },
+    ...(canInstall && !isStandalone ? [{ icon: Download, label: "Install", gradient: "from-sky-500 to-blue-600", path: "__install__", onClick: install }] : []),
   ];
 
   return (
@@ -85,9 +87,8 @@ const Index = () => {
         </div>
       )}
 
-      {/* Admin + Install Buttons */}
-      <div className="flex items-center justify-between px-4 pt-3 gap-2">
-        <PWAInstallButton />
+      {/* Admin Button */}
+      <div className="flex items-center justify-end px-4 pt-3">
         {user && isAdmin ? (
           <Button size="sm" onClick={() => navigate("/admin")} className="gap-1.5 text-xs bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 shadow-md border-0">
             <Shield className="h-3.5 w-3.5" />
@@ -115,7 +116,7 @@ const Index = () => {
           {quickMenuItems.map((item, i) => (
             <button
               key={item.label}
-              onClick={() => navigate(item.path)}
+              onClick={() => (item.path === "__install__" && item.onClick ? item.onClick() : navigate(item.path))}
               className="group flex flex-col items-center gap-2.5 p-3.5 bg-card rounded-2xl shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-0.5 animate-scale-in"
               style={{ animationDelay: `${i * 80}ms` }}
             >
