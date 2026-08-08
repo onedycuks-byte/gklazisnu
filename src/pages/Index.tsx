@@ -9,7 +9,7 @@ import { useProgramDisbursements } from "@/hooks/useProgramDisbursements";
 import { useNews } from "@/hooks/useNews";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock, BookOpen, HandCoins } from "lucide-react";
+import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock, BookOpen, HandCoins, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Slideshow } from "@/components/Slideshow";
