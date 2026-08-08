@@ -12,6 +12,7 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock, BookOpen, HandCoins, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Slideshow } from "@/components/Slideshow";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { usePWAInstall } from "@/components/PWAInstallButton";
