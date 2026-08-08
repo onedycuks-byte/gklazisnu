@@ -31,6 +31,15 @@ const Index = () => {
   const { getSettingsMap, isLoading: settingsLoading } = useSiteSettings();
   const navigate = useNavigate();
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
+
+  const handleInstallClick = () => {
+    if (canInstall) {
+      install();
+    } else {
+      setShowInstallHelp(true);
+    }
+  };
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
