@@ -445,6 +445,36 @@ const Index = () => {
 
       <BottomNav />
       <PWAInstallPrompt />
+
+      <Dialog open={showInstallHelp} onOpenChange={setShowInstallHelp}>
+        <DialogContent className="max-w-sm rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <Download className="h-4 w-4 text-primary" />
+              Install Aplikasi LAZISNU
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 text-sm text-muted-foreground">
+            <div>
+              <p className="font-semibold text-foreground mb-1">Android (Chrome)</p>
+              <ol className="list-decimal list-inside space-y-0.5">
+                <li>Ketuk menu ⋮ di pojok kanan atas browser</li>
+                <li>Pilih <strong>Install app</strong> / <strong>Tambahkan ke layar utama</strong></li>
+                <li>Ketuk <strong>Install</strong></li>
+              </ol>
+            </div>
+            <div>
+              <p className="font-semibold text-foreground mb-1">iPhone / iPad (Safari)</p>
+              <ol className="list-decimal list-inside space-y-0.5">
+                <li>Ketuk ikon <strong>Share</strong> (kotak dengan panah)</li>
+                <li>Pilih <strong>Add to Home Screen</strong></li>
+                <li>Ketuk <strong>Add</strong></li>
+              </ol>
+            </div>
+            <p className="text-[11px]">Catatan: install hanya tersedia saat membuka situs langsung di browser (bukan di dalam pratinjau).</p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
