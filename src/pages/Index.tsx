@@ -27,6 +27,7 @@ const Index = () => {
   const { disbursements: programDisbursements, isLoading: programDisbursementsLoading } = useProgramDisbursements();
   const { publishedNews, isLoading: newsLoading } = useNews();
   const { user, isAdmin } = useAuth();
+  const { canInstall, isStandalone, install } = usePWAInstall();
   const { getSettingsMap, isLoading: settingsLoading } = useSiteSettings();
   const navigate = useNavigate();
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
