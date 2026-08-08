@@ -117,7 +117,7 @@ const Index = () => {
           {quickMenuItems.map((item, i) => (
             <button
               key={item.label}
-              onClick={() => navigate(item.path)}
+              onClick={() => (item.path === "__install__" && item.onClick ? item.onClick() : navigate(item.path))}
               className="group flex flex-col items-center gap-2.5 p-3.5 bg-card rounded-2xl shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-0.5 animate-scale-in"
               style={{ animationDelay: `${i * 80}ms` }}
             >
