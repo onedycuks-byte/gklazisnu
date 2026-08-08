@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Slideshow } from "@/components/Slideshow";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
-import { PWAInstallButton, usePWAInstall } from "@/components/PWAInstallButton";
+import { usePWAInstall } from "@/components/PWAInstallButton";
 import { useState } from "react";
 import { useTrackPageView } from "@/hooks/useAnalytics";
 
