@@ -129,6 +129,49 @@ Judul jangan mirip dengan judul berikut: ${recentTitles || "(belum ada)"}.`;
       });
     }
 
+    // Generate an illustration for the article
+    let imageUrl: string | null = null;
+    try {
+      const imgPrompt = `Ilustrasi islami yang indah dan sopan untuk artikel berjudul "${article.title}" dengan tema ${topic}. Gaya: ilustrasi digital modern, warna hijau zamrud dan emas lembut, ornamen geometris arabesque, suasana tenang dan penuh kedamaian. TANPA teks, TANPA tulisan, TANPA kaligrafi, TANPA wajah manusia yang detail.`;
+      const imgRes = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "openai/gpt-image-2",
+          prompt: imgPrompt,
+          size: "1024x1024",
+          quality: "low",
+          n: 1,
+        }),
+      });
+
+      if (!imgRes.ok) {
+        console.error("Image gateway error:", imgRes.status, await imgRes.text());
+      } else {
+        const imgJson = await imgRes.json();
+        const b64: string | undefined = imgJson?.data?.[0]?.b64_json;
+        if (b64) {
+          const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+          const path = `news/kajian-${crypto.randomUUID()}.png`;
+          const { error: upErr } = await supabase.storage
+            .from("program-images")
+            .upload(path, bytes, { contentType: "image/png", upsert: false });
+          if (upErr) {
+            console.error("Image upload error:", upErr);
+          } else {
+            imageUrl = supabase.storage.from("program-images").getPublicUrl(path).data.publicUrl;
+          }
+        } else {
+          console.error("No image data returned");
+        }
+      }
+    } catch (imgErr) {
+      console.error("Image generation failed:", imgErr);
+    }
+
     const { data: inserted, error } = await supabase
       .from("news")
       .insert({
@@ -136,6 +179,7 @@ Judul jangan mirip dengan judul berikut: ${recentTitles || "(belum ada)"}.`;
         excerpt: article.excerpt?.slice(0, 300) ?? null,
         content: article.content,
         category: "Kajian Islam",
+        image_url: imageUrl,
         is_published: true,
         published_at: new Date().toISOString(),
       })
