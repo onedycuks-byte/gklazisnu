@@ -9,7 +9,7 @@ import { useProgramDisbursements } from "@/hooks/useProgramDisbursements";
 import { useNews } from "@/hooks/useNews";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock, BookOpen, HandCoins, Download } from "lucide-react";
+import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock, BookOpen, HandCoins, Download, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -17,7 +17,9 @@ import { Slideshow } from "@/components/Slideshow";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { usePWAInstall } from "@/components/PWAInstallButton";
 import { useState } from "react";
+import type { MouseEvent } from "react";
 import { useTrackPageView } from "@/hooks/useAnalytics";
+import { shareContent, buildPublicUrl } from "@/lib/share";
 
 const Index = () => {
   useTrackPageView("/");
