@@ -77,6 +77,7 @@ const Index = () => {
     { icon: FileText, label: "Laporan", gradient: "from-primary to-emerald-600", path: "/laporan" },
     { icon: Newspaper, label: "Berita", gradient: "from-amber-500 to-orange-500", path: "/berita" },
     { icon: Heart, label: "Santunan", gradient: "from-rose-500 to-pink-600", path: "/santunan" },
+    { icon: Target, label: "Program", gradient: "from-orange-500 to-red-500", path: "/program" },
     { icon: BookOpen, label: "Maulid", gradient: "from-emerald-600 to-teal-700", path: "/maulid" },
     { icon: Calculator, label: "Edukasi", gradient: "from-teal-500 to-cyan-600", path: "/edukasi" },
     { icon: MessageCircle, label: "Diskusi", gradient: "from-blue-500 to-indigo-500", path: "/diskusi" },
@@ -261,7 +262,7 @@ const Index = () => {
                     style={{ animationDelay: `${index * 80}ms` }}
                   >
                     {program.image_url ? (
-                      <div className="relative aspect-[16/10] bg-muted">
+                      <div className="relative aspect-[16/9] bg-muted">
                         <img src={program.image_url} alt={program.title} className="absolute inset-0 w-full h-full object-contain" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
                         <button
@@ -285,7 +286,7 @@ const Index = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="h-32 bg-gradient-to-br from-primary/20 to-emerald-200/40 flex items-center justify-center">
+                      <div className="h-24 bg-gradient-to-br from-primary/20 to-emerald-200/40 flex items-center justify-center">
                         <Target className="h-10 w-10 text-primary/40" />
                       </div>
                     )}
@@ -328,7 +329,7 @@ const Index = () => {
                   className="bg-card rounded-2xl shadow-card cursor-pointer hover:shadow-elevated transition-all duration-300 border border-border/30 p-3 flex gap-3 items-center animate-slide-up"
                   style={{ animationDelay: `${index * 60}ms` }}
                 >
-                  <div className="relative h-14 w-14 rounded-xl overflow-hidden shrink-0 bg-muted flex items-center justify-center">
+                  <div className="relative h-12 w-12 rounded-xl overflow-hidden shrink-0 bg-muted flex items-center justify-center">
                     {program.image_url ? (
                       <img src={program.image_url} alt={program.title} className="w-full h-full object-contain" />
                     ) : (
