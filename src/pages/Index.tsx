@@ -9,7 +9,7 @@ import { useProgramDisbursements } from "@/hooks/useProgramDisbursements";
 import { useNews } from "@/hooks/useNews";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock, BookOpen, HandCoins, Download } from "lucide-react";
+import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock, BookOpen, HandCoins, Download, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -17,7 +17,9 @@ import { Slideshow } from "@/components/Slideshow";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { usePWAInstall } from "@/components/PWAInstallButton";
 import { useState } from "react";
+import type { MouseEvent } from "react";
 import { useTrackPageView } from "@/hooks/useAnalytics";
+import { shareContent, buildPublicUrl } from "@/lib/share";
 
 const Index = () => {
   useTrackPageView("/");
@@ -259,9 +261,25 @@ const Index = () => {
                     style={{ animationDelay: `${index * 80}ms` }}
                   >
                     {program.image_url ? (
-                      <div className="relative">
-                        <img src={program.image_url} alt={program.title} className="w-full h-44 sm:h-48 object-cover" />
+                      <div className="relative aspect-[16/10] bg-muted">
+                        <img src={program.image_url} alt={program.title} className="absolute inset-0 w-full h-full object-contain" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+                        <button
+                          onClick={(e: MouseEvent) => {
+                            e.stopPropagation();
+                            const progressPct = program.target_amount > 0 ? Math.round((program.collected_amount / program.target_amount) * 100) : 0;
+                            shareContent({
+                              title: program.title,
+                              text: `${program.title}\n\n${program.description ?? ""}\n\nTerkumpul ${progressPct}% — ${formatCurrency(program.collected_amount)} dari ${formatCurrency(program.target_amount)}`,
+                              url: buildPublicUrl(`/program/${program.id}`),
+                              imageUrl: program.image_url,
+                            });
+                          }}
+                          className="absolute top-2 right-2 z-10 h-8 w-8 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition"
+                          aria-label="Bagikan program"
+                        >
+                          <Share2 className="h-4 w-4" />
+                        </button>
                         <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
                           {Math.round(progress)}%
                         </div>
@@ -310,12 +328,28 @@ const Index = () => {
                   className="bg-card rounded-2xl shadow-card cursor-pointer hover:shadow-elevated transition-all duration-300 border border-border/30 p-3 flex gap-3 items-center animate-slide-up"
                   style={{ animationDelay: `${index * 60}ms` }}
                 >
-                  <div className="h-14 w-14 rounded-xl overflow-hidden shrink-0 bg-muted flex items-center justify-center">
+                  <div className="relative h-14 w-14 rounded-xl overflow-hidden shrink-0 bg-muted flex items-center justify-center">
                     {program.image_url ? (
-                      <img src={program.image_url} alt={program.title} className="w-full h-full object-cover" />
+                      <img src={program.image_url} alt={program.title} className="w-full h-full object-contain" />
                     ) : (
                       <Target className="h-6 w-6 text-muted-foreground/50" />
                     )}
+                    <button
+                      onClick={(e: MouseEvent) => {
+                        e.stopPropagation();
+                        const progressPct = program.target_amount > 0 ? Math.round((program.collected_amount / program.target_amount) * 100) : 0;
+                        shareContent({
+                          title: program.title,
+                          text: `${program.title}\n\n${program.description ?? ""}\n\nTerkumpul ${progressPct}% — ${formatCurrency(program.collected_amount)} dari ${formatCurrency(program.target_amount)}`,
+                          url: buildPublicUrl(`/program/${program.id}`),
+                          imageUrl: program.image_url,
+                        });
+                      }}
+                      className="absolute top-0.5 right-0.5 z-10 h-5 w-5 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition"
+                      aria-label="Bagikan program"
+                    >
+                      <Share2 className="h-3 w-3" />
+                    </button>
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-xs text-foreground line-clamp-1">{program.title}</h3>
