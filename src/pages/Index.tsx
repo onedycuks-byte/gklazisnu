@@ -340,11 +340,9 @@ const Index = () => {
             };
             if (!programsSlideshow) {
               return (
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {activePrograms.map((p, i) => (
-                    <div key={p.id} className="rounded-2xl overflow-hidden shadow-card border border-border/30">
-                      {renderCard(p, i, "full")}
-                    </div>
+                    <div key={p.id}>{renderCard(p, i, "full")}</div>
                   ))}
                 </div>
               );
@@ -352,7 +350,7 @@ const Index = () => {
             return (
               <>
                 {featured.length > 0 && (
-                  <Slideshow className="shadow-card border border-border/30 mb-3" autoPlay={false} showArrows>
+                  <Slideshow className="shadow-card border border-border/30 mb-3 rounded-2xl" autoPlay={false} showArrows>
                     {featured.map((p, i) => (
                       <div key={p.id}>{renderCard(p, i, "full")}</div>
                     ))}
@@ -363,7 +361,9 @@ const Index = () => {
                     <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide px-1">
                       Program Lainnya
                     </p>
-                    {rest.map((p, i) => renderCard(p, i, "compact"))}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {rest.map((p, i) => renderCard(p, i, "compact"))}
+                    </div>
                   </div>
                 )}
               </>
