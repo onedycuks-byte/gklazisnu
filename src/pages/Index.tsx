@@ -328,12 +328,28 @@ const Index = () => {
                   className="bg-card rounded-2xl shadow-card cursor-pointer hover:shadow-elevated transition-all duration-300 border border-border/30 p-3 flex gap-3 items-center animate-slide-up"
                   style={{ animationDelay: `${index * 60}ms` }}
                 >
-                  <div className="h-14 w-14 rounded-xl overflow-hidden shrink-0 bg-muted flex items-center justify-center">
+                  <div className="relative h-14 w-14 rounded-xl overflow-hidden shrink-0 bg-muted flex items-center justify-center">
                     {program.image_url ? (
-                      <img src={program.image_url} alt={program.title} className="w-full h-full object-cover" />
+                      <img src={program.image_url} alt={program.title} className="w-full h-full object-contain" />
                     ) : (
                       <Target className="h-6 w-6 text-muted-foreground/50" />
                     )}
+                    <button
+                      onClick={(e: MouseEvent) => {
+                        e.stopPropagation();
+                        const progressPct = program.target_amount > 0 ? Math.round((program.collected_amount / program.target_amount) * 100) : 0;
+                        shareContent({
+                          title: program.title,
+                          text: `${program.title}\n\n${program.description ?? ""}\n\nTerkumpul ${progressPct}% — ${formatCurrency(program.collected_amount)} dari ${formatCurrency(program.target_amount)}`,
+                          url: buildPublicUrl(`/program/${program.id}`),
+                          imageUrl: program.image_url,
+                        });
+                      }}
+                      className="absolute top-0.5 right-0.5 z-10 h-5 w-5 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition"
+                      aria-label="Bagikan program"
+                    >
+                      <Share2 className="h-3 w-3" />
+                    </button>
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-xs text-foreground line-clamp-1">{program.title}</h3>
