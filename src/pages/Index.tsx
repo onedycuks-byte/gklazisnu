@@ -261,9 +261,25 @@ const Index = () => {
                     style={{ animationDelay: `${index * 80}ms` }}
                   >
                     {program.image_url ? (
-                      <div className="relative">
-                        <img src={program.image_url} alt={program.title} className="w-full h-44 sm:h-48 object-cover" />
+                      <div className="relative aspect-[16/10] bg-muted">
+                        <img src={program.image_url} alt={program.title} className="absolute inset-0 w-full h-full object-contain" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+                        <button
+                          onClick={(e: MouseEvent) => {
+                            e.stopPropagation();
+                            const progressPct = program.target_amount > 0 ? Math.round((program.collected_amount / program.target_amount) * 100) : 0;
+                            shareContent({
+                              title: program.title,
+                              text: `${program.title}\n\n${program.description ?? ""}\n\nTerkumpul ${progressPct}% — ${formatCurrency(program.collected_amount)} dari ${formatCurrency(program.target_amount)}`,
+                              url: buildPublicUrl(`/program/${program.id}`),
+                              imageUrl: program.image_url,
+                            });
+                          }}
+                          className="absolute top-2 right-2 z-10 h-8 w-8 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition"
+                          aria-label="Bagikan program"
+                        >
+                          <Share2 className="h-4 w-4" />
+                        </button>
                         <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
                           {Math.round(progress)}%
                         </div>
