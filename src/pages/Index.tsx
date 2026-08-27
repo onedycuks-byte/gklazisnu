@@ -255,11 +255,12 @@ const Index = () => {
                 return (
                   <div
                     onClick={() => navigate(`/program/${program.id}`)}
-                    className="bg-card cursor-pointer"
+                    className="bg-card rounded-2xl overflow-hidden shadow-card border border-border/30 hover:shadow-elevated transition-all duration-300 cursor-pointer animate-slide-up h-full"
+                    style={{ animationDelay: `${index * 80}ms` }}
                   >
                     {program.image_url ? (
-                      <div className="relative w-full aspect-[16/10] bg-black">
-                        <img src={program.image_url} alt={program.title} className="absolute inset-0 w-full h-full object-contain" />
+                      <div className="relative">
+                        <img src={program.image_url} alt={program.title} className="w-full h-44 sm:h-48 object-cover" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
                         <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
                           {Math.round(progress)}%
