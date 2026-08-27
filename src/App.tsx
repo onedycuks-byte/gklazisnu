@@ -13,6 +13,7 @@ import Laporan from "./pages/Laporan";
 import Berita from "./pages/Berita";
 import Kontak from "./pages/Kontak";
 import ProgramDetail from "./pages/ProgramDetail";
+import Programs from "./pages/Programs";
 import AiChat from "./pages/AiChat";
 import Diskusi from "./pages/Diskusi";
 import Santunan from "./pages/Santunan";
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/laporan" element={<Laporan />} />
             <Route path="/berita" element={<Berita />} />
             <Route path="/kontak" element={<Kontak />} />
+            <Route path="/program" element={<Programs />} />
             <Route path="/program/:id" element={<ProgramDetail />} />
             <Route path="/ai-chat" element={<AiChat />} />
             <Route path="/diskusi" element={<Diskusi />} />
