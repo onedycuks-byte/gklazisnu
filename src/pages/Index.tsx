@@ -66,7 +66,6 @@ const Index = () => {
   const announcementActive = s.announcement_active === "true";
   const announcementText = s.announcement_text || "";
   const newsSlideshow = s.news_slideshow_enabled !== "false"; // default ON
-  const programsSlideshow = s.programs_slideshow_enabled !== "false"; // default ON
 
   const totalDisbursedByProgram = programDisbursements.reduce((acc, d) => {
     acc.set(d.program_id, (acc.get(d.program_id) || 0) + d.amount);
