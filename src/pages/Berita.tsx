@@ -133,10 +133,10 @@ const Berita = () => {
 
       {/* News Detail Drawer */}
       <Drawer open={!!selectedNews} onOpenChange={(open) => !open && closeNews()}>
-        <DrawerContent className="max-h-[90vh] overflow-y-auto">
+        <DrawerContent className="max-h-[92vh] flex flex-col">
           {selectedNews && (
             <>
-              <DrawerHeader className="relative pb-2">
+              <DrawerHeader className="relative pb-2 flex-shrink-0">
                 <DrawerClose className="absolute right-4 top-4 rounded-full p-1.5 bg-muted/80 hover:bg-muted transition-colors">
                   <X className="h-4 w-4" />
                 </DrawerClose>
@@ -151,7 +151,7 @@ const Berita = () => {
                   <span className="text-[11px] font-medium">{formatDate(selectedNews.published_at)}</span>
                 </div>
               </DrawerHeader>
-              <div className="px-4 pb-8 space-y-4">
+              <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-8 space-y-4" data-vaul-no-drag>
                 {selectedNews.image_url && (
                   <img
                     src={selectedNews.image_url}
@@ -165,7 +165,7 @@ const Berita = () => {
                   </p>
                 )}
                 {selectedNews.content ? (
-                  <div className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+                  <div className="text-sm text-foreground leading-relaxed whitespace-pre-wrap break-words">
                     {selectedNews.content}
                   </div>
                 ) : (
