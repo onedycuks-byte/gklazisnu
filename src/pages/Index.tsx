@@ -224,18 +224,20 @@ const Index = () => {
         </div>
       )}
 
-      {/* Program Donasi */}
+      {/* Program Donasi — gaya marketplace */}
       <div className="px-4 mt-7">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-base font-bold text-foreground">Program Donasi</h2>
             <p className="text-[11px] text-muted-foreground mt-0.5">Salurkan infaq terbaik Anda</p>
           </div>
-          {activePrograms.length > 0 && (
-            <span className="text-xs font-semibold text-primary flex items-center gap-0.5">
-              {activePrograms.length} aktif
-            </span>
-          )}
+          <button
+            onClick={() => navigate("/program")}
+            className="text-xs font-semibold text-primary flex items-center gap-0.5 hover:underline"
+          >
+            Lihat Semua
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
         </div>
         {activePrograms.length === 0 ? (
           <div className="bg-card rounded-2xl p-8 shadow-card text-center border border-border/50">
@@ -246,95 +248,37 @@ const Index = () => {
             <p className="text-xs text-muted-foreground/70 mt-1">Program donasi akan muncul di sini</p>
           </div>
         ) : (
-          (() => {
-            const featured = activePrograms.slice(0, 3);
-            const rest = activePrograms.slice(3);
-            const renderCard = (program: typeof activePrograms[number], index: number, variant: "full" | "compact") => {
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {activePrograms.map((program, index) => {
               const progress = program.target_amount > 0
                 ? Math.min((program.collected_amount / program.target_amount) * 100, 100)
                 : 0;
               const disbursed = totalDisbursedByProgram.get(program.id) || 0;
-              if (variant === "full") {
-                return (
-                  <div
-                    onClick={() => navigate(`/program/${program.id}`)}
-                    className="bg-card rounded-2xl overflow-hidden shadow-card border border-border/30 hover:shadow-elevated transition-all duration-300 cursor-pointer animate-slide-up h-full"
-                    style={{ animationDelay: `${index * 80}ms` }}
-                  >
-                    {program.image_url ? (
-                      <div className="relative aspect-[16/9] bg-muted">
-                        <img src={program.image_url} alt={program.title} className="absolute inset-0 w-full h-full object-contain" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
-                        <button
-                          onClick={(e: MouseEvent) => {
-                            e.stopPropagation();
-                            const progressPct = program.target_amount > 0 ? Math.round((program.collected_amount / program.target_amount) * 100) : 0;
-                            shareContent({
-                              title: program.title,
-                              text: `${program.title}\n\n${program.description ?? ""}\n\nTerkumpul ${progressPct}% — ${formatCurrency(program.collected_amount)} dari ${formatCurrency(program.target_amount)}`,
-                              url: buildPublicUrl(`/program/${program.id}`),
-                              imageUrl: program.image_url,
-                            });
-                          }}
-                          className="absolute top-2 right-2 z-10 h-8 w-8 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition"
-                          aria-label="Bagikan program"
-                        >
-                          <Share2 className="h-4 w-4" />
-                        </button>
-                        <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
-                          {Math.round(progress)}%
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="h-24 bg-gradient-to-br from-primary/20 to-emerald-200/40 flex items-center justify-center">
-                        <Target className="h-10 w-10 text-primary/40" />
-                      </div>
-                    )}
-                    <div className="p-4 pb-8">
-                      <h3 className="font-bold text-sm text-foreground mb-1.5 leading-snug">{program.title}</h3>
-                      {program.description && (
-                        <p className="text-xs text-muted-foreground mb-3 line-clamp-2 leading-relaxed">{program.description}</p>
-                      )}
-                      <div className="relative h-2 rounded-full bg-muted overflow-hidden mb-3">
-                        <div
-                          className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary to-emerald-400 transition-all duration-500"
-                          style={{ width: `${progress}%` }}
-                        />
-                      </div>
-                      <div className="flex items-end justify-between mb-3">
-                        <div>
-                          <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Terkumpul</p>
-                          <p className="text-sm font-bold text-primary">{formatCurrency(program.collected_amount)}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Target</p>
-                          <p className="text-sm font-semibold text-foreground">{formatCurrency(program.target_amount)}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between bg-emerald-50/60 dark:bg-emerald-950/20 rounded-lg px-3 py-2">
-                        <div className="flex items-center gap-1.5">
-                          <HandCoins className="h-3.5 w-3.5 text-emerald-600" />
-                          <span className="text-[10px] text-muted-foreground font-medium">Tersalurkan</span>
-                        </div>
-                        <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(disbursed)}</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
               return (
                 <div
                   key={program.id}
                   onClick={() => navigate(`/program/${program.id}`)}
-                  className="bg-card rounded-2xl shadow-card cursor-pointer hover:shadow-elevated transition-all duration-300 border border-border/30 p-3 flex gap-3 items-center animate-slide-up"
+                  className="group bg-card rounded-xl overflow-hidden shadow-card border border-border/40 hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-300 cursor-pointer animate-slide-up flex flex-col"
                   style={{ animationDelay: `${index * 60}ms` }}
                 >
-                  <div className="relative h-12 w-12 rounded-xl overflow-hidden shrink-0 bg-muted flex items-center justify-center">
+                  {/* Gambar produk */}
+                  <div className="relative aspect-square bg-muted overflow-hidden">
                     {program.image_url ? (
-                      <img src={program.image_url} alt={program.title} className="w-full h-full object-contain" />
+                      <img
+                        src={program.image_url}
+                        alt={program.title}
+                        loading="lazy"
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
                     ) : (
-                      <Target className="h-6 w-6 text-muted-foreground/50" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/15 to-emerald-200/40 flex items-center justify-center">
+                        <Target className="h-10 w-10 text-primary/40" />
+                      </div>
                     )}
+                    {/* Badge persen */}
+                    <div className="absolute top-1.5 left-1.5 bg-primary text-primary-foreground text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                      {Math.round(progress)}%
+                    </div>
                     <button
                       onClick={(e: MouseEvent) => {
                         e.stopPropagation();
@@ -346,64 +290,47 @@ const Index = () => {
                           imageUrl: program.image_url,
                         });
                       }}
-                      className="absolute top-0.5 right-0.5 z-10 h-5 w-5 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition"
+                      className="absolute top-1.5 right-1.5 z-10 h-7 w-7 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition"
                       aria-label="Bagikan program"
                     >
-                      <Share2 className="h-3 w-3" />
+                      <Share2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-xs text-foreground line-clamp-1">{program.title}</h3>
-                    <div className="relative h-1.5 rounded-full bg-muted overflow-hidden my-1.5">
+                  {/* Info produk */}
+                  <div className="p-2.5 flex flex-col flex-1">
+                    <h3 className="font-semibold text-[11px] text-foreground leading-snug line-clamp-2 min-h-[2rem]">
+                      {program.title}
+                    </h3>
+                    <div className="mt-1.5">
+                      <p className="text-[9px] text-muted-foreground">Terkumpul</p>
+                      <p className="text-[13px] font-extrabold text-primary leading-tight">
+                        {formatCurrency(program.collected_amount)}
+                      </p>
+                    </div>
+                    {/* Progress bar tipis ala marketplace */}
+                    <div className="relative h-1 rounded-full bg-muted overflow-hidden mt-1.5">
                       <div
-                        className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary to-emerald-400"
+                        className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary to-emerald-400 transition-all duration-500"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
-                    <p className="text-[10px] text-muted-foreground">
-                      <span className="font-bold text-primary">{formatCurrency(program.collected_amount)}</span>
-                      {" / "}{formatCurrency(program.target_amount)}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
-                      <HandCoins className="h-3 w-3 text-emerald-600" />
-                      Tersalurkan: <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(disbursed)}</span>
-                    </p>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-                </div>
-              );
-            };
-            if (!programsSlideshow) {
-              return (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {activePrograms.map((p, i) => (
-                    <div key={p.id}>{renderCard(p, i, "full")}</div>
-                  ))}
-                </div>
-              );
-            }
-            return (
-              <>
-                {featured.length > 0 && (
-                  <Slideshow className="shadow-card border border-border/30 mb-3 rounded-2xl" autoPlay={false} showArrows>
-                    {featured.map((p, i) => (
-                      <div key={p.id}>{renderCard(p, i, "full")}</div>
-                    ))}
-                  </Slideshow>
-                )}
-                {rest.length > 0 && (
-                  <div className="space-y-2.5">
-                    <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide px-1">
-                      Program Lainnya
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {rest.map((p, i) => renderCard(p, i, "compact"))}
+                    <div className="flex items-center justify-between mt-1.5">
+                      <span className="text-[9px] text-muted-foreground">
+                        Target {formatCurrency(program.target_amount)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 mt-1 pt-1.5 border-t border-border/40">
+                      <HandCoins className="h-3 w-3 text-emerald-600 shrink-0" />
+                      <span className="text-[9px] text-muted-foreground">Tersalurkan</span>
+                      <span className="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 ml-auto">
+                        {formatCurrency(disbursed)}
+                      </span>
                     </div>
                   </div>
-                )}
-              </>
-            );
-          })()
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
 
