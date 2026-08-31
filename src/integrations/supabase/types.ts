@@ -148,6 +148,101 @@ export type Database = {
         }
         Relationships: []
       }
+      fundraiser_accounts: {
+        Row: {
+          address: string | null
+          admin_notes: string | null
+          created_at: string
+          full_name: string
+          id: string
+          nik: string
+          phone: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          admin_notes?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          nik: string
+          phone: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          admin_notes?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          nik?: string
+          phone?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      fundraising_proposals: {
+        Row: {
+          admin_notes: string | null
+          beneficiary: string | null
+          category: string
+          collected_amount: number
+          created_at: string
+          description: string
+          fundraiser_id: string
+          id: string
+          image_url: string | null
+          status: string
+          target_amount: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          beneficiary?: string | null
+          category?: string
+          collected_amount?: number
+          created_at?: string
+          description: string
+          fundraiser_id: string
+          id?: string
+          image_url?: string | null
+          status?: string
+          target_amount?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          beneficiary?: string | null
+          category?: string
+          collected_amount?: number
+          created_at?: string
+          description?: string
+          fundraiser_id?: string
+          id?: string
+          image_url?: string | null
+          status?: string
+          target_amount?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fundraising_proposals_fundraiser_id_fkey"
+            columns: ["fundraiser_id"]
+            isOneToOne: false
+            referencedRelation: "fundraiser_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       news: {
         Row: {
           category: string
