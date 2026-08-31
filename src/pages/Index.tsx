@@ -9,7 +9,7 @@ import { useProgramDisbursements } from "@/hooks/useProgramDisbursements";
 import { useNews } from "@/hooks/useNews";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock, BookOpen, HandCoins, Download, Share2 } from "lucide-react";
+import { FileText, Newspaper, Phone, Shield, Loader2, Target, Sparkles, MessageCircle, Mail, X, Bell, MapPin, ChevronRight, Heart, Calculator, Clock, BookOpen, HandCoins, Download, Share2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -20,6 +20,7 @@ import { useState } from "react";
 import type { MouseEvent } from "react";
 import { useTrackPageView } from "@/hooks/useAnalytics";
 import { shareContent, buildPublicUrl } from "@/lib/share";
+import { useContentStats, trackProgramShare } from "@/hooks/useContentStats";
 
 const Index = () => {
   useTrackPageView("/");
@@ -29,6 +30,7 @@ const Index = () => {
   const { activePrograms, isLoading: programsLoading } = usePrograms();
   const { disbursements: programDisbursements, isLoading: programDisbursementsLoading } = useProgramDisbursements();
   const { publishedNews, isLoading: newsLoading } = useNews();
+  const { newsStat, programStat } = useContentStats();
   const { user, isAdmin } = useAuth();
   const { canInstall, isStandalone, install } = usePWAInstall();
   const { getSettingsMap, isLoading: settingsLoading } = useSiteSettings();
@@ -178,9 +180,10 @@ const Index = () => {
                       {n.excerpt && (
                         <p className="text-[11px] text-white/85 line-clamp-2 leading-relaxed">{n.excerpt}</p>
                       )}
-                      <p className="text-[10px] text-white/70 mt-1.5 flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {new Date(n.published_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                      <p className="text-[10px] text-white/70 mt-1.5 flex items-center gap-2.5">
+                        <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{new Date(n.published_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</span>
+                        <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{newsStat(n.id).views}</span>
+                        <span className="flex items-center gap-1"><Share2 className="h-3 w-3" />{newsStat(n.id).shares}</span>
                       </p>
                     </div>
                   </div>
@@ -194,9 +197,10 @@ const Index = () => {
                       {n.excerpt && (
                         <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">{n.excerpt}</p>
                       )}
-                      <p className="text-[10px] text-muted-foreground mt-2 flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {new Date(n.published_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                      <p className="text-[10px] text-muted-foreground mt-2 flex items-center gap-2.5">
+                        <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{new Date(n.published_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</span>
+                        <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{newsStat(n.id).views}</span>
+                        <span className="flex items-center gap-1"><Share2 className="h-3 w-3" />{newsStat(n.id).shares}</span>
                       </p>
                     </div>
                   </div>
@@ -282,6 +286,7 @@ const Index = () => {
                       onClick={(e: MouseEvent) => {
                         e.stopPropagation();
                         const progressPct = program.target_amount > 0 ? Math.round((program.collected_amount / program.target_amount) * 100) : 0;
+                        trackProgramShare(program.id);
                         shareContent({
                           title: program.title,
                           text: `${program.title}\n\n${program.description ?? ""}\n\nTerkumpul ${progressPct}% — ${formatCurrency(program.collected_amount)} dari ${formatCurrency(program.target_amount)}`,
@@ -316,6 +321,10 @@ const Index = () => {
                     <div className="flex items-center justify-between mt-1.5">
                       <span className="text-[9px] text-muted-foreground">
                         Target {formatCurrency(program.target_amount)}
+                      </span>
+                      <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+                        <span className="flex items-center gap-0.5"><Eye className="h-2.5 w-2.5" />{programStat(program.id).views}</span>
+                        <span className="flex items-center gap-0.5"><Share2 className="h-2.5 w-2.5" />{programStat(program.id).shares}</span>
                       </span>
                     </div>
                     <div className="flex items-center gap-1 mt-1 pt-1.5 border-t border-border/40">

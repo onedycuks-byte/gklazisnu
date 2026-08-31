@@ -1,10 +1,11 @@
 import { BottomNav } from "@/components/BottomNav";
 import { useNews } from "@/hooks/useNews";
-import { Newspaper, Calendar, ArrowLeft, X, Share2 } from "lucide-react";
+import { Newspaper, Calendar, ArrowLeft, X, Share2, Eye } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { shareContent, buildPublicUrl } from "@/lib/share";
+import { useContentStats, trackNewsView, trackNewsShare } from "@/hooks/useContentStats";
 import {
   Drawer,
   DrawerContent,
@@ -18,18 +19,23 @@ const Berita = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedNews, setSelectedNews] = useState<typeof publishedNews[0] | null>(null);
+  const { newsStat } = useContentStats();
 
   // Deep-link: open drawer when ?n=<id> present
   useEffect(() => {
     const id = searchParams.get("n");
     if (id && publishedNews.length) {
       const item = publishedNews.find((n) => n.id === id);
-      if (item) setSelectedNews(item);
+      if (item) {
+        setSelectedNews(item);
+        trackNewsView(item.id);
+      }
     }
   }, [searchParams, publishedNews]);
 
   const openNews = (item: typeof publishedNews[0]) => {
     setSelectedNews(item);
+    trackNewsView(item.id);
     setSearchParams({ n: item.id }, { replace: true });
   };
 
@@ -44,6 +50,7 @@ const Berita = () => {
   const handleShare = (item: typeof publishedNews[0]) => {
     const url = buildPublicUrl(`/berita?n=${item.id}`);
     const text = `${item.title}${item.excerpt ? `\n\n${item.excerpt}` : ""}`;
+    trackNewsShare(item.id);
     shareContent({ title: item.title, text, url, imageUrl: item.image_url });
   };
 
@@ -112,9 +119,19 @@ const Berita = () => {
                   </p>
                 )}
                 <div className="flex items-center justify-between gap-2 mt-3">
-                  <div className="flex items-center gap-1.5 text-muted-foreground/70">
-                    <Calendar className="h-3 w-3" />
-                    <span className="text-[11px] font-medium">{formatDate(item.published_at)}</span>
+                  <div className="flex items-center gap-2.5 text-muted-foreground/70">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      <span className="text-[11px] font-medium">{formatDate(item.published_at)}</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Eye className="h-3 w-3" />
+                      <span className="text-[11px] font-medium">{newsStat(item.id).views}</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Share2 className="h-3 w-3" />
+                      <span className="text-[11px] font-medium">{newsStat(item.id).shares}</span>
+                    </span>
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); handleShare(item); }}
@@ -146,9 +163,19 @@ const Berita = () => {
                 <DrawerTitle className="text-left text-base leading-snug pr-8">
                   {selectedNews.title}
                 </DrawerTitle>
-                <div className="flex items-center gap-1.5 mt-2 text-muted-foreground/70">
-                  <Calendar className="h-3 w-3" />
-                  <span className="text-[11px] font-medium">{formatDate(selectedNews.published_at)}</span>
+                <div className="flex items-center gap-3 mt-2 text-muted-foreground/70">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    <span className="text-[11px] font-medium">{formatDate(selectedNews.published_at)}</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Eye className="h-3 w-3" />
+                    <span className="text-[11px] font-medium">{newsStat(selectedNews.id).views} dilihat</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Share2 className="h-3 w-3" />
+                    <span className="text-[11px] font-medium">{newsStat(selectedNews.id).shares} dibagikan</span>
+                  </span>
                 </div>
               </DrawerHeader>
               <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-8 space-y-4" data-vaul-no-drag>

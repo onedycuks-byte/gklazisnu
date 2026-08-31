@@ -4,8 +4,10 @@ import { useProgramDisbursements } from "@/hooks/useProgramDisbursements";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Loader2, MessageCircle, Target, Coins, Share2, HandCoins, Calendar } from "lucide-react";
+import { ArrowLeft, Loader2, MessageCircle, Target, Coins, Share2, HandCoins, Calendar, Eye } from "lucide-react";
 import { shareContent, buildPublicUrl } from "@/lib/share";
+import { useEffect } from "react";
+import { useContentStats, trackProgramView, trackProgramShare } from "@/hooks/useContentStats";
 
 const WA_NUMBER = "08976315251";
 
@@ -16,6 +18,11 @@ export default function ProgramDetail() {
   const { disbursements, totalDisbursed } = useProgramDisbursements(id);
 
   const program = programs.find((p) => p.id === id);
+  const { programStat } = useContentStats();
+
+  useEffect(() => {
+    if (id) trackProgramView(id);
+  }, [id]);
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("id-ID", {
@@ -37,6 +44,7 @@ export default function ProgramDetail() {
       ? Math.round((program.collected_amount / program.target_amount) * 100)
       : 0;
     const text = `${program.title}\n\n${program.description ?? ""}\n\nTerkumpul: ${formatCurrency(program.collected_amount)} dari ${formatCurrency(program.target_amount)} (${progressPct}%)\n\nMari bantu sebarkan donasi ini 🙏`;
+    trackProgramShare(program.id);
     shareContent({
       title: program.title,
       text,
@@ -101,9 +109,15 @@ export default function ProgramDetail() {
           </div>
           <p className="text-xl font-bold text-foreground mb-1">{formatCurrency(program.collected_amount)}</p>
           <Progress value={progress} className="h-2 mb-2" />
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Target className="h-3 w-3" />
-            <span>Target: {formatCurrency(program.target_amount)}</span>
+          <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Target className="h-3 w-3" />
+              Target: {formatCurrency(program.target_amount)}
+            </span>
+            <span className="flex items-center gap-2.5">
+              <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{programStat(program.id).views}</span>
+              <span className="flex items-center gap-1"><Share2 className="h-3 w-3" />{programStat(program.id).shares}</span>
+            </span>
           </div>
         </div>
 

@@ -4,14 +4,16 @@ import { usePrograms } from "@/hooks/usePrograms";
 import { useProgramDisbursements } from "@/hooks/useProgramDisbursements";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Target, HandCoins, Share2, Loader2 } from "lucide-react";
+import { ArrowLeft, Target, HandCoins, Share2, Loader2, Eye } from "lucide-react";
 import type { MouseEvent } from "react";
 import { shareContent, buildPublicUrl } from "@/lib/share";
+import { useContentStats, trackProgramShare } from "@/hooks/useContentStats";
 
 export default function Programs() {
   const navigate = useNavigate();
   const { activePrograms, isLoading: programsLoading } = usePrograms();
   const { disbursements, isLoading: disbursementsLoading } = useProgramDisbursements();
+  const { programStat } = useContentStats();
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
@@ -73,6 +75,7 @@ export default function Programs() {
                       onClick={(e: MouseEvent) => {
                         e.stopPropagation();
                         const progressPct = program.target_amount > 0 ? Math.round((program.collected_amount / program.target_amount) * 100) : 0;
+                        trackProgramShare(program.id);
                         shareContent({
                           title: program.title,
                           text: `${program.title}\n\n${program.description ?? ""}\n\nTerkumpul ${progressPct}% — ${formatCurrency(program.collected_amount)} dari ${formatCurrency(program.target_amount)}`,
@@ -96,6 +99,10 @@ export default function Programs() {
                     <p className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
                       <HandCoins className="h-3 w-3 text-emerald-600" />
                       Tersalurkan: <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(disbursed)}</span>
+                    </p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-2">
+                      <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{programStat(program.id).views}</span>
+                      <span className="flex items-center gap-1"><Share2 className="h-3 w-3" />{programStat(program.id).shares}</span>
                     </p>
                   </div>
                 </div>
