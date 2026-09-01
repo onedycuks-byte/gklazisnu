@@ -13,6 +13,7 @@ import { AdminAiChat } from "@/components/AdminAiChat";
 import { WhatsAppChat } from "@/components/WhatsAppChat";
 import { KoordinatorKhususChat, SANTUNAN_TEMPLATES, PENDIDIKAN_TEMPLATES } from "@/components/KoordinatorKhususChat";
 import { ProgramDisbursementManager } from "@/components/ProgramDisbursementManager";
+import { GalangDanaManager } from "@/components/GalangDanaManager";
 import { useDiscussions } from "@/hooks/useDiscussions";
 import { useAnalyticsStats } from "@/hooks/useAnalytics";
 import { useOrphanRegistrations } from "@/hooks/useOrphanRegistrations";
@@ -47,10 +48,10 @@ import {
 
 // Role-tab access mapping
 const ROLE_TABS: Record<string, string[]> = {
-  admin: ["statistik", "program", "pemasukan", "pengeluaran", "regions", "berita", "kontak", "diskusi", "santunan", "laporan", "konfirmasi", "arsip", "ai"],
-  ketua: ["statistik", "perintah", "konfirmasi", "laporan"],
+  admin: ["statistik", "program", "pemasukan", "pengeluaran", "regions", "berita", "kontak", "diskusi", "santunan", "galang", "laporan", "konfirmasi", "arsip", "ai"],
+  ketua: ["statistik", "perintah", "konfirmasi", "galang", "laporan"],
   bendahara: ["statistik", "pemasukan", "pengeluaran", "konfirmasi", "laporan"],
-  sekretaris: ["regions", "kontak", "diskusi", "chat-koordinator", "arsip"],
+  sekretaris: ["regions", "kontak", "diskusi", "chat-koordinator", "galang", "arsip"],
   dokumentasi: ["berita", "program", "ai"],
   koordinator: ["input-pemasukan", "chat-bendahara"],
   penyaluran: ["santunan"],
