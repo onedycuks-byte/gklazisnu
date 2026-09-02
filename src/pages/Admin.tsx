@@ -43,7 +43,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { 
   Loader2, LogOut, MapPin, Pencil, Trash2, Plus, 
-  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send, Users, Eye, Download, BarChart3, Heart, FileText, PieChart, Archive, FileDown
+  ArrowLeft, Shield, AlertTriangle, TrendingUp, TrendingDown, Wallet, Target, Upload, Image, Newspaper, Phone, Save, Sparkles, MessageCircle, Check, X, Bell, Send, Users, Eye, Download, BarChart3, Heart, FileText, PieChart, Archive, FileDown, Megaphone
 } from "lucide-react";
 
 // Role-tab access mapping
@@ -748,6 +748,11 @@ export default function Admin() {
               {visibleTabs.has("konfirmasi") && (
                 <TabsTrigger value="konfirmasi" className="text-xs px-2.5 py-1.5 gap-1">
                   <Check className="h-3.5 w-3.5" /> Konfirmasi
+                </TabsTrigger>
+              )}
+              {visibleTabs.has("galang") && (
+                <TabsTrigger value="galang" className="text-xs px-2.5 py-1.5 gap-1">
+                  <Megaphone className="h-3.5 w-3.5" /> Galang Dana
                 </TabsTrigger>
               )}
               {visibleTabs.has("arsip") && (
@@ -2766,6 +2771,11 @@ export default function Admin() {
                 </Card>
               );
             })()}
+          </TabsContent>
+
+          {/* Galang Dana Tab */}
+          <TabsContent value="galang" className="space-y-4">
+            <GalangDanaManager />
           </TabsContent>
 
           {/* Arsip Tab */}
