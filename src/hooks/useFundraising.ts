@@ -50,10 +50,11 @@ export function useMyFundraiser(userId?: string) {
     queryKey: ["fundraiser-account", userId],
     enabled: !!userId,
     queryFn: async () => {
+      if (!userId) return null;
       const { data, error } = await supabase
         .from("fundraiser_accounts")
         .select("*")
-        .eq("user_id", userId!)
+        .eq("user_id", userId)
         .maybeSingle();
       if (error) throw error;
       return data as FundraiserAccount | null;
@@ -64,10 +65,11 @@ export function useMyFundraiser(userId?: string) {
     queryKey: ["my-proposals", account?.id],
     enabled: !!account?.id,
     queryFn: async () => {
+      if (!account?.id) return [];
       const { data, error } = await supabase
         .from("fundraising_proposals")
         .select("*")
-        .eq("fundraiser_id", account!.id)
+        .eq("fundraiser_id", account.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data || []) as FundraisingProposal[];
@@ -83,9 +85,12 @@ export function useMyFundraiser(userId?: string) {
       target_amount: number;
       image_url?: string | null;
     }) => {
+      if (!account?.id || account.status !== "approved") {
+        throw new Error("Akun penggalang belum disetujui atau sesi sudah berubah.");
+      }
       const { error } = await supabase.from("fundraising_proposals").insert({
         ...payload,
-        fundraiser_id: account!.id,
+        fundraiser_id: account.id,
         status: "pending",
       });
       if (error) throw error;
