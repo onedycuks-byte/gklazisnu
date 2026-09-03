@@ -162,3 +162,21 @@ export function useFundraisingAdmin() {
     setProposalStatus,
   };
 }
+
+/** Pengajuan penggalangan dana yang sudah disetujui (publik) */
+export function usePublicProposals() {
+  const { data: proposals = [], isLoading } = useQuery({
+    queryKey: ["public-proposals"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("fundraising_proposals")
+        .select("*")
+        .eq("status", "approved")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data || []) as FundraisingProposal[];
+    },
+  });
+
+  return { proposals, isLoading };
+}
