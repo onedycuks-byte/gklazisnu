@@ -121,7 +121,9 @@ export default function GalangDana() {
     try {
       let image_url: string | null = null;
       if (imageFile) {
-        const path = `proposals/${Date.now()}-${imageFile.name.replace(/\s+/g, "-")}`;
+        if (!user) throw new Error("Sesi masuk tidak ditemukan. Silakan masuk kembali.");
+        const safeFileName = imageFile.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+        const path = `proposals/${user.id}/${Date.now()}-${safeFileName}`;
         const { error: upErr } = await supabase.storage.from("program-images").upload(path, imageFile);
         if (upErr) throw upErr;
         image_url = supabase.storage.from("program-images").getPublicUrl(path).data.publicUrl;
