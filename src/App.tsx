@@ -21,6 +21,8 @@ import Edukasi from "./pages/Edukasi";
 import Maulid from "./pages/Maulid";
 import StaffLogin from "./pages/StaffLogin";
 import GalangDana from "./pages/GalangDana";
+import Penggalangan from "./pages/Penggalangan";
+import PenggalanganDetail from "./pages/PenggalanganDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
