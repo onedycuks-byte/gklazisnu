@@ -8,6 +8,7 @@ export interface FundraiserAccount {
   full_name: string;
   phone: string;
   address: string | null;
+  ktp_url: string | null;
   status: string;
   admin_notes: string | null;
   created_at: string;
@@ -154,12 +155,57 @@ export function useFundraisingAdmin() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["all-proposals"] }),
   });
 
+  const updateProposal = useMutation({
+    mutationFn: async ({ id, ...values }: { id: string } & Partial<FundraisingProposal>) => {
+      const { error } = await supabase.from("fundraising_proposals").update(values).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["all-proposals"] });
+      queryClient.invalidateQueries({ queryKey: ["public-proposals"] });
+    },
+  });
+
+  const deleteProposal = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("fundraising_proposals").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["all-proposals"] });
+      queryClient.invalidateQueries({ queryKey: ["public-proposals"] });
+    },
+  });
+
+  const updateAccount = useMutation({
+    mutationFn: async ({ id, ...values }: { id: string } & Partial<FundraiserAccount>) => {
+      const { error } = await supabase.from("fundraiser_accounts").update(values).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["all-fundraisers"] }),
+  });
+
+  const deleteAccount = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("fundraiser_accounts").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["all-fundraisers"] });
+      queryClient.invalidateQueries({ queryKey: ["all-proposals"] });
+    },
+  });
+
   return {
     accounts,
     proposals,
     isLoading: accountsLoading || proposalsLoading,
     setAccountStatus,
     setProposalStatus,
+    updateProposal,
+    deleteProposal,
+    updateAccount,
+    deleteAccount,
   };
 }
 

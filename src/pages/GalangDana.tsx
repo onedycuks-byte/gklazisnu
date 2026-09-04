@@ -48,6 +48,7 @@ export default function GalangDana() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [ktpFile, setKtpFile] = useState<File | null>(null);
 
   // proposal form
   const [showForm, setShowForm] = useState(false);
@@ -64,6 +65,7 @@ export default function GalangDana() {
     if (!validNik(nik)) return toast({ title: "NIK harus 16 digit angka", variant: "destructive" });
     if (!fullName.trim() || !phone.trim()) return toast({ title: "Nama dan nomor HP wajib diisi", variant: "destructive" });
     if (password.length < 6) return toast({ title: "Sandi minimal 6 karakter", variant: "destructive" });
+    if (!ktpFile) return toast({ title: "Foto KTP wajib diunggah", variant: "destructive" });
     setBusy(true);
     try {
       const email = nikToEmail(nik);
@@ -75,17 +77,26 @@ export default function GalangDana() {
       if (error) throw error;
       const uid = data.user?.id;
       if (!uid) throw new Error("Pendaftaran gagal, coba lagi.");
+      let ktp_url: string | null = null;
+      if (ktpFile) {
+        const safeName = ktpFile.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+        const path = `penggalang/${uid}/${Date.now()}-${safeName}`;
+        const { error: upErr } = await supabase.storage.from("ktp-uploads").upload(path, ktpFile);
+        if (upErr) throw upErr;
+        ktp_url = supabase.storage.from("ktp-uploads").getPublicUrl(path).data.publicUrl;
+      }
       const { error: insErr } = await supabase.from("fundraiser_accounts").insert({
         user_id: uid,
         nik: nik.trim(),
         full_name: fullName.trim(),
         phone: phone.trim(),
         address: address.trim() || null,
+        ktp_url,
         status: "pending",
       });
       if (insErr) throw insErr;
       toast({ title: "Pendaftaran terkirim", description: "Menunggu konfirmasi pengurus." });
-      setPassword("");
+      setPassword(""); setKtpFile(null);
     } catch (e: any) {
       const msg = String(e?.message || e);
       toast({
@@ -224,6 +235,11 @@ export default function GalangDana() {
                   <div className="space-y-1.5">
                     <Label className="text-xs">Alamat</Label>
                     <Textarea rows={2} value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Alamat domisili" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Foto KTP</Label>
+                    <Input type="file" accept="image/*" capture="environment" onChange={(e) => setKtpFile(e.target.files?.[0] || null)} />
+                    <p className="text-[10px] text-muted-foreground">Pastikan NIK dan nama pada KTP terbaca jelas.</p>
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs">Sandi</Label>
