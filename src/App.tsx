@@ -21,6 +21,8 @@ import Edukasi from "./pages/Edukasi";
 import Maulid from "./pages/Maulid";
 import StaffLogin from "./pages/StaffLogin";
 import GalangDana from "./pages/GalangDana";
+import Penggalangan from "./pages/Penggalangan";
+import PenggalanganDetail from "./pages/PenggalanganDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,6 +62,8 @@ const App = () => (
             <Route path="/maulid" element={<Maulid />} />
             <Route path="/staff-login" element={<StaffLogin />} />
             <Route path="/galang-dana" element={<GalangDana />} />
+            <Route path="/penggalangan" element={<Penggalangan />} />
+            <Route path="/penggalangan/:id" element={<PenggalanganDetail />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

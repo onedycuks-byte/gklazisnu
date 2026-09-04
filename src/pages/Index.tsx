@@ -81,6 +81,7 @@ const Index = () => {
     { icon: Target, label: "Program", gradient: "from-orange-500 to-red-500", path: "/program" },
     { icon: BookOpen, label: "Maulid", gradient: "from-emerald-600 to-teal-700", path: "/maulid" },
     { icon: Calculator, label: "Edukasi", gradient: "from-teal-500 to-cyan-600", path: "/edukasi" },
+    { icon: HandCoins, label: "Penggalangan", gradient: "from-lime-500 to-green-600", path: "/penggalangan" },
     { icon: Megaphone, label: "Galang Dana", gradient: "from-fuchsia-500 to-purple-600", path: "/galang-dana" },
     { icon: MessageCircle, label: "Diskusi", gradient: "from-blue-500 to-indigo-500", path: "/diskusi" },
     { icon: Sparkles, label: "Tanya AI", gradient: "from-violet-500 to-purple-600", path: "/ai-chat" },
