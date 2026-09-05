@@ -21,7 +21,9 @@ export function useContentStats() {
       });
       return map;
     },
-    refetchInterval: 60000,
+    refetchInterval: 15000,
+    refetchOnWindowFocus: true,
+    staleTime: 0,
   });
 
   const stats = data || {};
