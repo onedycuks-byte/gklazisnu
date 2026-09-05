@@ -25,13 +25,14 @@ export function useTrackPageView(page: string) {
   }, [page]);
 }
 
-export function trackEvent(eventType: string, page?: string) {
-  return supabase.from("site_analytics" as any).insert({
+export async function trackEvent(eventType: string, page?: string) {
+  const { error } = await supabase.from("site_analytics" as any).insert({
     event_type: eventType,
     page: page || null,
     session_id: getSessionId(),
     user_agent: navigator.userAgent,
   } as any);
+  if (error) console.warn("trackEvent failed", error.message);
 }
 
 export function useAnalyticsStats() {
