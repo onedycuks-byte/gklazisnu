@@ -25,6 +25,10 @@ export interface FundraisingProposal {
   target_amount: number;
   collected_amount: number;
   image_url: string | null;
+  bank_name: string | null;
+  bank_account_number: string | null;
+  bank_account_holder: string | null;
+  qris_image_url: string | null;
   status: string;
   admin_notes: string | null;
   created_at: string;
