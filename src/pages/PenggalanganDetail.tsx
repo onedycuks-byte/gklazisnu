@@ -3,7 +3,8 @@ import { BottomNav } from "@/components/BottomNav";
 import { usePublicProposals } from "@/hooks/useFundraising";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Loader2, Megaphone, Share2, Target, Coins, MessageCircle, Users, Calendar } from "lucide-react";
+import { ArrowLeft, Loader2, Megaphone, Share2, Target, Coins, MessageCircle, Users, Calendar, Landmark, QrCode, Copy } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import { shareContent, buildPublicUrl } from "@/lib/share";
 import { useTrackPageView } from "@/hooks/useAnalytics";
 
