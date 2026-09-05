@@ -193,6 +193,9 @@ export type Database = {
       fundraising_proposals: {
         Row: {
           admin_notes: string | null
+          bank_account_holder: string | null
+          bank_account_number: string | null
+          bank_name: string | null
           beneficiary: string | null
           category: string
           collected_amount: number
@@ -201,6 +204,7 @@ export type Database = {
           fundraiser_id: string
           id: string
           image_url: string | null
+          qris_image_url: string | null
           status: string
           target_amount: number
           title: string
@@ -208,6 +212,9 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          bank_account_holder?: string | null
+          bank_account_number?: string | null
+          bank_name?: string | null
           beneficiary?: string | null
           category?: string
           collected_amount?: number
@@ -216,6 +223,7 @@ export type Database = {
           fundraiser_id: string
           id?: string
           image_url?: string | null
+          qris_image_url?: string | null
           status?: string
           target_amount?: number
           title: string
@@ -223,6 +231,9 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          bank_account_holder?: string | null
+          bank_account_number?: string | null
+          bank_name?: string | null
           beneficiary?: string | null
           category?: string
           collected_amount?: number
@@ -231,6 +242,7 @@ export type Database = {
           fundraiser_id?: string
           id?: string
           image_url?: string | null
+          qris_image_url?: string | null
           status?: string
           target_amount?: number
           title?: string

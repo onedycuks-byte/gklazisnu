@@ -12,7 +12,8 @@ import {
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Check, X, Users, Megaphone, Trash2, Pencil, IdCard, Save } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2, Check, X, Users, Megaphone, Trash2, Pencil, IdCard, Save, Landmark, QrCode, Upload } from "lucide-react";
 
 const formatCurrency = (n: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
@@ -69,6 +70,24 @@ export function GalangDanaManager() {
   const [collected, setCollected] = useState<Record<string, string>>({});
   const [editId, setEditId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Partial<FundraisingProposal>>({});
+  const [uploadingQris, setUploadingQris] = useState(false);
+
+  const uploadQris = async (file: File) => {
+    setUploadingQris(true);
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const path = `qris/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage.from("program-images").upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from("program-images").getPublicUrl(path);
+      setDraft((d) => ({ ...d, qris_image_url: data.publicUrl }));
+      toast({ title: "Foto QRIS terunggah" });
+    } catch (e: any) {
+      toast({ title: "Gagal mengunggah QRIS", description: String(e?.message || e), variant: "destructive" });
+    } finally {
+      setUploadingQris(false);
+    }
+  };
 
   const act = async (fn: typeof setAccountStatus, id: string, status: string, label: string) => {
     try {
@@ -102,6 +121,10 @@ export function GalangDanaManager() {
         category: draft.category,
         beneficiary: draft.beneficiary?.trim() || null,
         target_amount: Number(draft.target_amount || 0),
+        bank_name: draft.bank_name?.trim() || null,
+        bank_account_number: draft.bank_account_number?.trim() || null,
+        bank_account_holder: draft.bank_account_holder?.trim() || null,
+        qris_image_url: draft.qris_image_url || null,
       });
       toast({ title: "Pengajuan diperbarui" });
       setEditId(null);
@@ -232,8 +255,26 @@ export function GalangDanaManager() {
                     <Label className="text-[11px]">Deskripsi</Label>
                     <Textarea rows={4} className="text-xs" value={draft.description ?? ""} onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))} />
                   </div>
+                  <div className="rounded-md border p-2 space-y-2">
+                    <p className="text-[11px] font-semibold flex items-center gap-1"><Landmark className="h-3.5 w-3.5" /> Rekening Bank</p>
+                    <Input className="h-8 text-xs" placeholder="Nama bank (mis. BRI)" value={draft.bank_name ?? ""} onChange={(e) => setDraft((d) => ({ ...d, bank_name: e.target.value }))} />
+                    <Input className="h-8 text-xs" inputMode="numeric" placeholder="Nomor rekening" value={draft.bank_account_number ?? ""} onChange={(e) => setDraft((d) => ({ ...d, bank_account_number: e.target.value }))} />
+                    <Input className="h-8 text-xs" placeholder="Atas nama" value={draft.bank_account_holder ?? ""} onChange={(e) => setDraft((d) => ({ ...d, bank_account_holder: e.target.value }))} />
+                  </div>
+                  <div className="rounded-md border p-2 space-y-2">
+                    <p className="text-[11px] font-semibold flex items-center gap-1"><QrCode className="h-3.5 w-3.5" /> Foto QRIS</p>
+                    {draft.qris_image_url && (
+                      <img src={draft.qris_image_url} alt="QRIS penggalangan" className="w-full h-40 object-contain rounded border bg-muted/30" />
+                    )}
+                    <Input type="file" accept="image/*" className="h-8 text-xs"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadQris(f); }} />
+                    {uploadingQris && <p className="text-[11px] text-muted-foreground flex items-center gap-1"><Upload className="h-3 w-3 animate-pulse" /> Mengunggah...</p>}
+                    {draft.qris_image_url && (
+                      <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => setDraft((d) => ({ ...d, qris_image_url: null }))}>Hapus QRIS</Button>
+                    )}
+                  </div>
                   <div className="flex gap-2">
-                    <Button size="sm" className="flex-1 h-8 text-xs" onClick={saveEdit}><Save className="h-3.5 w-3.5 mr-1" /> Simpan</Button>
+                    <Button size="sm" className="flex-1 h-8 text-xs" onClick={saveEdit} disabled={uploadingQris}><Save className="h-3.5 w-3.5 mr-1" /> Simpan</Button>
                     <Button size="sm" variant="outline" className="flex-1 h-8 text-xs" onClick={() => { setEditId(null); setDraft({}); }}>Batal</Button>
                   </div>
                 </div>
@@ -252,6 +293,14 @@ export function GalangDanaManager() {
                     <span className="text-muted-foreground">Terkumpul</span>
                     <span className="font-bold text-primary">{formatCurrency(p.collected_amount)}</span>
                   </div>
+                  {(p.bank_name || p.bank_account_number) && (
+                    <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                      <Landmark className="h-3 w-3" /> {p.bank_name} {p.bank_account_number} {p.bank_account_holder ? `a.n. ${p.bank_account_holder}` : ""}
+                    </p>
+                  )}
+                  {p.qris_image_url && (
+                    <img src={p.qris_image_url} alt={`QRIS ${p.title}`} loading="lazy" className="w-full h-40 object-contain rounded-md border bg-muted/30" />
+                  )}
                   <div className="flex gap-2">
                     <Input
                       className="h-8 text-xs"
