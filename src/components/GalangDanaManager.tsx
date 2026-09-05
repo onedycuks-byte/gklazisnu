@@ -293,6 +293,14 @@ export function GalangDanaManager() {
                     <span className="text-muted-foreground">Terkumpul</span>
                     <span className="font-bold text-primary">{formatCurrency(p.collected_amount)}</span>
                   </div>
+                  {(p.bank_name || p.bank_account_number) && (
+                    <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                      <Landmark className="h-3 w-3" /> {p.bank_name} {p.bank_account_number} {p.bank_account_holder ? `a.n. ${p.bank_account_holder}` : ""}
+                    </p>
+                  )}
+                  {p.qris_image_url && (
+                    <img src={p.qris_image_url} alt={`QRIS ${p.title}`} loading="lazy" className="w-full h-40 object-contain rounded-md border bg-muted/30" />
+                  )}
                   <div className="flex gap-2">
                     <Input
                       className="h-8 text-xs"
