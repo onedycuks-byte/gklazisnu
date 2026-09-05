@@ -121,6 +121,10 @@ export function GalangDanaManager() {
         category: draft.category,
         beneficiary: draft.beneficiary?.trim() || null,
         target_amount: Number(draft.target_amount || 0),
+        bank_name: draft.bank_name?.trim() || null,
+        bank_account_number: draft.bank_account_number?.trim() || null,
+        bank_account_holder: draft.bank_account_holder?.trim() || null,
+        qris_image_url: draft.qris_image_url || null,
       });
       toast({ title: "Pengajuan diperbarui" });
       setEditId(null);
