@@ -12,7 +12,8 @@ import {
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Check, X, Users, Megaphone, Trash2, Pencil, IdCard, Save } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2, Check, X, Users, Megaphone, Trash2, Pencil, IdCard, Save, Landmark, QrCode, Upload } from "lucide-react";
 
 const formatCurrency = (n: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
