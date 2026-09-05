@@ -70,6 +70,24 @@ export function GalangDanaManager() {
   const [collected, setCollected] = useState<Record<string, string>>({});
   const [editId, setEditId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Partial<FundraisingProposal>>({});
+  const [uploadingQris, setUploadingQris] = useState(false);
+
+  const uploadQris = async (file: File) => {
+    setUploadingQris(true);
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const path = `qris/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage.from("program-images").upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from("program-images").getPublicUrl(path);
+      setDraft((d) => ({ ...d, qris_image_url: data.publicUrl }));
+      toast({ title: "Foto QRIS terunggah" });
+    } catch (e: any) {
+      toast({ title: "Gagal mengunggah QRIS", description: String(e?.message || e), variant: "destructive" });
+    } finally {
+      setUploadingQris(false);
+    }
+  };
 
   const act = async (fn: typeof setAccountStatus, id: string, status: string, label: string) => {
     try {
