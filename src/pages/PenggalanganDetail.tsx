@@ -121,6 +121,48 @@ export default function PenggalanganDetail() {
           </div>
         </div>
 
+        {(proposal.bank_name || proposal.bank_account_number || proposal.qris_image_url) && (
+          <div className="bg-card rounded-xl p-5 shadow-card space-y-3">
+            <h2 className="text-sm font-semibold">Cara Berdonasi</h2>
+            {(proposal.bank_name || proposal.bank_account_number) && (
+              <div className="rounded-lg border p-3 space-y-1">
+                <p className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
+                  <Landmark className="h-3 w-3" /> Transfer Bank
+                </p>
+                {proposal.bank_name && <p className="text-sm font-semibold">{proposal.bank_name}</p>}
+                {proposal.bank_account_number && (
+                  <p className="text-base font-bold tracking-wide">{proposal.bank_account_number}</p>
+                )}
+                {proposal.bank_account_holder && (
+                  <p className="text-xs text-muted-foreground">a.n. {proposal.bank_account_holder}</p>
+                )}
+                {proposal.bank_account_number && (
+                  <Button size="sm" variant="outline" className="h-7 text-[11px] gap-1"
+                    onClick={() => {
+                      navigator.clipboard?.writeText(proposal.bank_account_number || "");
+                      toast({ title: "Nomor rekening disalin" });
+                    }}>
+                    <Copy className="h-3 w-3" /> Salin nomor
+                  </Button>
+                )}
+              </div>
+            )}
+            {proposal.qris_image_url && (
+              <div className="rounded-lg border p-3 space-y-2">
+                <p className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
+                  <QrCode className="h-3 w-3" /> Scan QRIS
+                </p>
+                <img
+                  src={proposal.qris_image_url}
+                  alt={`Kode QRIS donasi ${proposal.title}`}
+                  loading="lazy"
+                  className="w-full max-h-80 object-contain rounded-md bg-muted/30"
+                />
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-2">
           <Button onClick={handleWA} className="w-full gap-2">
             <MessageCircle className="h-4 w-4" /> Donasi
