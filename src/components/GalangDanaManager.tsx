@@ -255,8 +255,26 @@ export function GalangDanaManager() {
                     <Label className="text-[11px]">Deskripsi</Label>
                     <Textarea rows={4} className="text-xs" value={draft.description ?? ""} onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))} />
                   </div>
+                  <div className="rounded-md border p-2 space-y-2">
+                    <p className="text-[11px] font-semibold flex items-center gap-1"><Landmark className="h-3.5 w-3.5" /> Rekening Bank</p>
+                    <Input className="h-8 text-xs" placeholder="Nama bank (mis. BRI)" value={draft.bank_name ?? ""} onChange={(e) => setDraft((d) => ({ ...d, bank_name: e.target.value }))} />
+                    <Input className="h-8 text-xs" inputMode="numeric" placeholder="Nomor rekening" value={draft.bank_account_number ?? ""} onChange={(e) => setDraft((d) => ({ ...d, bank_account_number: e.target.value }))} />
+                    <Input className="h-8 text-xs" placeholder="Atas nama" value={draft.bank_account_holder ?? ""} onChange={(e) => setDraft((d) => ({ ...d, bank_account_holder: e.target.value }))} />
+                  </div>
+                  <div className="rounded-md border p-2 space-y-2">
+                    <p className="text-[11px] font-semibold flex items-center gap-1"><QrCode className="h-3.5 w-3.5" /> Foto QRIS</p>
+                    {draft.qris_image_url && (
+                      <img src={draft.qris_image_url} alt="QRIS penggalangan" className="w-full h-40 object-contain rounded border bg-muted/30" />
+                    )}
+                    <Input type="file" accept="image/*" className="h-8 text-xs"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadQris(f); }} />
+                    {uploadingQris && <p className="text-[11px] text-muted-foreground flex items-center gap-1"><Upload className="h-3 w-3 animate-pulse" /> Mengunggah...</p>}
+                    {draft.qris_image_url && (
+                      <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => setDraft((d) => ({ ...d, qris_image_url: null }))}>Hapus QRIS</Button>
+                    )}
+                  </div>
                   <div className="flex gap-2">
-                    <Button size="sm" className="flex-1 h-8 text-xs" onClick={saveEdit}><Save className="h-3.5 w-3.5 mr-1" /> Simpan</Button>
+                    <Button size="sm" className="flex-1 h-8 text-xs" onClick={saveEdit} disabled={uploadingQris}><Save className="h-3.5 w-3.5 mr-1" /> Simpan</Button>
                     <Button size="sm" variant="outline" className="flex-1 h-8 text-xs" onClick={() => { setEditId(null); setDraft({}); }}>Batal</Button>
                   </div>
                 </div>
