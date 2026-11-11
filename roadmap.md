@@ -1,2 +1,2 @@
-- [ ] Set up a protected ChatGPT MCP connection with app permissions; support requested create, edit, and delete actions without bypassing existing role checks.
-- [ ] Finish the previously requested security fixes only after the user confirms the access-impact approach.
+- [ ] Set up the protected ChatGPT connection, including login approval, role-limited record actions, and the connection catalog.
+- [ ] Fix only the 12 selected security findings after the user confirms how to preserve public forms and reports.
