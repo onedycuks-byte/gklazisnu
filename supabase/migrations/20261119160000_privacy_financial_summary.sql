@@ -16,7 +16,12 @@ CREATE POLICY "Staff can view expenses"
 DROP POLICY IF EXISTS "Anyone can view approved registrations" ON public.orphan_registrations;
 CREATE POLICY "Santunan staff can view orphan registrations"
   ON public.orphan_registrations FOR SELECT TO authenticated
-  USING (public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'penyaluran'::public.app_role));
+  USING (
+    public.has_role(auth.uid(), 'admin'::public.app_role)
+    OR public.has_role(auth.uid(), 'bendahara'::public.app_role)
+    OR public.has_role(auth.uid(), 'sekretaris'::public.app_role)
+    OR public.has_role(auth.uid(), 'penyaluran'::public.app_role)
+  );
 
 -- Wallet histories can reveal beneficiary activity.
 DROP POLICY IF EXISTS "Anyone can view wallet transactions" ON public.wallet_transactions;
