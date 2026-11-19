@@ -39,6 +39,7 @@ export function useOrphanRegistrations(adminMode = false) {
 
   const { data: registrations = [], isLoading } = useQuery({
     queryKey: ["orphan_registrations", adminMode],
+    enabled: adminMode,
     queryFn: async () => {
       let query = supabase
         .from("orphan_registrations" as any)
