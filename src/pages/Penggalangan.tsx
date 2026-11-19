@@ -25,8 +25,8 @@ export default function Penggalangan() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="gradient-primary px-4 pt-4 pb-5">
+    <div className="page-container min-h-screen bg-background pb-24">
+      <div className="page-hero gradient-primary px-4 pt-6 pb-8">
         <Button
           variant="ghost"
           size="sm"
@@ -42,7 +42,7 @@ export default function Penggalangan() {
         </p>
       </div>
 
-      <div className="px-4 mt-5">
+      <div className="page-content px-4 mt-6">
         {proposals.length === 0 ? (
           <div className="bg-card rounded-2xl p-8 shadow-card text-center border border-border/50">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted mx-auto mb-3">
