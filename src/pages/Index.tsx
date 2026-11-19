@@ -127,8 +127,8 @@ const Index = () => {
       />
 
       {/* Quick Menu */}
-      <div className="px-4 mt-6">
-        <div className="grid grid-cols-3 gap-2.5">
+      <div className="mx-auto mt-7 w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
           {quickMenuItems.map((item, i) => (
             <button
               key={item.label}
@@ -147,7 +147,7 @@ const Index = () => {
 
       {/* Berita Terbaru - Slideshow */}
       {!newsLoading && publishedNews.length > 0 && (
-        <div className="px-4 mt-7">
+        <div className="mx-auto mt-9 w-full max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h2 className="text-base font-bold text-foreground">Berita Terbaru</h2>
@@ -253,7 +253,7 @@ const Index = () => {
             <p className="text-xs text-muted-foreground/70 mt-1">Program donasi akan muncul di sini</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {activePrograms.map((program, index) => {
               const progress = program.target_amount > 0
                 ? Math.min((program.collected_amount / program.target_amount) * 100, 100)
@@ -409,7 +409,7 @@ const Index = () => {
       </div>
 
       {/* Footer */}
-      <div className="px-4 mt-10 mb-4">
+      <div className="mx-auto mb-4 mt-12 w-full max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="border-t border-border/50 pt-4">
           <p className="text-center text-[11px] text-muted-foreground/70">
             &copy; {new Date().getFullYear()} LAZISNU Gendongkulon • Amanah & Transparan

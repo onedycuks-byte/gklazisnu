@@ -49,7 +49,7 @@ export default function Santunan() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="page-container min-h-screen bg-background pb-20">
       {/* Header */}
       <div className="bg-gradient-to-br from-rose-500 to-pink-600 text-white px-4 pt-12 pb-8 rounded-b-3xl shadow-lg">
         <button onClick={() => navigate("/")} className="flex items-center gap-1.5 text-white/80 hover:text-white text-sm mb-4">

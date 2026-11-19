@@ -615,10 +615,10 @@ export default function Admin() {
   const saldo = totalPemasukan - totalPengeluaran;
 
   return (
-    <div className="min-h-screen bg-background max-w-lg mx-auto">
+    <div className="admin-shell min-h-screen bg-background w-full max-w-screen-2xl mx-auto">
       {/* Header - compact sticky */}
-      <header className="sticky top-0 z-30 border-b bg-card/95 backdrop-blur-sm">
-        <div className="flex h-14 items-center justify-between px-4">
+      <header className="sticky top-0 z-30 border-b border-primary/10 bg-card/90 shadow-card backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 min-w-0">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg gradient-primary">
               <Shield className="h-4 w-4 text-primary-foreground" />
@@ -639,10 +639,10 @@ export default function Admin() {
         </div>
       </header>
 
-      <main className="px-4 py-4 space-y-4">
+      <main className="admin-content mx-auto w-full max-w-screen-2xl px-4 py-5 space-y-5 sm:px-6 lg:px-8 lg:py-7">
         {/* Summary Cards - only for roles that can see financials */}
         {(visibleTabs.has("pemasukan") || visibleTabs.has("pengeluaran")) && (
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <Card>
               <CardContent className="p-3 text-center">
                 <TrendingUp className="h-4 w-4 text-green-600 mx-auto mb-1" />
@@ -669,7 +669,7 @@ export default function Admin() {
 
         <Tabs value={activeTab || Array.from(visibleTabs)[0] || "statistik"} onValueChange={setActiveTab} className="space-y-4">
           <div className="overflow-x-auto -mx-4 px-4 scrollbar-hide">
-            <TabsList className="inline-flex w-max gap-1">
+            <TabsList className="inline-flex h-auto min-h-11 w-max gap-1 rounded-2xl border border-border/60 bg-card p-1.5 shadow-card">
               {visibleTabs.has("statistik") && (
                 <TabsTrigger value="statistik" className="text-xs px-2.5 py-1.5 gap-1">
                   <BarChart3 className="h-3.5 w-3.5" /> Statistik

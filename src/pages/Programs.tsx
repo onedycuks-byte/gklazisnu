@@ -32,8 +32,8 @@ export default function Programs() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="gradient-primary px-4 pt-4 pb-5">
+    <div className="page-container min-h-screen bg-background pb-24">
+      <div className="page-hero gradient-primary px-4 pt-6 pb-8">
         <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="gap-1 text-primary-foreground/90 hover:text-primary-foreground hover:bg-white/10 px-0 mb-3">
           <ArrowLeft className="h-4 w-4" />
           Kembali
@@ -42,7 +42,7 @@ export default function Programs() {
         <p className="text-xs text-primary-foreground/80 mt-0.5">Semua program infaq dan donasi LAZISNU</p>
       </div>
 
-      <div className="px-4 mt-5">
+      <div className="page-content px-4 mt-6">
         {activePrograms.length === 0 ? (
           <div className="bg-card rounded-2xl p-8 shadow-card text-center border border-border/50">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted mx-auto mb-3">
@@ -52,7 +52,7 @@ export default function Programs() {
             <p className="text-xs text-muted-foreground/70 mt-1">Program donasi akan muncul di sini</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {activePrograms.map((program, index) => {
               const progress = program.target_amount > 0
                 ? Math.min((program.collected_amount / program.target_amount) * 100, 100)
@@ -62,7 +62,7 @@ export default function Programs() {
                 <div
                   key={program.id}
                   onClick={() => navigate(`/program/${program.id}`)}
-                  className="bg-card rounded-2xl shadow-card cursor-pointer hover:shadow-elevated transition-all duration-300 border border-border/30 p-3 flex gap-3 items-center animate-slide-up"
+                  className="surface-card bg-card rounded-2xl shadow-card cursor-pointer hover:shadow-elevated transition-all duration-300 border border-border/30 p-4 flex gap-4 items-center animate-slide-up"
                   style={{ animationDelay: `${index * 60}ms` }}
                 >
                   <div className="relative h-14 w-14 rounded-xl overflow-hidden shrink-0 bg-muted flex items-center justify-center">

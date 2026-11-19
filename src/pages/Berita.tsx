@@ -62,9 +62,9 @@ const Berita = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="page-container min-h-screen bg-background pb-20">
       {/* Header */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-emerald-700 text-primary-foreground px-4 pt-6 pb-10">
+      <div className="page-hero relative overflow-hidden bg-gradient-to-br from-primary via-primary to-emerald-700 text-primary-foreground px-4 pt-7 pb-12">
         <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/4" />
         <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/4" />
         <div className="relative z-10 flex items-center gap-3">
@@ -78,7 +78,7 @@ const Berita = () => {
         </div>
       </div>
 
-      <div className="px-4 -mt-5 space-y-3">
+      <div className="page-content px-4 -mt-6 space-y-4">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
             <div className="h-10 w-10 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
@@ -97,7 +97,7 @@ const Berita = () => {
             <div
               key={item.id}
               onClick={() => openNews(item)}
-              className="bg-card rounded-2xl overflow-hidden shadow-card animate-slide-up border border-border/30 hover:shadow-elevated transition-all duration-300 cursor-pointer"
+              className="surface-card bg-card rounded-2xl overflow-hidden shadow-card animate-slide-up border border-border/30 hover:shadow-elevated transition-all duration-300 cursor-pointer"
               style={{ animationDelay: `${index * 80}ms` }}
             >
               {item.image_url && (
