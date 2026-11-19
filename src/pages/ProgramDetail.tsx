@@ -75,7 +75,7 @@ export default function ProgramDetail() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="page-container min-h-screen bg-background pb-24">
       {/* Header with image */}
       {program.image_url ? (
         <div className="relative">
@@ -88,7 +88,7 @@ export default function ProgramDetail() {
           <h1 className="absolute bottom-4 left-4 text-lg font-bold text-white">{program.title}</h1>
         </div>
       ) : (
-        <div className="gradient-primary px-4 pt-4 pb-6">
+        <div className="page-hero gradient-primary px-4 pt-6 pb-8">
           <button onClick={() => navigate("/")} className="flex items-center gap-1 text-primary-foreground/80 mb-4">
             <ArrowLeft className="h-4 w-4" />
             <span className="text-sm">Kembali</span>
@@ -97,9 +97,9 @@ export default function ProgramDetail() {
         </div>
       )}
 
-      <div className="px-4 -mt-3">
+      <div className="page-content mx-auto max-w-5xl px-4 -mt-4">
         {/* Progress Card */}
-        <div className="bg-card rounded-xl p-5 shadow-card animate-slide-up">
+        <div className="surface-card bg-card rounded-2xl p-5 shadow-card animate-slide-up">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Coins className="h-4 w-4 text-primary" />
@@ -123,7 +123,7 @@ export default function ProgramDetail() {
 
         {/* Description */}
         {program.description && (
-          <div className="bg-card rounded-xl p-5 shadow-card mt-4 animate-slide-up" style={{ animationDelay: "80ms" }}>
+          <div className="surface-card bg-card rounded-2xl p-5 shadow-card mt-4 animate-slide-up" style={{ animationDelay: "80ms" }}>
             <h2 className="text-sm font-bold text-foreground mb-2">Tentang Program</h2>
             <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{program.description}</p>
           </div>
@@ -131,7 +131,7 @@ export default function ProgramDetail() {
 
         {/* QRIS */}
         {program.qris_image_url && (
-          <div className="bg-card rounded-xl p-5 shadow-card mt-4 animate-slide-up text-center" style={{ animationDelay: "160ms" }}>
+          <div className="surface-card bg-card rounded-2xl p-5 shadow-card mt-4 animate-slide-up text-center" style={{ animationDelay: "160ms" }}>
             <h2 className="text-sm font-bold text-foreground mb-3">Bayar via QRIS</h2>
             <div className="bg-background rounded-lg p-3 inline-block">
               <img
@@ -147,7 +147,7 @@ export default function ProgramDetail() {
         )}
 
         {/* Laporan Penyaluran */}
-        <div className="bg-card rounded-xl p-5 shadow-card mt-4 animate-slide-up" style={{ animationDelay: "200ms" }}>
+        <div className="surface-card bg-card rounded-2xl p-5 shadow-card mt-4 animate-slide-up" style={{ animationDelay: "200ms" }}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <HandCoins className="h-4 w-4 text-primary" />
