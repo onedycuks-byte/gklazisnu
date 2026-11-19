@@ -72,13 +72,11 @@ export function useOrphanRegistrations(adminMode = false) {
       ktp_url?: string;
     }) => {
       const unique_code = generateUniqueCode();
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("orphan_registrations" as any)
-        .insert({ ...input, unique_code } as any)
-        .select()
-        .single();
+        .insert({ ...input, unique_code } as any);
       if (error) throw error;
-      return data as unknown as OrphanRegistration;
+      return { unique_code };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orphan_registrations"] });
