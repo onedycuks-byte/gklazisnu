@@ -144,3 +144,65 @@
   scrollbar-width: none;
 }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+
+/* Consistent page layout shared across public and admin screens */
+@layer components {
+  .page-container {
+    isolation: isolate;
+  }
+
+  .page-hero {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .page-content {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 76rem);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .surface-card {
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 220ms ease, transform 220ms ease, border-color 220ms ease;
+  }
+
+  .surface-card:hover {
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .admin-shell {
+    min-height: 100dvh;
+    background-image: var(--gradient-hero);
+  }
+
+  .admin-content > [data-state="active"] {
+    animation: slideUp 260ms ease-out both;
+  }
+
+  .admin-content [role="tabpanel"] {
+    min-width: 0;
+  }
+
+  .admin-content .rounded-lg.border,
+  .admin-content .rounded-xl.border {
+    border-color: hsl(var(--border) / 0.75);
+  }
+}
+
+@media (min-width: 768px) {
+  .page-hero {
+    border-radius: 0 0 2rem 2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .surface-card,
+  .surface-card:hover {
+    transition: none;
+  }
+}
