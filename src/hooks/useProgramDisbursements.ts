@@ -12,6 +12,7 @@ export interface ProgramDisbursement {
   image_url: string | null;
   created_at: string;
   updated_at: string;
+  distribution_count?: number;
 }
 
 export interface ProgramDisbursementInput {
@@ -46,7 +47,7 @@ export function useProgramDisbursements(programId?: string) {
         .map((row) => ({
           id: `summary-${row.program_id}`, program_id: row.program_id, recipient_name: "",
           amount: Number(row.total_disbursed), date: "", description: null, image_url: null,
-          created_at: "", updated_at: "",
+          created_at: "", updated_at: "", distribution_count: Number(row.distribution_count),
         }));
     },
   });
