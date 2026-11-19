@@ -53,6 +53,10 @@ CREATE POLICY "Staff can view archives"
   USING (public.has_staff_role(auth.uid()));
 
 UPDATE storage.buckets SET public = false WHERE id IN ('ktp-uploads', 'expense-receipts', 'archives');
+UPDATE storage.buckets
+SET file_size_limit = 5242880,
+    allowed_mime_types = ARRAY['image/jpeg', 'image/png', 'image/webp']
+WHERE id = 'ktp-uploads';
 
 DROP POLICY IF EXISTS "Anyone can view KTP" ON storage.objects;
 CREATE POLICY "Staff can view KTP"
