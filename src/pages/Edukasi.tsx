@@ -309,7 +309,7 @@ export default function Edukasi() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="page-container min-h-screen bg-background pb-24">
       <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border/50">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
           <button onClick={() => navigate(-1)} className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-muted transition-colors">
@@ -322,7 +322,7 @@ export default function Edukasi() {
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-4 pt-4">
+      <main className="page-content max-w-5xl mx-auto px-4 pt-5">
         <Tabs defaultValue="zakat" className="w-full">
           <TabsList className="grid w-full grid-cols-3 h-11">
             <TabsTrigger value="zakat" className="text-xs gap-1.5"><Calculator className="h-3.5 w-3.5" /> Zakat</TabsTrigger>
