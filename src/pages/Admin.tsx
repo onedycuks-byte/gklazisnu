@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { exportLaporanPDF } from "@/lib/exportLaporanPDF";
 import { exportRekapBulananPDF, monthLabel } from "@/lib/exportRekapBulananPDF";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { useRegions, Region } from "@/hooks/useRegions";
 import { useSupabaseDonations, Donation, INCOME_CATEGORIES } from "@/hooks/useSupabaseDonations";
 import { useExpenses, Expense, EXPENSE_CATEGORIES } from "@/hooks/useExpenses";
@@ -2107,7 +2108,7 @@ export default function Admin() {
 
                       {reg.ktp_url && (
                         <div className="rounded-lg overflow-hidden border border-border">
-                          <img src={reg.ktp_url} alt="KTP Wali" className="w-full h-32 object-cover" />
+                          <PrivateKtpImage path={reg.ktp_url} />
                         </div>
                       )}
 
@@ -2886,4 +2887,30 @@ export default function Admin() {
       </main>
     </div>
   );
+}
+
+
+function PrivateKtpImage({ path }: { path: string }) {
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadPrivateImage = async () => {
+      const objectPath = path.includes("/ktp-uploads/")
+        ? decodeURIComponent(path.split("/ktp-uploads/")[1].split("?")[0])
+        : path;
+      const { data, error } = await supabase.storage
+        .from("ktp-uploads")
+        .createSignedUrl(objectPath, 5 * 60);
+      if (!cancelled && !error) setSignedUrl(data.signedUrl);
+    };
+    loadPrivateImage();
+    return () => { cancelled = true; };
+  }, [path]);
+
+  if (!signedUrl) {
+    return <div className="p-3 text-xs text-muted-foreground">Memuat dokumen identitas...</div>;
+  }
+
+  return <img src={signedUrl} alt="KTP Wali" className="w-full h-32 object-cover" />;
 }
