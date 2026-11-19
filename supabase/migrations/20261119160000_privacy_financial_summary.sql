@@ -3,9 +3,9 @@
 
 -- Financial ledgers: public access is replaced by the aggregate RPC below.
 DROP POLICY IF EXISTS "Anyone can view donations" ON public.donations;
-CREATE POLICY "Staff can view donations"
+CREATE POLICY "Finance staff can view donations"
   ON public.donations FOR SELECT TO authenticated
-  USING (public.has_staff_role(auth.uid()));
+  USING (public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'ketua'::public.app_role) OR public.has_role(auth.uid(), 'bendahara'::public.app_role));
 
 DROP POLICY IF EXISTS "Anyone can view expenses" ON public.expenses;
 CREATE POLICY "Staff can view expenses"
