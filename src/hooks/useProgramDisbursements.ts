@@ -27,7 +27,7 @@ export interface ProgramDisbursementInput {
 export function useProgramDisbursements(programId?: string) {
   const queryClient = useQueryClient();
   const { hasAnyRole, isLoading: authLoading } = useAuth();
-  const canViewDetails = hasAnyRole(["admin", "ketua", "bendahara", "sekretaris", "dokumentasi", "koordinator", "penyaluran"]);
+  const canViewDetails = hasAnyRole(["admin", "bendahara", "sekretaris", "penyaluran"]);
 
   const { data: disbursements = [], isLoading } = useQuery({
     queryKey: ["program_disbursements", programId ?? "all", canViewDetails],
