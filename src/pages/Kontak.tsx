@@ -23,10 +23,10 @@ const Kontak = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="page-container min-h-screen bg-background pb-20">
       {/* Hero Header */}
       <div className="relative overflow-hidden">
-        <div className="gradient-primary px-5 pt-8 pb-16">
+        <div className="page-hero gradient-primary px-5 pt-9 pb-16">
           <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/4" />
           <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/4" />
           <div className="relative z-10">
@@ -45,9 +45,9 @@ const Kontak = () => {
         <div className="h-6 bg-background -mt-6 rounded-t-3xl relative z-10" />
       </div>
 
-      <div className="px-4 -mt-2 space-y-4">
+      <div className="page-content mx-auto max-w-4xl px-4 -mt-3 space-y-5">
         {/* Leader Card - Featured */}
-        <div className="bg-card rounded-2xl p-5 shadow-elevated animate-slide-up border border-primary/10">
+        <div className="surface-card bg-card rounded-2xl p-5 shadow-elevated animate-slide-up border border-primary/10">
           <div className="flex items-center gap-4">
             <div className="h-14 w-14 rounded-2xl gradient-primary flex items-center justify-center shrink-0">
               <Users className="h-7 w-7 text-primary-foreground" />
