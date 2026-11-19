@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface SantunanDisbursement {
   id: string;
@@ -22,16 +23,25 @@ export interface DisbursementInput {
 
 export function useSantunanDisbursements() {
   const queryClient = useQueryClient();
+  const { hasAnyRole, isLoading: authLoading } = useAuth();
+  const canViewDetails = hasAnyRole(["admin", "ketua", "bendahara", "sekretaris", "dokumentasi", "koordinator", "penyaluran"]);
 
   const { data: disbursements = [], isLoading } = useQuery({
-    queryKey: ["santunan_disbursements"],
+    queryKey: ["santunan_disbursements", canViewDetails],
+    enabled: !authLoading,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("santunan_disbursements" as any)
-        .select("*")
-        .order("date", { ascending: false });
+      if (canViewDetails) {
+        const { data, error } = await supabase
+          .from("santunan_disbursements" as any)
+          .select("*")
+          .order("date", { ascending: false });
+        if (error) throw error;
+        const items = (data || []) as unknown as SantunanDisbursement[];
+        return { items, total: items.reduce((sum, item) => sum + item.amount, 0), count: items.length };
+      }
+      const { data, error } = await (supabase as any).rpc("get_public_santunan_summary");
       if (error) throw error;
-      return (data || []) as unknown as SantunanDisbursement[];
+      return { items: [], total: Number(data?.total_disbursed ?? 0), count: Number(data?.distribution_count ?? 0) };
     },
   });
 
@@ -71,12 +81,16 @@ export function useSantunanDisbursements() {
     return data.publicUrl;
   };
 
-  const totalDisbursed = disbursements.reduce((s, d) => s + d.amount, 0);
+  const disbursements = data?.items ?? [];
+  const totalDisbursed = data?.total ?? 0;
+  const distributionCount = data?.count ?? 0;
 
   return {
     disbursements,
     isLoading,
     totalDisbursed,
+    distributionCount,
+    canViewDetails,
     addDisbursement: addMutation.mutateAsync,
     isAdding: addMutation.isPending,
     updateDisbursement: updateMutation.mutateAsync,
