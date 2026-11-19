@@ -59,7 +59,7 @@ export default function PenggalanganDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="page-container min-h-screen bg-background pb-24">
       {proposal.image_url ? (
         <div className="relative">
           <img src={proposal.image_url} alt={proposal.title} className="w-full h-56 object-cover" />
@@ -71,7 +71,7 @@ export default function PenggalanganDetail() {
           <h1 className="absolute bottom-4 left-4 right-4 text-lg font-bold text-white">{proposal.title}</h1>
         </div>
       ) : (
-        <div className="gradient-primary px-4 pt-4 pb-6">
+        <div className="page-hero gradient-primary px-4 pt-6 pb-8">
           <button onClick={() => navigate("/penggalangan")} className="flex items-center gap-1 text-primary-foreground/80 mb-4">
             <ArrowLeft className="h-4 w-4" />
             <span className="text-sm">Kembali</span>
