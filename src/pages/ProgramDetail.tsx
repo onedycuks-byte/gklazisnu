@@ -15,7 +15,7 @@ export default function ProgramDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { programs, isLoading } = usePrograms();
-  const { disbursements, totalDisbursed } = useProgramDisbursements(id);
+  const { disbursements, totalDisbursed, canViewDetails } = useProgramDisbursements(id);
 
   const program = programs.find((p) => p.id === id);
   const { programStat } = useContentStats();
@@ -153,13 +153,15 @@ export default function ProgramDetail() {
               <HandCoins className="h-4 w-4 text-primary" />
               <h2 className="text-sm font-bold text-foreground">Laporan Penyaluran</h2>
             </div>
-            <span className="text-xs font-semibold text-primary">{disbursements.length} kegiatan</span>
+            <span className="text-xs font-semibold text-primary">{canViewDetails ? disbursements.length : (disbursements[0]?.distribution_count ?? 0)} kegiatan</span>
           </div>
           <div className="bg-primary/5 rounded-lg p-3 mb-3">
             <p className="text-xs text-muted-foreground">Total Tersalurkan</p>
             <p className="text-lg font-bold text-primary">{formatCurrency(totalDisbursed)}</p>
           </div>
-          {disbursements.length === 0 ? (
+          {!canViewDetails ? (
+            <p className="text-xs text-muted-foreground text-center py-3">Rincian penerima dan bukti penyaluran hanya dapat dilihat pengurus yang berwenang.</p>
+          ) : disbursements.length === 0 ? (
             <p className="text-xs text-muted-foreground text-center py-4">Belum ada laporan penyaluran</p>
           ) : (
             <div className="space-y-2">

@@ -17,7 +17,7 @@ export default function Santunan() {
   const navigate = useNavigate();
   const { register, isRegistering } = useOrphanRegistrations();
   const { images } = useSantunanGallery();
-  const { disbursements, totalDisbursed } = useSantunanDisbursements();
+  const { disbursements, totalDisbursed, distributionCount, canViewDetails } = useSantunanDisbursements();
 
   const [tab, setTab] = useState<"galeri" | "tersalurkan" | "daftar">("galeri");
   const [form, setForm] = useState(emptyForm);
@@ -78,7 +78,7 @@ export default function Santunan() {
               <p className="text-xl font-bold">
                 {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(totalDisbursed)}
               </p>
-              <p className="text-[11px] text-white/80 mt-0.5">{disbursements.length} penerima santunan</p>
+              <p className="text-[11px] text-white/80 mt-0.5">{distributionCount} penyaluran tercatat</p>
             </div>
           </div>
         </div>
@@ -114,7 +114,12 @@ export default function Santunan() {
         {/* Tersalurkan Tab */}
         {tab === "tersalurkan" && (
           <div className="space-y-3 animate-fade-in">
-            {disbursements.length === 0 ? (
+            {!canViewDetails ? (
+              <div className="rounded-2xl bg-muted/50 border border-border/30 p-6 text-center">
+                <HandCoins className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-xs text-muted-foreground">Ringkasan jumlah dan dana tersalurkan ditampilkan untuk publik. Rincian penerima hanya dapat dilihat pengurus yang berwenang.</p>
+              </div>
+            ) : disbursements.length === 0 ? (
               <div className="rounded-2xl bg-muted/50 border border-border/30 p-12 text-center">
                 <HandCoins className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground">Belum ada data penyaluran</p>

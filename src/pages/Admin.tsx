@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { exportLaporanPDF } from "@/lib/exportLaporanPDF";
 import { exportRekapBulananPDF, monthLabel } from "@/lib/exportRekapBulananPDF";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { useRegions, Region } from "@/hooks/useRegions";
 import { useSupabaseDonations, Donation, INCOME_CATEGORIES } from "@/hooks/useSupabaseDonations";
 import { useExpenses, Expense, EXPENSE_CATEGORIES } from "@/hooks/useExpenses";
@@ -1288,9 +1289,7 @@ export default function Admin() {
                         <p className="text-xs text-muted-foreground">{formatDate(expense.date)}</p>
                         {expense.description && <p className="text-xs text-muted-foreground truncate">{expense.description}</p>}
                         {expense.receipt_url && (
-                          <a href={expense.receipt_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-xs inline-flex items-center gap-1">
-                            <Image className="h-3 w-3" /> Lihat Bukti
-                          </a>
+                          <PrivateStorageLink bucket="expense-receipts" path={expense.receipt_url} label="Lihat Bukti" />
                         )}
                       </div>
                       <div className="flex gap-0.5 shrink-0">
@@ -2107,7 +2106,7 @@ export default function Admin() {
 
                       {reg.ktp_url && (
                         <div className="rounded-lg overflow-hidden border border-border">
-                          <img src={reg.ktp_url} alt="KTP Wali" className="w-full h-32 object-cover" />
+                          <PrivateKtpImage path={reg.ktp_url} />
                         </div>
                       )}
 
@@ -2845,9 +2844,9 @@ export default function Admin() {
                           <TableCell>
                             <div className="flex gap-1">
                               <Button size="sm" variant="outline" asChild>
-                                <a href={arc.file_url} download={arc.file_name} target="_blank" rel="noopener noreferrer">
+                                <PrivateStorageLink bucket="archives" path={arc.file_url} downloadName={arc.file_name} label="Unduh arsip">
                                   <Download className="h-3.5 w-3.5" />
-                                </a>
+                                </PrivateStorageLink>
                               </Button>
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
@@ -2885,5 +2884,73 @@ export default function Admin() {
         </Tabs>
       </main>
     </div>
+  );
+}
+
+
+function PrivateKtpImage({ path }: { path: string }) {
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadPrivateImage = async () => {
+      const objectPath = path.includes("/ktp-uploads/")
+        ? decodeURIComponent(path.split("/ktp-uploads/")[1].split("?")[0])
+        : path;
+      const { data, error } = await supabase.storage
+        .from("ktp-uploads")
+        .createSignedUrl(objectPath, 5 * 60);
+      if (!cancelled && !error) setSignedUrl(data.signedUrl);
+    };
+    loadPrivateImage();
+    return () => { cancelled = true; };
+  }, [path]);
+
+  if (!signedUrl) {
+    return <div className="p-3 text-xs text-muted-foreground">Memuat dokumen identitas...</div>;
+  }
+
+  return <img src={signedUrl} alt="KTP Wali" className="w-full h-32 object-cover" />;
+}
+
+
+function PrivateStorageLink({
+  bucket,
+  path,
+  label,
+  downloadName,
+  children,
+}: {
+  bucket: "expense-receipts" | "archives";
+  path: string;
+  label: string;
+  downloadName?: string;
+  children?: React.ReactNode;
+}) {
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const objectPath = path.startsWith("http")
+      ? decodeURIComponent(new URL(path).pathname.split(`/${bucket}/`)[1]?.split("?")[0] || "")
+      : path;
+    supabase.storage.from(bucket).createSignedUrl(objectPath, 5 * 60).then(({ data, error }) => {
+      if (!cancelled && !error && data?.signedUrl) setSignedUrl(data.signedUrl);
+    });
+    return () => { cancelled = true; };
+  }, [bucket, path]);
+
+  return (
+    <a
+      href={signedUrl || "#"}
+      onClick={(event) => { if (!signedUrl) event.preventDefault(); }}
+      download={downloadName}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      className={children ? undefined : "text-primary hover:underline text-xs inline-flex items-center gap-1"}
+    >
+      {children || <><Image className="h-3 w-3" /> {signedUrl ? label : "Menyiapkan tautan..."}</>}
+    </a>
   );
 }

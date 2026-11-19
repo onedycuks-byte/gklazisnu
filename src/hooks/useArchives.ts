@@ -35,11 +35,9 @@ export function useArchives() {
       .upload(path, file);
     if (uploadError) throw uploadError;
 
-    const { data: urlData } = supabase.storage.from("archives").getPublicUrl(path);
-
     const { error } = await supabase.from("archives" as any).insert({
       file_name: file.name,
-      file_url: urlData.publicUrl,
+      file_url: path,
       file_size: file.size,
       description: description || null,
     } as any);
@@ -54,11 +52,10 @@ export function useArchives() {
   const deleteMutation = useMutation({
     mutationFn: async (archive: Archive) => {
       // Extract storage path from URL
-      const url = new URL(archive.file_url);
-      const pathParts = url.pathname.split("/archives/");
-      if (pathParts[1]) {
-        await supabase.storage.from("archives").remove([decodeURIComponent(pathParts[1])]);
-      }
+      const objectPath = archive.file_url.startsWith("http")
+        ? decodeURIComponent(new URL(archive.file_url).pathname.split("/archives/")[1]?.split("?")[0] || "")
+        : archive.file_url;
+      if (objectPath) await supabase.storage.from("archives").remove([objectPath]);
       const { error } = await supabase.from("archives" as any).delete().eq("id", archive.id);
       if (error) throw error;
     },

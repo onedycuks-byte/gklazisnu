@@ -61,45 +61,24 @@ export function SantunanRegisterForm({ form, setForm, onSubmit, isRegistering }:
     }
 
     setUploading(true);
-    setUploadProgress(0);
+    setUploadProgress(10);
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `registrations/${crypto.randomUUID()}.${ext}`;
 
-    const ext = file.name.split(".").pop();
-    const path = `ktp-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("ktp-uploads")
+      .upload(path, file, { upsert: false, contentType: file.type });
 
-    // Use XMLHttpRequest for progress tracking
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-    const uploadUrl = `${supabaseUrl}/storage/v1/object/ktp-uploads/${path}`;
-
-    await new Promise<void>((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.upload.addEventListener("progress", (event) => {
-        if (event.lengthComputable) {
-          const pct = Math.round((event.loaded / event.total) * 100);
-          setUploadProgress(pct);
-        }
-      });
-      xhr.addEventListener("load", () => {
-        if (xhr.status >= 200 && xhr.status < 300) resolve();
-        else reject(new Error("Upload gagal"));
-      });
-      xhr.addEventListener("error", () => reject(new Error("Upload gagal")));
-      xhr.open("POST", uploadUrl);
-      xhr.setRequestHeader("Authorization", `Bearer ${supabaseKey}`);
-      xhr.setRequestHeader("apikey", supabaseKey);
-      xhr.setRequestHeader("x-upsert", "true");
-      xhr.send(file);
-    }).catch(err => {
-      alert("Gagal upload KTP: " + err.message);
+    if (error) {
+      alert("Gagal upload KTP: " + error.message);
       setUploading(false);
       setUploadProgress(0);
       return;
-    });
+    }
 
-    const { data: urlData } = supabase.storage.from("ktp-uploads").getPublicUrl(path);
-    setForm(f => ({ ...f, ktp_url: urlData.publicUrl }));
-    setKtpPreview(urlData.publicUrl);
+    setUploadProgress(100);
+    setForm(f => ({ ...f, ktp_url: path }));
+    setKtpPreview(URL.createObjectURL(file));
     setUploading(false);
     setUploadProgress(0);
   };
