@@ -26,7 +26,7 @@ export function useSantunanDisbursements() {
   const { hasAnyRole, isLoading: authLoading } = useAuth();
   const canViewDetails = hasAnyRole(["admin", "ketua", "bendahara", "sekretaris", "dokumentasi", "koordinator", "penyaluran"]);
 
-  const { data: disbursements = [], isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["santunan_disbursements", canViewDetails],
     enabled: !authLoading,
     queryFn: async () => {
