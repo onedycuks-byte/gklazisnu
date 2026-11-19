@@ -100,6 +100,9 @@ AS $$
     'balance',
       coalesce((SELECT sum(amount) FROM public.donations WHERE status = 'confirmed'), 0)
       - coalesce((SELECT sum(amount) FROM public.expenses), 0),
+    'total_transactions',
+      (SELECT count(*) FROM public.donations WHERE status = 'confirmed')
+      + (SELECT count(*) FROM public.expenses),
     'monthly', coalesce((
       SELECT jsonb_agg(
         jsonb_build_object(
