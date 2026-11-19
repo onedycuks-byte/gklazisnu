@@ -2,8 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { BottomNav } from "@/components/BottomNav";
 import { HeroSection } from "@/components/HeroSection";
 import { useRegions } from "@/hooks/useRegions";
-import { useSupabaseDonations } from "@/hooks/useSupabaseDonations";
-import { useExpenses } from "@/hooks/useExpenses";
+import { usePublicFinancialSummary } from "@/hooks/usePublicFinancialSummary";
 import { usePrograms } from "@/hooks/usePrograms";
 import { useProgramDisbursements } from "@/hooks/useProgramDisbursements";
 import { useNews } from "@/hooks/useNews";
@@ -25,8 +24,7 @@ import { useContentStats, trackProgramShare } from "@/hooks/useContentStats";
 const Index = () => {
   useTrackPageView("/");
   const { regions, isLoading: regionsLoading } = useRegions();
-  const { donations, isLoading: donationsLoading, getTotalDonations } = useSupabaseDonations();
-  const { expenses, isLoading: expensesLoading, getTotalExpenses } = useExpenses();
+  const { data: financialSummary, isLoading: financialSummaryLoading } = usePublicFinancialSummary();
   const { activePrograms, isLoading: programsLoading } = usePrograms();
   const { disbursements: programDisbursements, isLoading: programDisbursementsLoading } = useProgramDisbursements();
   const { publishedNews, isLoading: newsLoading } = useNews();
@@ -49,7 +47,7 @@ const Index = () => {
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
 
-  if (regionsLoading || donationsLoading || expensesLoading || programsLoading || settingsLoading || programDisbursementsLoading) {
+  if (regionsLoading || financialSummaryLoading || programsLoading || settingsLoading || programDisbursementsLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
         <div className="relative">
@@ -60,9 +58,9 @@ const Index = () => {
     );
   }
 
-  const totalPemasukan = getTotalDonations();
-  const totalPengeluaran = getTotalExpenses();
-  const totalTransactions = donations.length + expenses.length;
+  const totalPemasukan = Number(financialSummary?.total_income ?? 0);
+  const totalPengeluaran = Number(financialSummary?.total_expenses ?? 0);
+  const totalTransactions = Number(financialSummary?.total_transactions ?? 0);
 
   const s = getSettingsMap();
   const announcementActive = s.announcement_active === "true";
