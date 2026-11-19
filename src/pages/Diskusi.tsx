@@ -40,9 +40,9 @@ const Diskusi = () => {
     new Date(dateStr).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="page-container min-h-screen bg-background pb-20">
       {/* Header */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 text-white px-4 pt-6 pb-10">
+      <div className="page-hero relative overflow-hidden bg-gradient-to-br from-primary via-primary to-emerald-700 text-primary-foreground px-4 pt-7 pb-12">
         <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/4" />
         <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/4" />
         <div className="relative z-10 flex items-center gap-3">
@@ -57,7 +57,7 @@ const Diskusi = () => {
       </div>
 
       {/* Form */}
-      <div className="px-4 -mt-5">
+      <div className="page-content px-4 -mt-6">
         <div className="bg-card rounded-2xl p-4 shadow-elevated space-y-3 border border-border/30">
           <div className="flex items-center gap-2 mb-1">
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
