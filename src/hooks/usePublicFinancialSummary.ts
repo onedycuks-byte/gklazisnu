@@ -6,6 +6,7 @@ export interface PublicFinancialSummary {
   total_expenses: number;
   balance: number;
   total_transactions: number;
+  total_transactions: number;
   monthly: Array<{ month: string; income: number; expenses: number; balance: number }>;
   regions: Array<{ region: string; total: number; transactions: number }>;
 }
