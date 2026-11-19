@@ -10,19 +10,19 @@ CREATE POLICY "Staff can view donations"
 DROP POLICY IF EXISTS "Anyone can view expenses" ON public.expenses;
 CREATE POLICY "Staff can view expenses"
   ON public.expenses FOR SELECT TO authenticated
-  USING (public.has_staff_role(auth.uid()));
+  USING (public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'ketua'::public.app_role) OR public.has_role(auth.uid(), 'bendahara'::public.app_role));
 
 -- Orphan registrations contain data about minors, guardians, addresses and identity documents.
 DROP POLICY IF EXISTS "Anyone can view approved registrations" ON public.orphan_registrations;
-CREATE POLICY "Staff can view orphan registrations"
+CREATE POLICY "Santunan staff can view orphan registrations"
   ON public.orphan_registrations FOR SELECT TO authenticated
-  USING (public.has_staff_role(auth.uid()));
+  USING (public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'penyaluran'::public.app_role));
 
 -- Wallet histories can reveal beneficiary activity.
 DROP POLICY IF EXISTS "Anyone can view wallet transactions" ON public.wallet_transactions;
-CREATE POLICY "Staff can view wallet transactions"
+CREATE POLICY "Finance staff can view wallet transactions"
   ON public.wallet_transactions FOR SELECT TO authenticated
-  USING (public.has_staff_role(auth.uid()));
+  USING (public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'bendahara'::public.app_role) OR public.has_role(auth.uid(), 'penyaluran'::public.app_role));
 
 -- Restore moderation: only approved public discussions are visible to visitors.
 DROP POLICY IF EXISTS "Anyone can view all discussions" ON public.discussions;
@@ -31,26 +31,26 @@ DROP POLICY IF EXISTS "Admins can view all discussions" ON public.discussions;
 CREATE POLICY "Public can view approved discussions"
   ON public.discussions FOR SELECT TO anon, authenticated
   USING (is_approved = true);
-CREATE POLICY "Staff can view all discussions"
+CREATE POLICY "Discussion staff can view all discussions"
   ON public.discussions FOR SELECT TO authenticated
-  USING (public.has_staff_role(auth.uid()));
+  USING (public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'sekretaris'::public.app_role));
 
 -- Beneficiary names and descriptions in disbursement ledgers are staff-only.
 DROP POLICY IF EXISTS "Anyone can view santunan disbursements" ON public.santunan_disbursements;
-CREATE POLICY "Staff can view santunan disbursements"
+CREATE POLICY "Santunan staff can view disbursements"
   ON public.santunan_disbursements FOR SELECT TO authenticated
-  USING (public.has_staff_role(auth.uid()));
+  USING (public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'bendahara'::public.app_role) OR public.has_role(auth.uid(), 'penyaluran'::public.app_role));
 
 DROP POLICY IF EXISTS "Anyone can view program disbursements" ON public.program_disbursements;
-CREATE POLICY "Staff can view program disbursements"
+CREATE POLICY "Program staff can view disbursements"
   ON public.program_disbursements FOR SELECT TO authenticated
-  USING (public.has_staff_role(auth.uid()));
+  USING (public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'bendahara'::public.app_role) OR public.has_role(auth.uid(), 'sekretaris'::public.app_role) OR public.has_role(auth.uid(), 'penyaluran'::public.app_role));
 
 -- Archive metadata and files may contain internal documents.
 DROP POLICY IF EXISTS "Anyone can view archives" ON public.archives;
-CREATE POLICY "Staff can view archives"
+CREATE POLICY "Archive staff can view archives"
   ON public.archives FOR SELECT TO authenticated
-  USING (public.has_staff_role(auth.uid()));
+  USING (public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'sekretaris'::public.app_role));
 
 UPDATE storage.buckets SET public = false WHERE id IN ('ktp-uploads', 'expense-receipts', 'archives');
 UPDATE storage.buckets
@@ -61,17 +61,17 @@ WHERE id = 'ktp-uploads';
 DROP POLICY IF EXISTS "Anyone can view KTP" ON storage.objects;
 CREATE POLICY "Staff can view KTP"
   ON storage.objects FOR SELECT TO authenticated
-  USING (bucket_id = 'ktp-uploads' AND public.has_staff_role(auth.uid()));
+  USING (bucket_id = 'ktp-uploads' AND (public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'penyaluran'::public.app_role)));
 
 DROP POLICY IF EXISTS "Anyone can view expense receipts" ON storage.objects;
 CREATE POLICY "Staff can view expense receipts"
   ON storage.objects FOR SELECT TO authenticated
-  USING (bucket_id = 'expense-receipts' AND public.has_staff_role(auth.uid()));
+  USING (bucket_id = 'expense-receipts' AND (public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'bendahara'::public.app_role)));
 
 DROP POLICY IF EXISTS "Anyone can read archive files" ON storage.objects;
 CREATE POLICY "Staff can read archive files"
   ON storage.objects FOR SELECT TO authenticated
-  USING (bucket_id = 'archives' AND public.has_staff_role(auth.uid()));
+  USING (bucket_id = 'archives' AND (public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'sekretaris'::public.app_role)));
 
 -- Aggregate-only public financial report. No names, notes, descriptions, receipt URLs or row IDs.
 CREATE OR REPLACE FUNCTION public.get_public_financial_summary()
