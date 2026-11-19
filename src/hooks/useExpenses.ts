@@ -113,11 +113,7 @@ export function useExpenses() {
 
     if (error) return { error, url: null };
 
-    const { data: urlData } = supabase.storage
-      .from("expense-receipts")
-      .getPublicUrl(fileName);
-
-    return { error: null, url: urlData.publicUrl };
+    return { error: null, url: fileName };
   };
 
   const getTotalExpenses = () => {
