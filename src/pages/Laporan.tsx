@@ -104,7 +104,7 @@ const Laporan = () => {
       id: d.id, regionId: d.region_id, amount: d.amount, date: d.date, notes: d.notes || undefined,
     }));
     return (
-      <div className="min-h-screen bg-background pb-20">
+      <div className="page-container min-h-screen bg-background pb-20">
         <div className="px-4 py-6">
           <RegionDetail region={region} donations={regionDonations} onBack={() => setSelectedRegionId(null)} regions={regions} />
         </div>
@@ -114,9 +114,9 @@ const Laporan = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="page-container min-h-screen bg-background pb-20">
       {/* Header */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-emerald-700 text-primary-foreground px-4 pt-6 pb-10">
+      <div className="page-hero relative overflow-hidden bg-gradient-to-br from-primary via-primary to-emerald-700 text-primary-foreground px-4 pt-7 pb-12">
         <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/4" />
         <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/4" />
         <div className="relative z-10 flex items-center gap-3">
@@ -137,24 +137,24 @@ const Laporan = () => {
         </div>
       </div>
 
-      <div className="px-4 -mt-5 space-y-4">
+      <div className="page-content px-4 -mt-6 space-y-5">
         {/* Summary Cards */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="bg-card rounded-2xl p-3 shadow-card text-center border border-border/30">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="surface-card bg-card rounded-2xl p-4 shadow-card text-center border border-border/30">
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 mx-auto mb-1.5">
               <ArrowUpRight className="h-4 w-4 text-emerald-600" />
             </div>
             <p className="text-[9px] text-muted-foreground uppercase font-semibold tracking-wide">Pemasukan</p>
             <p className="text-[11px] font-bold text-foreground mt-0.5">{formatCurrency(totalPemasukan)}</p>
           </div>
-          <div className="bg-card rounded-2xl p-3 shadow-card text-center border border-border/30">
+          <div className="surface-card bg-card rounded-2xl p-4 shadow-card text-center border border-border/30">
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-500/10 mx-auto mb-1.5">
               <ArrowDownRight className="h-4 w-4 text-red-600" />
             </div>
             <p className="text-[9px] text-muted-foreground uppercase font-semibold tracking-wide">Pengeluaran</p>
             <p className="text-[11px] font-bold text-foreground mt-0.5">{formatCurrency(totalPengeluaran)}</p>
           </div>
-          <div className="bg-card rounded-2xl p-3 shadow-card text-center border border-border/30">
+          <div className="surface-card bg-card rounded-2xl p-4 shadow-card text-center border border-border/30">
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 mx-auto mb-1.5">
               <Wallet className="h-4 w-4 text-primary" />
             </div>
