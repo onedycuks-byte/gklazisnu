@@ -52,13 +52,22 @@ CREATE POLICY "Staff can view archives"
   ON public.archives FOR SELECT TO authenticated
   USING (public.has_staff_role(auth.uid()));
 
+UPDATE storage.buckets SET public = false WHERE id IN ('ktp-uploads', 'expense-receipts', 'archives');
+
+DROP POLICY IF EXISTS "Anyone can view KTP" ON storage.objects;
+CREATE POLICY "Staff can view KTP"
+  ON storage.objects FOR SELECT TO authenticated
+  USING (bucket_id = 'ktp-uploads' AND public.has_staff_role(auth.uid()));
+
+DROP POLICY IF EXISTS "Anyone can view expense receipts" ON storage.objects;
+CREATE POLICY "Staff can view expense receipts"
+  ON storage.objects FOR SELECT TO authenticated
+  USING (bucket_id = 'expense-receipts' AND public.has_staff_role(auth.uid()));
+
 DROP POLICY IF EXISTS "Anyone can read archive files" ON storage.objects;
 CREATE POLICY "Staff can read archive files"
   ON storage.objects FOR SELECT TO authenticated
-  USING (
-    bucket_id = 'archives'
-    AND public.has_staff_role(auth.uid())
-  );
+  USING (bucket_id = 'archives' AND public.has_staff_role(auth.uid()));
 
 -- Aggregate-only public financial report. No names, notes, descriptions, receipt URLs or row IDs.
 CREATE OR REPLACE FUNCTION public.get_public_financial_summary()
