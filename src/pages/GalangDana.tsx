@@ -159,7 +159,7 @@ export default function GalangDana() {
   const loading = authLoading || (!!user && accountLoading);
 
   return (
-    <div className="min-h-screen bg-background pb-24 max-w-lg mx-auto">
+    <div className="page-container min-h-screen bg-background pb-24 max-w-5xl mx-auto">
       <header className="sticky top-0 z-30 border-b bg-card/95 backdrop-blur-sm">
         <div className="flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-2 min-w-0">
@@ -182,7 +182,7 @@ export default function GalangDana() {
         </div>
       </header>
 
-      <main className="px-4 py-4 space-y-4">
+      <main className="page-content px-4 py-5 space-y-5">
         {loading ? (
           <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
         ) : !user || !account ? (
