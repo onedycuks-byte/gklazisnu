@@ -24,7 +24,7 @@ export interface DisbursementInput {
 export function useSantunanDisbursements() {
   const queryClient = useQueryClient();
   const { hasAnyRole, isLoading: authLoading } = useAuth();
-  const canViewDetails = hasAnyRole(["admin", "ketua", "bendahara", "sekretaris", "dokumentasi", "koordinator", "penyaluran"]);
+  const canViewDetails = hasAnyRole(["admin", "bendahara", "penyaluran"]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["santunan_disbursements", canViewDetails],
