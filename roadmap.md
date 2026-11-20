@@ -1,3 +1,4 @@
 - [ ] Set up the protected ChatGPT connection, including login approval, role-limited record actions, and the connection catalog.
 - [ ] Add a useful OpenAI-powered AI feature using the project's secure AI integration path.
 - [ ] Fix only the 12 selected security findings after the user confirms how to preserve public forms and reports.
+- [x] Enter the 18 user-provided expenses for September–October 2026 and verify their totals.
